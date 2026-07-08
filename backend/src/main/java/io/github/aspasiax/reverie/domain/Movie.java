@@ -7,7 +7,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -95,6 +97,7 @@ public class Movie extends AbstractEntity {
     /**
      * Determines whether the movie is visible to users.
      */
+    @Builder.Default
     @Column(nullable = false)
     private boolean published = false;
 
@@ -120,6 +123,36 @@ public class Movie extends AbstractEntity {
      */
     public void unpublish() {
         this.published = false;
+    }
+
+    /**
+     * Genres associated with the movie.
+     */
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "movie_genres",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres = new HashSet<>();
+
+    /**
+     * Adds a genre to the movie.
+     *
+     * @param genre the genre to add
+     */
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
+
+    /**
+     * Removes a genre from the movie.
+     *
+     * @param genre the genre to remove
+     */
+    public void removeGenre(Genre genre) {
+        genres.remove(genre);
     }
 
     /**
