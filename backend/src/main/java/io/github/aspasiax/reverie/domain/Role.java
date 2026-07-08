@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -51,6 +53,39 @@ public class Role extends AbstractEntity {
     @Size(max = 255)
     @Column(length = 255)
     private String description;
+
+    /**
+     * Capabilities assigned to this role.
+     *
+     * <p>They describe the fine-grained permissions available to users
+     * that have this role.</p>
+     */
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "role_capabilities",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "capability_id")
+    )
+    private Set<Capability> capabilities = new HashSet<>();
+
+    /**
+     * Adds a capability to the role.
+     *
+     * @param capability the capability to add
+     */
+    public void addCapability(Capability capability) {
+        capabilities.add(capability);
+    }
+
+    /**
+     * Removes a capability from the role.
+     *
+     * @param capability the capability to remove
+     */
+    public void removeCapability(Capability capability) {
+        capabilities.remove(capability);
+    }
 
     /**
      * Generates a UUID before the entity is persisted.
