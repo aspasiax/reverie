@@ -102,16 +102,6 @@ public class Movie extends AbstractEntity {
     private boolean published = false;
 
     /**
-     * Generates a UUID before the entity is persisted.
-     */
-    @PrePersist
-    public void initializeUuid() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID();
-        }
-    }
-
-    /**
      * Publishes the movie, making it visible to users.
      */
     public void publish() {
@@ -153,6 +143,16 @@ public class Movie extends AbstractEntity {
      */
     public void removeGenre(Genre genre) {
         genres.remove(genre);
+    }
+
+    /**
+     * Generates a UUID before the entity is persisted.
+     */
+    @PrePersist
+    public void initializeUuid() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
     }
 
     /**
