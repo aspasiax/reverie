@@ -1,6 +1,6 @@
 -- =========================================================
 -- V2: Create genres table
-
+-- =========================================================
 -- Stores movie genres used for browsing, filtering and
 -- displaying genre badges in the Reverie frontend.
 -- =========================================================

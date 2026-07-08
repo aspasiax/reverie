@@ -1,6 +1,6 @@
 -- =========================================================
 -- V4: Create roles table
-
+-- =========================================================
 -- Stores security roles used for authorization.
 -- Roles define broad access levels, such as USER and ADMIN.
 -- =========================================================

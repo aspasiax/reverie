@@ -1,6 +1,6 @@
 -- =========================================================
 -- V3: Create movie_genres join table
-
+-- =========================================================
 -- Stores the many-to-many relationship between movies and
 -- genres. A movie can belong to multiple genres and a genre
 -- can be assigned to multiple movies.

@@ -1,6 +1,6 @@
 -- =========================================================
 -- V1: Create movies table
-
+-- =========================================================
 -- Stores all movies available in Reverie.
 -- Movies may be created manually by an admin or imported
 -- from an external movie API such as TMDB.
