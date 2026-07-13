@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Default implementation of {@link IAuthenticationService}.
@@ -39,6 +40,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
 
         // Validate the registration request.
