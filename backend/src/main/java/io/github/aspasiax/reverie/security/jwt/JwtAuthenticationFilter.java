@@ -22,9 +22,6 @@ import java.io.IOException;
  * is present, it loads the corresponding user, validates the token
  * and establishes the authenticated user in Spring Security's
  * security context.</p>
- *
- * @author Aspasia
- * @version 1.0
  */
 @Component
 @RequiredArgsConstructor
