@@ -24,7 +24,3 @@ CREATE TABLE roles
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
-
--- Speeds up role lookups during authentication and authorization.
-CREATE INDEX idx_roles_name
-    ON roles (name);

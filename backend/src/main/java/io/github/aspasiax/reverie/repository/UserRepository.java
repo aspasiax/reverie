@@ -20,34 +20,42 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUuid(UUID uuid);
 
     /**
-     * Finds a user by their unique username.
+     * Finds a user by their username, ignoring letter case.
      *
      * @param username the username
      * @return the matching user, if found
      */
-    Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameIgnoreCase(String username);
 
     /**
-     * Finds a user by their unique email address.
+     * Finds a user by their email address, ignoring letter case.
      *
      * @param email the email address
      * @return the matching user, if found
      */
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailIgnoreCase(String email);
 
     /**
-     * Checks whether a username is already used.
+     * Checks whether a user with the given public UUID exists.
+     *
+     * @param uuid the user UUID
+     * @return {@code true} if a user exists with the given UUID
+     */
+    boolean existsByUuid(UUID uuid);
+
+    /**
+     * Checks whether a username is already used, ignoring letter case.
      *
      * @param username the username to check
      * @return {@code true} if the username already exists
      */
-    boolean existsByUsername(String username);
+    boolean existsByUsernameIgnoreCase(String username);
 
     /**
-     * Checks whether an email address is already used.
+     * Checks whether an email address is already used, ignoring letter case.
      *
      * @param email the email address to check
      * @return {@code true} if the email already exists
      */
-    boolean existsByEmail(String email);
+    boolean existsByEmailIgnoreCase(String email);
 }

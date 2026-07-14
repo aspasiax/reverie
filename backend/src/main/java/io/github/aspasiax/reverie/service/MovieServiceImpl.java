@@ -55,4 +55,16 @@ public class MovieServiceImpl implements IMovieService {
     public boolean existsByTmdbId(Long tmdbId) {
         return movieRepository.existsByTmdbId(tmdbId);
     }
+
+    /**
+     * Finds a movie by its TMDB identifier.
+     *
+     * @param tmdbId the TMDB movie identifier
+     * @return the matching movie, if found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Movie> findByTmdbId(Long tmdbId) {
+        return movieRepository.findByTmdbId(tmdbId);
+    }
 }

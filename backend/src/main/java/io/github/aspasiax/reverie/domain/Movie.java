@@ -1,10 +1,23 @@
 package io.github.aspasiax.reverie.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -15,8 +28,13 @@ import java.util.UUID;
 /**
  * Represents a movie available in the Reverie application.
  *
- * <p>A movie stores general information imported from TMDB or
- * manually created by an administrator.</p>
+ * <p>A movie may be created manually by an administrator or imported
+ * from an external movie service such as TMDB. External identifiers
+ * are optional so that the application does not depend on a public API
+ * for manually created movies.</p>
+ *
+ * <p>Movies may be published or unpublished. Only published movies
+ * should normally be visible through the public API.</p>
  */
 @Entity
 @Table(name = "movies")
@@ -35,13 +53,14 @@ public class Movie extends AbstractEntity {
     private Long id;
 
     /**
-     * Public unique identifier used throughout the application.
+     * Public immutable identifier used by the API instead of the
+     * internal database id.
      */
     @Column(nullable = false, unique = true, updatable = false)
     private UUID uuid;
 
     /**
-     * Display title of the movie.
+     * Main title displayed throughout the application.
      */
     @NotBlank
     @Size(max = 255)
@@ -56,64 +75,74 @@ public class Movie extends AbstractEntity {
     private String originalTitle;
 
     /**
-     * Short plot summary.
+     * Short summary describing the movie's plot.
      */
     @Column(columnDefinition = "TEXT")
     private String overview;
 
     /**
-     * Official theatrical release date.
+     * Official release date of the movie.
      */
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
     /**
-     * Runtime in minutes.
+     * Runtime of the movie in minutes.
      */
     @Positive
     private Integer runtime;
 
     /**
-     * URL of the movie poster.
+     * ISO-style code representing the movie's original language,
+     * such as {@code en}, {@code el} or {@code fr}.
      */
-    @Size(max = 1024)
-    @Column(name = "poster_url", length = 1024)
-    private String posterUrl;
+    @Size(max = 10)
+    @Column(name = "original_language", length = 10)
+    private String originalLanguage;
 
     /**
-     * URL of the backdrop image.
+     * Relative poster image path, usually received from TMDB.
+     *
+     * <p>The complete image URL may be constructed in the service
+     * or response-mapping layer.</p>
      */
     @Size(max = 1024)
-    @Column(name = "backdrop_url", length = 1024)
-    private String backdropUrl;
+    @Column(name = "poster_path", length = 1024)
+    private String posterPath;
 
     /**
-     * Unique TMDB identifier used for synchronization.
+     * Relative backdrop image path, usually received from TMDB.
+     *
+     * <p>The complete image URL may be constructed in the service
+     * or response-mapping layer.</p>
+     */
+    @Size(max = 1024)
+    @Column(name = "backdrop_path", length = 1024)
+    private String backdropPath;
+
+    /**
+     * Optional unique identifier assigned to the movie by TMDB.
+     *
+     * <p>This value remains {@code null} for movies created manually
+     * without using the TMDB import functionality.</p>
      */
     @Positive
     @Column(name = "tmdb_id", unique = true)
     private Long tmdbId;
 
     /**
-     * Determines whether the movie is visible to users.
+     * Optional unique identifier assigned to the movie by IMDb.
+     */
+    @Size(max = 20)
+    @Column(name = "imdb_id", unique = true, length = 20)
+    private String imdbId;
+
+    /**
+     * Indicates whether the movie is visible through the public API.
      */
     @Builder.Default
     @Column(nullable = false)
     private boolean published = false;
-
-    /**
-     * Publishes the movie, making it visible to users.
-     */
-    public void publish() {
-        this.published = true;
-    }
-
-    /**
-     * Hides the movie from users without deleting it.
-     */
-    public void unpublish() {
-        this.published = false;
-    }
 
     /**
      * Genres associated with the movie.
@@ -128,25 +157,43 @@ public class Movie extends AbstractEntity {
     private Set<Genre> genres = new HashSet<>();
 
     /**
+     * Publishes the movie, making it visible to users.
+     */
+    public void publish() {
+        this.published = true;
+    }
+
+    /**
+     * Unpublishes the movie without deleting it.
+     */
+    public void unpublish() {
+        this.published = false;
+    }
+
+    /**
      * Adds a genre to the movie.
      *
-     * @param genre the genre to add
+     * @param genre the genre to associate with the movie
      */
     public void addGenre(Genre genre) {
-        genres.add(genre);
+        if (genre != null) {
+            genres.add(genre);
+        }
     }
 
     /**
      * Removes a genre from the movie.
      *
-     * @param genre the genre to remove
+     * @param genre the genre to remove from the movie
      */
     public void removeGenre(Genre genre) {
-        genres.remove(genre);
+        if (genre != null) {
+            genres.remove(genre);
+        }
     }
 
     /**
-     * Generates a UUID before the entity is persisted.
+     * Generates the public UUID before the entity is persisted.
      */
     @PrePersist
     public void initializeUuid() {
@@ -156,7 +203,7 @@ public class Movie extends AbstractEntity {
     }
 
     /**
-     * Two movies are considered equal if they share the same UUID.
+     * Two movies are considered equal when they share the same UUID.
      *
      * @param o the object to compare
      * @return {@code true} if both objects represent the same movie
@@ -169,7 +216,7 @@ public class Movie extends AbstractEntity {
     }
 
     /**
-     * Computes the hash code based on the immutable UUID.
+     * Computes the hash code using the immutable public UUID.
      *
      * @return the hash code of the movie
      */

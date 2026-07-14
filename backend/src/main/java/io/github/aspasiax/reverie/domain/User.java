@@ -1,10 +1,23 @@
 package io.github.aspasiax.reverie.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -13,8 +26,8 @@ import java.util.UUID;
  * Represents a registered user of the Reverie application.
  *
  * <p>A user can browse movies, write reviews, maintain a watchlist,
- * log watched movies and interact with the platform according to
- * the assigned role.</p>
+ * manage profile information and interact with the platform according
+ * to the assigned role and capabilities.</p>
  */
 @Entity
 @Table(name = "users")
@@ -33,48 +46,49 @@ public class User extends AbstractEntity {
     private Long id;
 
     /**
-     * Public unique identifier exposed by the API.
+     * Public immutable identifier exposed by the API instead of
+     * the internal database id.
      */
     @Column(nullable = false, unique = true, updatable = false)
     private UUID uuid;
 
     /**
-     * Unique username used for login and public profile.
+     * Unique public username used as the user's handle.
      */
     @NotBlank
-    @Size(max = 50)
+    @Size(min = 3, max = 50)
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
     /**
-     * User email address.
+     * Unique email address used for authentication.
      */
     @Email
     @NotBlank
     @Size(max = 255)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     /**
-     * Encrypted user password (BCrypt).
+     * BCrypt-encoded user password.
      */
     @NotBlank
-    @Column(nullable = false)
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
     private String password;
 
     /**
-     * User's first name.
+     * Name displayed on the user's profile and alongside
+     * user-generated content.
+     *
+     * <p>This value does not need to be the user's legal name.
+     * A user may provide a full name, first name, nickname or
+     * any other preferred display name.</p>
      */
-    @Size(max = 100)
-    @Column(length = 100)
-    private String firstName;
-
-    /**
-     * User's last name.
-     */
-    @Size(max = 100)
-    @Column(length = 100)
-    private String lastName;
+    @NotBlank
+    @Size(min = 2, max = 150)
+    @Column(name = "display_name", nullable = false, length = 150)
+    private String displayName;
 
     /**
      * Optional short biography displayed on the user's profile.
@@ -84,14 +98,14 @@ public class User extends AbstractEntity {
     private String bio;
 
     /**
-     * URL pointing to the user's profile image.
+     * Optional URL pointing to the user's profile image.
      */
     @Size(max = 1024)
-    @Column(length = 1024)
+    @Column(name = "profile_image_url", length = 1024)
     private String profileImageUrl;
 
     /**
-     * Indicates whether the account is active.
+     * Indicates whether the account is enabled and may authenticate.
      */
     @Builder.Default
     @Column(nullable = false)
@@ -105,7 +119,7 @@ public class User extends AbstractEntity {
     private Role role;
 
     /**
-     * Generates a UUID before the entity is persisted.
+     * Generates the public UUID before the entity is persisted.
      */
     @PrePersist
     public void initializeUuid() {
@@ -115,10 +129,10 @@ public class User extends AbstractEntity {
     }
 
     /**
-     * Two users are considered equal if they share the same UUID.
+     * Two users are considered equal when they share the same UUID.
      *
      * @param o the object to compare
-     * @return {@code true} if both users represent the same entity
+     * @return {@code true} if both objects represent the same user
      */
     @Override
     public boolean equals(Object o) {
@@ -128,7 +142,7 @@ public class User extends AbstractEntity {
     }
 
     /**
-     * Computes the hash code based on the immutable UUID.
+     * Computes the hash code using the immutable public UUID.
      *
      * @return the hash code of the user
      */

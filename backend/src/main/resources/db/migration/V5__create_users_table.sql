@@ -2,6 +2,8 @@
 -- V5: Create users table
 -- =========================================================
 -- Stores registered Reverie users.
+-- Usernames and email addresses are unique regardless of
+-- uppercase or lowercase characters.
 -- Users are connected to roles for authorization purposes.
 -- =========================================================
 
@@ -12,14 +14,13 @@ CREATE TABLE users
     -- Public identifier used by the API instead of the internal id.
     uuid UUID NOT NULL UNIQUE,
 
-    -- Login and profile identity.
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    -- Authentication and public identity.
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
+    display_name VARCHAR(150) NOT NULL,
 
     -- Optional profile information.
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
     bio VARCHAR(500),
     profile_image_url VARCHAR(1024),
 
@@ -40,14 +41,14 @@ CREATE TABLE users
             REFERENCES roles (id)
 );
 
--- Speeds up user lookups during login.
-CREATE INDEX idx_users_username
-    ON users (username);
+-- Enforces case-insensitive username uniqueness.
+CREATE UNIQUE INDEX uq_users_username_lower
+    ON users (LOWER(username));
 
--- Speeds up email-based user lookups.
-CREATE INDEX idx_users_email
-    ON users (email);
+-- Enforces case-insensitive email uniqueness.
+CREATE UNIQUE INDEX uq_users_email_lower
+    ON users (LOWER(email));
 
--- Speeds up role-based filtering.
+-- Supports role-based user filtering.
 CREATE INDEX idx_users_role_id
     ON users (role_id);

@@ -33,4 +33,12 @@ public interface IMovieService {
      * @return {@code true} if such movie exists
      */
     boolean existsByTmdbId(Long tmdbId);
+
+    /**
+     * Finds a movie by its TMDB identifier.
+     *
+     * @param tmdbId the TMDB movie identifier
+     * @return the matching movie, if found
+     */
+    Optional<Movie> findByTmdbId(Long tmdbId);
 }

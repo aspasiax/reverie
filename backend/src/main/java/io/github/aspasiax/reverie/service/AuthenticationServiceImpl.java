@@ -17,14 +17,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 /**
  * Default implementation of {@link IAuthenticationService}.
  *
  * <p>Handles user registration and login by coordinating
  * repositories, password encoding, authentication and JWT creation.</p>
- *
- * @author Aspasia
- * @version 1.0
  */
 @Service
 @RequiredArgsConstructor
@@ -43,20 +42,31 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
 
-        // Validate the registration request.
-        if (userRepository.existsByUsername(request.username())) {
+        // Normalize user-provided identity fields before validation and storage.
+        String normalizedUsername = request.username()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        String normalizedEmail = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        String normalizedDisplayName = request.displayName().trim();
+
+        // Validate that the username and email address are available.
+        if (userRepository.existsByUsernameIgnoreCase(normalizedUsername)) {
             throw new IllegalArgumentException(
                     "Username is already in use."
             );
         }
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new IllegalArgumentException(
                     "Email is already in use."
             );
         }
 
-        // Retrieve the default role assigned to new users.
+        // Retrieve the default role assigned to newly registered users.
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException(
                         "Default role USER was not found."
@@ -64,11 +74,10 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
         // Create and initialize the new user.
         User user = User.builder()
-                .username(request.username())
-                .email(request.email())
+                .username(normalizedUsername)
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.password()))
-                .firstName(request.firstName())
-                .lastName(request.lastName())
+                .displayName(normalizedDisplayName)
                 .enabled(true)
                 .role(userRole)
                 .build();
@@ -96,10 +105,15 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
+        // Normalize the email address before authentication.
+        String normalizedEmail = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
         // Authenticate the user using the provided credentials.
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.email(),
+                        normalizedEmail,
                         request.password()
                 )
         );

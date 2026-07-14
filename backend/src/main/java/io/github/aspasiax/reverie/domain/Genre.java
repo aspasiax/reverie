@@ -5,15 +5,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents a movie genre in the Reverie application.
  *
- * <p>Genres are used to classify movies and improve browsing,
- * filtering and discovery.</p>
- *
+ * <p>Genres classify movies and improve browsing,
+ * filtering and discovery throughout the platform.</p>
  */
 @Entity
 @Table(name = "genres")
@@ -65,6 +66,16 @@ public class Genre extends AbstractEntity {
     @Size(max = 20)
     @Column(length = 20)
     private String color;
+
+    /**
+     * Movies associated with this genre.
+     *
+     * <p>This is the inverse side of the many-to-many relationship.
+     * The owning side is defined in {@link Movie}.</p>
+     */
+    @Builder.Default
+    @ManyToMany(mappedBy = "genres")
+    private Set<Movie> movies = new HashSet<>();
 
     /**
      * Generates a UUID before the entity is persisted.

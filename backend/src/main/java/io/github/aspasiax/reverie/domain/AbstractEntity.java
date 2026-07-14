@@ -71,7 +71,7 @@ public abstract class AbstractEntity {
     /**
      * Restores a previously soft deleted entity.
      */
-    public void restore() {
+    public void restoreFromSoftDelete() {
         this.deleted = false;
         this.deletedAt = null;
     }

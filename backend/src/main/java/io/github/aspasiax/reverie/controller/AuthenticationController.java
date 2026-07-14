@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Exposes authentication endpoints for user registration
  * and login.
- *
- * @author Aspasia
- * @version 1.0
  */
 @RestController
 @RequestMapping("/api/auth")

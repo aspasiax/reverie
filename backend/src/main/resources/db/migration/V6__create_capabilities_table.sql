@@ -24,7 +24,3 @@ CREATE TABLE capabilities
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
-
--- Speeds up capability lookups during authorization.
-CREATE INDEX idx_capabilities_name
-    ON capabilities (name);

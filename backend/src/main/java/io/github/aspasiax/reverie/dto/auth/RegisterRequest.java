@@ -7,11 +7,10 @@ import jakarta.validation.constraints.Size;
 /**
  * Represents the data required to register a new user.
  *
- * @param username  the unique public username
- * @param email     the user's email address
- * @param password  the user's raw password
- * @param firstName the user's optional first name
- * @param lastName  the user's optional last name
+ * @param username    the unique public username
+ * @param email       the user's email address
+ * @param password    the user's raw password
+ * @param displayName the name displayed on the user's profile
  */
 public record RegisterRequest(
 
@@ -28,10 +27,8 @@ public record RegisterRequest(
         @Size(min = 8, max = 100)
         String password,
 
-        @Size(max = 100)
-        String firstName,
-
-        @Size(max = 100)
-        String lastName
+        @NotBlank
+        @Size(min = 2, max = 150)
+        String displayName
 ) {
 }

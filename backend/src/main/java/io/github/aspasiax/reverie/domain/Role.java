@@ -75,7 +75,9 @@ public class Role extends AbstractEntity {
      * @param capability the capability to add
      */
     public void addCapability(Capability capability) {
-        capabilities.add(capability);
+        if (capability != null) {
+            capabilities.add(capability);
+        }
     }
 
     /**
@@ -84,7 +86,9 @@ public class Role extends AbstractEntity {
      * @param capability the capability to remove
      */
     public void removeCapability(Capability capability) {
-        capabilities.remove(capability);
+        if (capability != null) {
+            capabilities.remove(capability);
+        }
     }
 
     /**

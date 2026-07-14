@@ -43,7 +43,7 @@ public interface IUserService {
      * @param username the username
      * @return the matching user, if found
      */
-    Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameIgnoreCase(String username);
 
     /**
      * Finds a user by email address.
@@ -51,7 +51,7 @@ public interface IUserService {
      * @param email the email address
      * @return the matching user, if found
      */
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailIgnoreCase(String email);
 
     /**
      * Persists a new user.

@@ -5,8 +5,8 @@
 -- application for role-based authorization.
 --
 -- The READ capabilities are intended primarily for protected
--- administration endpoints, while public movie and review
--- endpoints may remain accessible without authentication.
+-- administration endpoints, while public movie, genre and
+-- review endpoints may remain accessible without authentication.
 -- =========================================================
 
 INSERT INTO capabilities (
@@ -47,6 +47,40 @@ VALUES
         gen_random_uuid(),
         'MOVIE_DELETE',
         'Allows deleting movies.',
+        NOW(),
+        NOW(),
+        FALSE
+    ),
+
+    -- Genre permissions
+    (
+        gen_random_uuid(),
+        'GENRE_CREATE',
+        'Allows creating genres.',
+        NOW(),
+        NOW(),
+        FALSE
+    ),
+    (
+        gen_random_uuid(),
+        'GENRE_READ',
+        'Allows viewing genres in protected administration endpoints.',
+        NOW(),
+        NOW(),
+        FALSE
+    ),
+    (
+        gen_random_uuid(),
+        'GENRE_UPDATE',
+        'Allows updating genres.',
+        NOW(),
+        NOW(),
+        FALSE
+    ),
+    (
+        gen_random_uuid(),
+        'GENRE_DELETE',
+        'Allows deleting genres.',
         NOW(),
         NOW(),
         FALSE

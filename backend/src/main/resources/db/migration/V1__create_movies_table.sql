@@ -18,14 +18,24 @@ CREATE TABLE movies
     original_title VARCHAR(255),
     overview TEXT,
     release_date DATE,
-    runtime INTEGER,
 
-    -- Media URLs.
-    poster_url VARCHAR(1024),
-    backdrop_url VARCHAR(1024),
+    runtime INTEGER
+        CONSTRAINT chk_movies_runtime_positive
+            CHECK (runtime IS NULL OR runtime > 0),
 
-    -- External TMDB identifier, used to avoid duplicate imports.
-    tmdb_id BIGINT UNIQUE,
+    original_language VARCHAR(10),
+
+    -- Relative image paths, usually provided by TMDB.
+    poster_path VARCHAR(1024),
+    backdrop_path VARCHAR(1024),
+
+    -- Optional external identifiers used for imports
+    -- and external references.
+    tmdb_id BIGINT UNIQUE
+        CONSTRAINT chk_movies_tmdb_id_positive
+            CHECK (tmdb_id IS NULL OR tmdb_id > 0),
+
+    imdb_id VARCHAR(20) UNIQUE,
 
     -- Controls whether the movie is visible to users.
     published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -36,7 +46,3 @@ CREATE TABLE movies
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
-
--- Speeds up lookups during TMDB imports and synchronization.
-CREATE INDEX idx_movies_tmdb_id
-    ON movies (tmdb_id);

@@ -26,7 +26,3 @@ CREATE TABLE genres
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
-
--- Speeds up genre lookups by name.
-CREATE INDEX idx_genres_name
-    ON genres (name);

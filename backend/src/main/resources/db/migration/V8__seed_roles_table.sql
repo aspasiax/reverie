@@ -1,7 +1,8 @@
 -- =========================================================
--- V8__seed_roles_table.sql
+-- V8: Seed roles table
 -- =========================================================
 -- Inserts the default system roles required by the application.
+--
 -- Roles:
 -- USER  : Standard application user.
 -- ADMIN : Administrator with elevated privileges.

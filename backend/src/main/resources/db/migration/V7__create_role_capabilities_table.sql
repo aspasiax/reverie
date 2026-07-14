@@ -15,15 +15,14 @@ CREATE TABLE role_capabilities
 
     CONSTRAINT fk_role_capabilities_role
         FOREIGN KEY (role_id)
-            REFERENCES roles (id),
+            REFERENCES roles (id)
+            ON DELETE CASCADE,
 
     CONSTRAINT fk_role_capabilities_capability
         FOREIGN KEY (capability_id)
             REFERENCES capabilities (id)
+            ON DELETE CASCADE
 );
-
-CREATE INDEX idx_role_capabilities_role_id
-    ON role_capabilities (role_id);
 
 CREATE INDEX idx_role_capabilities_capability_id
     ON role_capabilities (capability_id);

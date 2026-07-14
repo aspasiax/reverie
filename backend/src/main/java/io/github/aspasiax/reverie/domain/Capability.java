@@ -11,8 +11,7 @@ import java.util.UUID;
 /**
  * Represents a fine-grained permission in the Reverie application.
  *
- * <p>Capabilities may be assigned to roles in order to describe
- * what actions users with a specific role are allowed to perform.</p>
+ * <p>Capabilities are assigned to roles to define the actions users are allowed to perform.</p>
  */
 @Entity
 @Table(name = "capabilities")
