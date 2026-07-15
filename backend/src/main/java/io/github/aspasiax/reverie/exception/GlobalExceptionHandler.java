@@ -81,6 +81,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles duplicate genre names.
+     *
+     * @param exception the duplicate genre name exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(DuplicateGenreNameException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateGenreName(
+            DuplicateGenreNameException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles invalid arguments that violate application business rules.
      *
      * <p>This handler is currently also used by existing authentication

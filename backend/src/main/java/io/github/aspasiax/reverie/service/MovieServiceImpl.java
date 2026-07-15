@@ -160,8 +160,8 @@ public class MovieServiceImpl implements IMovieService {
         Set<Genre> genres = new HashSet<>();
 
         for (UUID genreUuid : genreUuids) {
-            Genre genre = genreRepository.findByUuid(genreUuid)
-                    .filter(existingGenre -> !existingGenre.isDeleted())
+            Genre genre = genreRepository
+                    .findByUuidAndDeletedFalse(genreUuid)
                     .orElseThrow(() -> new GenreNotFoundException(genreUuid));
 
             genres.add(genre);
