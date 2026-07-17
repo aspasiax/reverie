@@ -1,12 +1,17 @@
 -- =========================================================
--- V9: Seed capabilities table
+-- V10: Seed capabilities table
 -- =========================================================
 -- Inserts the default fine-grained permissions used by the
 -- application for role-based authorization.
 --
 -- The READ capabilities are intended primarily for protected
--- administration endpoints, while public movie, genre and
--- review endpoints may remain accessible without authentication.
+-- administration endpoints, while public movie and genre
+-- endpoints may remain accessible without authentication.
+--
+-- Feature-specific capabilities, such as WatchLog, Review,
+-- Watchlist and Statistics permissions, will be introduced
+-- through dedicated future migrations when the corresponding
+-- features are implemented.
 -- =========================================================
 
 INSERT INTO capabilities (
@@ -18,7 +23,10 @@ INSERT INTO capabilities (
     deleted
 )
 VALUES
+    -- =====================================================
     -- Movie permissions
+    -- =====================================================
+
     (
         gen_random_uuid(),
         'MOVIE_CREATE',
@@ -52,7 +60,10 @@ VALUES
         FALSE
     ),
 
+    -- =====================================================
     -- Genre permissions
+    -- =====================================================
+
     (
         gen_random_uuid(),
         'GENRE_CREATE',
@@ -86,41 +97,10 @@ VALUES
         FALSE
     ),
 
-    -- Review permissions
-    (
-        gen_random_uuid(),
-        'REVIEW_CREATE',
-        'Allows creating reviews and ratings.',
-        NOW(),
-        NOW(),
-        FALSE
-    ),
-    (
-        gen_random_uuid(),
-        'REVIEW_READ',
-        'Allows viewing reviews in protected administration endpoints.',
-        NOW(),
-        NOW(),
-        FALSE
-    ),
-    (
-        gen_random_uuid(),
-        'REVIEW_UPDATE',
-        'Allows updating reviews and ratings.',
-        NOW(),
-        NOW(),
-        FALSE
-    ),
-    (
-        gen_random_uuid(),
-        'REVIEW_DELETE',
-        'Allows deleting reviews and ratings.',
-        NOW(),
-        NOW(),
-        FALSE
-    ),
-
+    -- =====================================================
     -- User permissions
+    -- =====================================================
+
     (
         gen_random_uuid(),
         'USER_CREATE',
