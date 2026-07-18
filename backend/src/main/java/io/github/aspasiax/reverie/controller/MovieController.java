@@ -4,6 +4,11 @@ import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
 import io.github.aspasiax.reverie.service.IMovieService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,10 +29,17 @@ import java.util.UUID;
 /**
  * Exposes REST endpoints for movie retrieval and administration.
  *
- * <p>Read operations are currently available to authenticated users,
- * while create, update and delete operations require the corresponding
- * movie capabilities.</p>
+ * <p>
+ * Read operations are available to users with the
+ * {@code MOVIE_READ} capability, while create, update and delete
+ * operations require their corresponding movie capabilities.
+ * </p>
  */
+@SecurityRequirement(name = "bearerAuth")
+@Tag(
+        name = "Movies",
+        description = "Operations for browsing and managing the movie catalog."
+)
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
@@ -40,6 +52,24 @@ public class MovieController {
      *
      * @return a list containing all active movies
      */
+    @Operation(
+            summary = "Get all movies",
+            description = "Returns all active movies currently available in the catalog."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Movies retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            )
+    })
     @GetMapping
     @PreAuthorize("hasAuthority('MOVIE_READ')")
     public ResponseEntity<List<MovieResponse>> findAll() {
@@ -52,6 +82,28 @@ public class MovieController {
      * @param uuid the movie UUID
      * @return the matching movie
      */
+    @Operation(
+            summary = "Get a movie by UUID",
+            description = "Returns the details of a single active movie identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Movie retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Movie not found"
+            )
+    })
     @GetMapping("/{uuid}")
     @PreAuthorize("hasAuthority('MOVIE_READ')")
     public ResponseEntity<MovieResponse> findByUuid(
@@ -66,6 +118,32 @@ public class MovieController {
      * @param request the validated movie creation request
      * @return the created movie
      */
+    @Operation(
+            summary = "Create a movie",
+            description = "Creates a new movie and adds it to the catalog."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Movie created successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid movie data"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Movie already exists"
+            )
+    })
     @PostMapping
     @PreAuthorize("hasAuthority('MOVIE_CREATE')")
     public ResponseEntity<MovieResponse> create(
@@ -85,6 +163,36 @@ public class MovieController {
      * @param request the validated movie update request
      * @return the updated movie
      */
+    @Operation(
+            summary = "Update a movie",
+            description = "Updates an existing movie identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Movie updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid movie data"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Movie not found"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Movie update conflicts with existing data"
+            )
+    })
     @PutMapping("/{uuid}")
     @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
     public ResponseEntity<MovieResponse> update(
@@ -102,6 +210,28 @@ public class MovieController {
      * @param uuid the movie UUID
      * @return an empty {@code 204 No Content} response
      */
+    @Operation(
+            summary = "Delete a movie",
+            description = "Soft-deletes an existing movie identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Movie deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Movie not found"
+            )
+    })
     @DeleteMapping("/{uuid}")
     @PreAuthorize("hasAuthority('MOVIE_DELETE')")
     public ResponseEntity<Void> delete(

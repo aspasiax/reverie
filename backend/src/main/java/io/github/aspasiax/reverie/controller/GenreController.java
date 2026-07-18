@@ -4,6 +4,11 @@ import io.github.aspasiax.reverie.dto.genre.CreateGenreRequest;
 import io.github.aspasiax.reverie.dto.genre.GenreResponse;
 import io.github.aspasiax.reverie.dto.genre.UpdateGenreRequest;
 import io.github.aspasiax.reverie.service.IGenreService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,9 +29,17 @@ import java.util.UUID;
 /**
  * Exposes REST endpoints for genre retrieval and administration.
  *
- * <p>Genre operations are protected using fine-grained
- * authorization capabilities.</p>
+ * <p>
+ * Read operations require the {@code GENRE_READ} capability,
+ * while create, update and delete operations require their
+ * corresponding genre capabilities.
+ * </p>
  */
+@SecurityRequirement(name = "bearerAuth")
+@Tag(
+        name = "Genres",
+        description = "Operations for browsing and managing movie genres."
+)
 @RestController
 @RequestMapping("/api/genres")
 @RequiredArgsConstructor
@@ -39,6 +52,24 @@ public class GenreController {
      *
      * @return a list containing all active genres
      */
+    @Operation(
+            summary = "Get all genres",
+            description = "Returns all active movie genres in alphabetical order."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Genres retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            )
+    })
     @GetMapping
     @PreAuthorize("hasAuthority('GENRE_READ')")
     public ResponseEntity<List<GenreResponse>> findAll() {
@@ -51,6 +82,28 @@ public class GenreController {
      * @param uuid the genre UUID
      * @return the matching genre
      */
+    @Operation(
+            summary = "Get a genre by UUID",
+            description = "Returns the details of a single active genre identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Genre retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Genre not found"
+            )
+    })
     @GetMapping("/{uuid}")
     @PreAuthorize("hasAuthority('GENRE_READ')")
     public ResponseEntity<GenreResponse> findByUuid(
@@ -67,6 +120,32 @@ public class GenreController {
      * @param request the validated genre creation request
      * @return the created genre
      */
+    @Operation(
+            summary = "Create a genre",
+            description = "Creates a new movie genre."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Genre created successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid genre data"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Genre already exists"
+            )
+    })
     @PostMapping
     @PreAuthorize("hasAuthority('GENRE_CREATE')")
     public ResponseEntity<GenreResponse> create(
@@ -87,6 +166,36 @@ public class GenreController {
      * @param request the validated genre update request
      * @return the updated genre
      */
+    @Operation(
+            summary = "Update a genre",
+            description = "Updates an existing genre identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Genre updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid genre data"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Genre not found"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Genre update conflicts with existing data"
+            )
+    })
     @PutMapping("/{uuid}")
     @PreAuthorize("hasAuthority('GENRE_UPDATE')")
     public ResponseEntity<GenreResponse> update(
@@ -104,6 +213,28 @@ public class GenreController {
      * @param uuid the genre UUID
      * @return an empty {@code 204 No Content} response
      */
+    @Operation(
+            summary = "Delete a genre",
+            description = "Soft-deletes an existing genre identified by its public UUID."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Genre deleted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Genre not found"
+            )
+    })
     @DeleteMapping("/{uuid}")
     @PreAuthorize("hasAuthority('GENRE_DELETE')")
     public ResponseEntity<Void> delete(
