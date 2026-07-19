@@ -20,6 +20,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUuid(UUID uuid);
 
     /**
+     * Finds an active user by their public UUID.
+     *
+     * @param uuid the user UUID
+     * @return the matching active user, if found
+     */
+    Optional<User> findByUuidAndDeletedFalse(UUID uuid);
+
+    /**
      * Finds a user by their username, ignoring letter case.
      *
      * @param username the username
