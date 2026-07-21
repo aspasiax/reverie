@@ -31,4 +31,9 @@ public interface WatchLogRepository extends JpaRepository<WatchLog, Long> {
      */
     Optional<WatchLog> findByUuidAndDeletedFalse(UUID uuid);
 
+    boolean existsByUserUuidAndMovieUuidAndDeletedFalse(
+            UUID userUuid,
+            UUID movieUuid
+    );
+
 }

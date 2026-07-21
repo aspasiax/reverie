@@ -63,6 +63,46 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles requests for watch logs that do not exist or have
+     * been soft deleted.
+     *
+     * @param exception the watch log not found exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(WatchLogNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleWatchLogNotFound(
+            WatchLogNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles requests for reviews that do not exist or have
+     * been soft deleted.
+     *
+     * @param exception the review not found exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleReviewNotFound(
+            ReviewNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles duplicate external movie identifiers.
      *
      * @param exception the duplicate identifier exception
@@ -95,6 +135,82 @@ public class GlobalExceptionHandler {
     ) {
         return buildErrorResponse(
                 HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles attempts to create duplicate reviews.
+     *
+     * @param exception the duplicate review exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(DuplicateReviewException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateReview(
+            DuplicateReviewException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles attempts to create reviews without an active watch log.
+     *
+     * @param exception the watch log required exception
+     * @param request   the current HTTP request
+     * @return a {@code 400 Bad Request} response
+     */
+    @ExceptionHandler(WatchLogRequiredException.class)
+    public ResponseEntity<ApiErrorResponse> handleWatchLogRequired(
+            WatchLogRequiredException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles attempts to modify reviews owned by another user.
+     *
+     * @param exception the review access denied exception
+     * @param request   the current HTTP request
+     * @return a {@code 403 Forbidden} response
+     */
+    @ExceptionHandler(ReviewAccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleReviewAccessDenied(
+            ReviewAccessDeniedException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles reviews that do not contain a rating or review text.
+     *
+     * @param exception the invalid review exception
+     * @param request   the current HTTP request
+     * @return a {@code 400 Bad Request} response
+     */
+    @ExceptionHandler(InvalidReviewException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidReview(
+            InvalidReviewException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
                 exception.getMessage(),
                 request.getRequestURI()
         );
