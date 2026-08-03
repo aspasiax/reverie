@@ -5,6 +5,8 @@ import io.github.aspasiax.reverie.dto.review.ReviewResponse;
 import io.github.aspasiax.reverie.dto.review.UpdateReviewRequest;
 import io.github.aspasiax.reverie.service.IReviewService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,6 +45,12 @@ public class ReviewController {
     @PreAuthorize("hasAuthority('REVIEW_READ')")
     @GetMapping("/movie/{movieUuid}")
     @Operation(summary = "Get reviews for a movie")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Movie not found")
+    })
     public List<ReviewResponse> getMovieReviews(
             @PathVariable UUID movieUuid
     ) {
@@ -57,6 +65,11 @@ public class ReviewController {
     @PreAuthorize("hasAuthority('REVIEW_READ')")
     @GetMapping("/me")
     @Operation(summary = "Get my reviews")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public List<ReviewResponse> getMyReviews() {
         return reviewService.findMyReviews();
     }
@@ -71,6 +84,14 @@ public class ReviewController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create review")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Review created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid review data or missing watch log"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Movie not found"),
+            @ApiResponse(responseCode = "409", description = "A review already exists for this movie")
+    })
     public ReviewResponse createReview(
             @Valid @RequestBody CreateReviewRequest request
     ) {
@@ -87,6 +108,13 @@ public class ReviewController {
     @PreAuthorize("hasAuthority('REVIEW_UPDATE')")
     @PutMapping("/{reviewUuid}")
     @Operation(summary = "Update review")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Review updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid review data"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Review belongs to another user or permissions are insufficient"),
+            @ApiResponse(responseCode = "404", description = "Review not found")
+    })
     public ReviewResponse updateReview(
             @PathVariable UUID reviewUuid,
             @Valid @RequestBody UpdateReviewRequest request
@@ -103,6 +131,12 @@ public class ReviewController {
     @DeleteMapping("/{reviewUuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete review")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Review deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Review belongs to another user or permissions are insufficient"),
+            @ApiResponse(responseCode = "404", description = "Review not found")
+    })
     public void deleteReview(
             @PathVariable UUID reviewUuid
     ) {
