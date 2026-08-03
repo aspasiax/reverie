@@ -1,14 +1,19 @@
 package io.github.aspasiax.reverie.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -21,6 +26,7 @@ import java.util.stream.Collectors;
  * and returned using the standard {@link ApiErrorResponse} format.</p>
  */
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     /**
@@ -242,6 +248,136 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles operations that require an authenticated user when no
+     * authenticated user is present in the security context.
+     *
+     * @param exception the authentication required exception
+     * @param request   the current HTTP request
+     * @return a {@code 401 Unauthorized} response
+     */
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationRequired(
+            AuthenticationRequiredException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles requests for users that do not exist or have been
+     * soft deleted.
+     *
+     * @param exception the user-not-found exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserNotFound(
+            UserNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles request bodies that cannot be parsed, such as malformed
+     * JSON or values that do not match the expected field types.
+     *
+     * @param exception the message conversion failure
+     * @param request   the current HTTP request
+     * @return a {@code 400 Bad Request} response
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnreadableMessage(
+            HttpMessageNotReadableException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "The request body is missing or malformed.",
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles path variables and request parameters that cannot be
+     * converted to the expected type, such as an invalid UUID.
+     *
+     * @param exception the type conversion failure
+     * @param request   the current HTTP request
+     * @return a {@code 400 Bad Request} response
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
+            MethodArgumentTypeMismatchException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Invalid value for parameter '" + exception.getName() + "'.",
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles database constraint violations that survive the
+     * application-level validation checks.
+     *
+     * <p>Uniqueness is verified before writing, but concurrent requests
+     * may still reach the database at the same time. The resulting
+     * constraint violation is reported as a conflict rather than as an
+     * unexpected server error.</p>
+     *
+     * @param exception the constraint violation
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException exception,
+            HttpServletRequest request
+    ) {
+        log.warn(
+                "Database constraint violated for request {}",
+                request.getRequestURI(),
+                exception
+        );
+
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "The operation conflicts with existing data.",
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles requests addressed to endpoints that do not exist.
+     *
+     * @param exception the missing resource exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFound(
+            NoResourceFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                "The requested endpoint does not exist.",
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles invalid arguments that violate application business rules.
      *
      * <p>This handler is currently also used by existing authentication
@@ -326,6 +462,12 @@ public class GlobalExceptionHandler {
             Exception exception,
             HttpServletRequest request
     ) {
+        log.error(
+                "Unhandled exception for request {}",
+                request.getRequestURI(),
+                exception
+        );
+
         return buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred.",

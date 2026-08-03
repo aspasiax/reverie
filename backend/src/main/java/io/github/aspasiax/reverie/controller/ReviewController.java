@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ReviewController {
      * @param movieUuid movie identifier
      * @return movie reviews
      */
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
     @GetMapping("/movie/{movieUuid}")
     @Operation(summary = "Get reviews for a movie")
     public List<ReviewResponse> getMovieReviews(
@@ -52,6 +54,7 @@ public class ReviewController {
      *
      * @return authenticated user's reviews
      */
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
     @GetMapping("/me")
     @Operation(summary = "Get my reviews")
     public List<ReviewResponse> getMyReviews() {
@@ -64,6 +67,7 @@ public class ReviewController {
      * @param request review creation request
      * @return created review
      */
+    @PreAuthorize("hasAuthority('REVIEW_CREATE')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create review")
@@ -80,6 +84,7 @@ public class ReviewController {
      * @param request review update request
      * @return updated review
      */
+    @PreAuthorize("hasAuthority('REVIEW_UPDATE')")
     @PutMapping("/{reviewUuid}")
     @Operation(summary = "Update review")
     public ReviewResponse updateReview(
@@ -94,6 +99,7 @@ public class ReviewController {
      *
      * @param reviewUuid review identifier
      */
+    @PreAuthorize("hasAuthority('REVIEW_DELETE')")
     @DeleteMapping("/{reviewUuid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete review")
