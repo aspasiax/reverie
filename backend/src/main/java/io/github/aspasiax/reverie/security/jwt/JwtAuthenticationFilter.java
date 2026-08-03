@@ -1,14 +1,17 @@
 package io.github.aspasiax.reverie.security.jwt;
 
 import io.github.aspasiax.reverie.security.userdetails.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,6 +27,7 @@ import java.io.IOException;
  * security context.</p>
  */
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -67,36 +71,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Removes the "Bearer " prefix and keeps only the compact JWT.
         String jwt = authorizationHeader.substring(7);
-        String email = jwtService.extractEmail(jwt);
 
         /*
-         * Authentication is created only when the token identifies
-         * a user and no previous filter has already authenticated
-         * the current request.
+         * Expired, malformed and tampered tokens must not escape this
+         * filter. Filters run before the DispatcherServlet, so an exception
+         * thrown here would bypass the global exception handler and surface
+         * as a container error page instead of a clean 401 response.
          */
-        if (email != null
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            String email = jwtService.extractEmail(jwt);
 
-            UserDetails userDetails =
-                    customUserDetailsService.loadUserByUsername(email);
+            /*
+             * Authentication is created only when the token identifies
+             * a user and no previous filter has already authenticated
+             * the current request.
+             */
+            if (email != null
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UserDetails userDetails =
+                        customUserDetailsService.loadUserByUsername(email);
 
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                /*
+                 * A token stays cryptographically valid until it expires,
+                 * so the account state is verified on every request. This
+                 * prevents disabled and soft-deleted users from continuing
+                 * to authenticate with a previously issued token.
+                 */
+                if (userDetails.isEnabled()
+                        && jwtService.isTokenValid(jwt, userDetails)) {
 
-                authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authenticationToken);
+                    authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authenticationToken);
+                }
             }
+        } catch (JwtException | UsernameNotFoundException | IllegalArgumentException exception) {
+
+            log.debug(
+                    "Rejected JWT for request {}: {}",
+                    request.getRequestURI(),
+                    exception.getMessage()
+            );
+
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
