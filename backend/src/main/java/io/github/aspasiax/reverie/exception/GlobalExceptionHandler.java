@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -193,6 +194,30 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(
                 HttpStatus.FORBIDDEN,
                 exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles authorization failures raised by the capability checks
+     * declared on the controllers.
+     *
+     * <p>Method security throws this exception inside the controller
+     * invocation, so it reaches this advice rather than the access denied
+     * handler configured on the security filter chain.</p>
+     *
+     * @param exception the authorization failure
+     * @param request   the current HTTP request
+     * @return a {@code 403 Forbidden} response
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(
+            AccessDeniedException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "You do not have permission to perform this operation.",
                 request.getRequestURI()
         );
     }
