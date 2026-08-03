@@ -1,5 +1,7 @@
 package io.github.aspasiax.reverie.security.config;
 
+import io.github.aspasiax.reverie.security.handler.RestAccessDeniedHandler;
+import io.github.aspasiax.reverie.security.handler.RestAuthenticationEntryPoint;
 import io.github.aspasiax.reverie.security.jwt.JwtAuthenticationFilter;
 import io.github.aspasiax.reverie.security.userdetails.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,8 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
     /**
      * Provides the encoder used to hash and verify user passwords.
      *
@@ -91,6 +94,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/api/auth/**",
