@@ -31,11 +31,11 @@ CREATE TABLE movies
 
     -- Optional external identifiers used for imports
     -- and external references.
-    tmdb_id BIGINT UNIQUE
+    tmdb_id BIGINT
         CONSTRAINT chk_movies_tmdb_id_positive
             CHECK (tmdb_id IS NULL OR tmdb_id > 0),
 
-    imdb_id VARCHAR(20) UNIQUE,
+    imdb_id VARCHAR(20),
 
     -- Controls whether the movie is visible to users.
     published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -46,3 +46,13 @@ CREATE TABLE movies
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
+
+-- External identifiers are unique among active movies only, so a
+-- soft-deleted movie does not reserve its identifier permanently.
+CREATE UNIQUE INDEX uq_movies_tmdb_id_active
+    ON movies (tmdb_id)
+    WHERE deleted = FALSE;
+
+CREATE UNIQUE INDEX uq_movies_imdb_id_active
+    ON movies (imdb_id)
+    WHERE deleted = FALSE;

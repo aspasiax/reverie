@@ -52,18 +52,26 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUuid(UUID uuid);
 
     /**
-     * Checks whether a username is already used, ignoring letter case.
+     * Checks whether an active user already uses the given username,
+     * ignoring letter case.
+     *
+     * <p>Soft-deleted users are excluded, so a username becomes available
+     * again once the account that held it is deleted.</p>
      *
      * @param username the username to check
-     * @return {@code true} if the username already exists
+     * @return {@code true} if an active user uses the username
      */
-    boolean existsByUsernameIgnoreCase(String username);
+    boolean existsByUsernameIgnoreCaseAndDeletedFalse(String username);
 
     /**
-     * Checks whether an email address is already used, ignoring letter case.
+     * Checks whether an active user already uses the given email address,
+     * ignoring letter case.
+     *
+     * <p>Soft-deleted users are excluded, so an email address becomes available
+     * again once the account that held it is deleted.</p>
      *
      * @param email the email address to check
-     * @return {@code true} if the email already exists
+     * @return {@code true} if an active user uses the email address
      */
-    boolean existsByEmailIgnoreCase(String email);
+    boolean existsByEmailIgnoreCaseAndDeletedFalse(String email);
 }

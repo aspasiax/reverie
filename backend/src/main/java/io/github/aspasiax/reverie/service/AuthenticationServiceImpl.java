@@ -54,13 +54,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         String normalizedDisplayName = request.displayName().trim();
 
         // Validate that the username and email address are available.
-        if (userRepository.existsByUsernameIgnoreCase(normalizedUsername)) {
+        if (userRepository.existsByUsernameIgnoreCaseAndDeletedFalse(normalizedUsername)) {
             throw new IllegalArgumentException(
                     "Username is already in use."
             );
         }
 
-        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
+        if (userRepository.existsByEmailIgnoreCaseAndDeletedFalse(normalizedEmail)) {
             throw new IllegalArgumentException(
                     "Email is already in use."
             );

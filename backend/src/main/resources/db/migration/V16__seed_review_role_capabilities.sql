@@ -1,5 +1,5 @@
 -- ============================================================
--- V17__seed_review_role_capabilities.sql
+-- V16: Seed review role capabilities.sql
 -- ============================================================
 -- Assigns review capabilities to system roles.
 -- ============================================================

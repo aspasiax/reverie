@@ -128,7 +128,7 @@ public class GenreServiceImpl implements IGenreService {
             String name,
             Long currentGenreId
     ) {
-        genreRepository.findByNameIgnoreCase(name)
+        genreRepository.findByNameIgnoreCaseAndDeletedFalse(name)
                 .filter(genre -> !genre.getId().equals(currentGenreId))
                 .ifPresent(genre -> {
                     throw new DuplicateGenreNameException(name);

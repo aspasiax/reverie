@@ -1,5 +1,5 @@
 -- ============================================================
--- V15__create_reviews_table.sql
+-- V14: Create reviews table
 -- ============================================================
 -- Creates the reviews table.
 --
@@ -22,17 +22,19 @@ CREATE TABLE reviews
     review_text TEXT,
 
     created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ,
 
     CONSTRAINT fk_reviews_user
         FOREIGN KEY (user_id)
-            REFERENCES users (id),
+            REFERENCES users (id)
+            ON DELETE CASCADE,
 
     CONSTRAINT fk_reviews_movie
         FOREIGN KEY (movie_id)
-            REFERENCES movies (id),
+            REFERENCES movies (id)
+            ON DELETE CASCADE,
 
     CONSTRAINT chk_reviews_rating
         CHECK (
@@ -50,3 +52,7 @@ CREATE TABLE reviews
 CREATE UNIQUE INDEX uq_reviews_user_movie_active
     ON reviews (user_id, movie_id)
     WHERE deleted = FALSE;
+
+-- Supports retrieval of all reviews written for a movie.
+CREATE INDEX idx_reviews_movie_id
+    ON reviews (movie_id);

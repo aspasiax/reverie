@@ -127,7 +127,7 @@ public class MovieServiceImpl implements IMovieService {
     @Transactional(readOnly = true)
     public boolean existsByTmdbId(Long tmdbId) {
         return tmdbId != null
-                && movieRepository.existsByTmdbId(tmdbId);
+                && movieRepository.existsByTmdbIdAndDeletedFalse(tmdbId);
     }
 
     /**
@@ -211,7 +211,7 @@ public class MovieServiceImpl implements IMovieService {
             Long currentMovieId
     ) {
         if (tmdbId != null) {
-            movieRepository.findByTmdbId(tmdbId)
+            movieRepository.findByTmdbIdAndDeletedFalse(tmdbId)
                     .filter(movie -> !movie.getId().equals(currentMovieId))
                     .ifPresent(movie -> {
                         throw new DuplicateMovieIdentifierException(
@@ -224,7 +224,7 @@ public class MovieServiceImpl implements IMovieService {
         String normalizedImdbId = normalizeOptionalValue(imdbId);
 
         if (normalizedImdbId != null) {
-            movieRepository.findByImdbId(normalizedImdbId)
+            movieRepository.findByImdbIdAndDeletedFalse(normalizedImdbId)
                     .filter(movie -> !movie.getId().equals(currentMovieId))
                     .ifPresent(movie -> {
                         throw new DuplicateMovieIdentifierException(

@@ -1,5 +1,5 @@
 -- =========================================================
--- V13: Seed watch log capabilities
+-- V12: Seed watch log capabilities
 -- =========================================================
 -- Introduces the fine-grained permissions required for
 -- viewing, creating and deleting watch-log entries.

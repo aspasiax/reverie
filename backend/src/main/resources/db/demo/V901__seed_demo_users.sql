@@ -1,18 +1,21 @@
 -- =========================================================
--- V9: Seed default users
+-- V901: Seed demo users
 -- =========================================================
--- Inserts the default development and demonstration users.
+-- Inserts the demonstration accounts used during development
+-- and for evaluating the application.
 --
--- These accounts allow immediate access to the application
--- without requiring manual registration.
+-- This migration lives in classpath:db/demo, which is loaded
+-- only by the dev profile. The main migration chain therefore
+-- never creates accounts with publicly known credentials.
 --
--- Passwords are stored exclusively as BCrypt hashes.
+-- Passwords are stored exclusively as BCrypt hashes and follow
+-- the same complexity rules the registration endpoint enforces.
 --
 -- Demo credentials:
---   admin  / admin123
---   alex   / user123
---   emma   / user123
---   daniel / user123
+--   admin@reverie.com  / Admin123!
+--   alex@reverie.com   / User123!
+--   emma@reverie.com   / User123!
+--   daniel@reverie.com / User123!
 -- =========================================================
 
 INSERT INTO users (
@@ -33,7 +36,7 @@ VALUES
         gen_random_uuid(),
         'admin',
         'admin@reverie.com',
-        '$2a$12$t4wuvZnKwZ9savS8VPrlQeiCoIjPDHYV96vZf8Or44rO60PdYk3DS',
+        '$2a$12$k8mAmDXVhY2V1m.2/ivWSencDpjJy1ulpqjKrNLSYfVcsD/gU.RFW',
         'Administrator',
         TRUE,
         (SELECT id FROM roles WHERE name = 'ADMIN'),
@@ -46,7 +49,7 @@ VALUES
         gen_random_uuid(),
         'alex',
         'alex@reverie.com',
-        '$2a$12$2FYfStVxaNl/reHBSwXj1OnIORv/W.3bT3IOFwYIJr4B7yHFM4.VG',
+        '$2a$12$.dzDDVAg2ctgu.hRUfRs.OGpcK66lgZM3sqEX287bXkAchWEUWQFO',
         'Alex',
         TRUE,
         (SELECT id FROM roles WHERE name = 'USER'),
@@ -59,7 +62,7 @@ VALUES
         gen_random_uuid(),
         'emma',
         'emma@reverie.com',
-        '$2a$12$LeFM36GAyRowrHf.rcY13.OKnEPUOwEPvSUKrzEj.7qPHert74pAG',
+        '$2a$12$Go0RqTopGes6NBSF2.vlX.hxmmKCDMPSWhANicnSBsViAplew69jO',
         'Emma',
         TRUE,
         (SELECT id FROM roles WHERE name = 'USER'),
@@ -72,7 +75,7 @@ VALUES
         gen_random_uuid(),
         'daniel',
         'daniel@reverie.com',
-        '$2a$12$/oQ.m7/pFo9MMHLMGIoTrudG.UpqD/JV4V6QmMSxik29N.lOJJE46',
+        '$2a$12$NcWuieSHBdGJzlz8QXx7me5mmIuz8VhTpl57BIcTvEZSC602nXon6',
         'Daniel',
         TRUE,
         (SELECT id FROM roles WHERE name = 'USER'),

@@ -28,23 +28,27 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByUuidAndDeletedFalse(UUID uuid);
 
     /**
-     * Finds a movie by its unique TMDB identifier.
+     * Finds an active movie by its unique TMDB identifier.
      *
-     * <p>This method also includes soft-deleted movies so that a TMDB
-     * identifier cannot accidentally be reused for another record.</p>
+     * <p>Soft-deleted movies are excluded because the database uniqueness
+     * constraint only applies to active records. A TMDB identifier that
+     * belonged to a deleted movie may therefore be assigned again.</p>
      *
      * @param tmdbId the TMDB movie identifier
-     * @return the matching movie, if found
+     * @return the matching active movie, if found
      */
-    Optional<Movie> findByTmdbId(Long tmdbId);
+    Optional<Movie> findByTmdbIdAndDeletedFalse(Long tmdbId);
 
     /**
-     * Finds a movie by its unique IMDb identifier.
+     * Finds an active movie by its unique IMDb identifier.
+     *
+     * <p>Soft-deleted movies are excluded, following the same rule as
+     * the TMDB identifier lookup.</p>
      *
      * @param imdbId the IMDb movie identifier
-     * @return the matching movie, if found
+     * @return the matching active movie, if found
      */
-    Optional<Movie> findByImdbId(String imdbId);
+    Optional<Movie> findByImdbIdAndDeletedFalse(String imdbId);
 
     /**
      * Checks whether a movie with the given public UUID exists.
@@ -55,13 +59,13 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     boolean existsByUuid(UUID uuid);
 
     /**
-     * Checks whether a movie with the given TMDB identifier exists.
+     * Checks whether an active movie with the given TMDB identifier exists.
      *
-     * <p>Soft-deleted movies are included because the database
-     * uniqueness constraint also includes those records.</p>
+     * <p>Soft-deleted movies are excluded because the database uniqueness
+     * constraint only applies to active records.</p>
      *
      * @param tmdbId the TMDB movie identifier
-     * @return {@code true} if a movie exists with the given TMDB identifier
+     * @return {@code true} if an active movie uses the identifier
      */
-    boolean existsByTmdbId(Long tmdbId);
+    boolean existsByTmdbIdAndDeletedFalse(Long tmdbId);
 }

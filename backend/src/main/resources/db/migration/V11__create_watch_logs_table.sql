@@ -1,5 +1,5 @@
 -- =========================================================
--- V12: Create watch_logs table
+-- V11: Create watch_logs table
 -- =========================================================
 -- Stores individual movie viewing events recorded by users.
 --

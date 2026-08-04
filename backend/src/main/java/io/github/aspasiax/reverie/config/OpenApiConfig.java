@@ -59,11 +59,11 @@ public class OpenApiConfig {
                         
                             Administrator
                             • Email: admin@reverie.com
-                            • Password: admin123
+                            • Password: Admin123!
                         
                             Regular User
                             • Email: emma@reverie.com
-                            • Password: user123
+                            • Password: User123!
                         
                             Use one of the accounts above to authenticate,
                             obtain a JWT access token and test the secured endpoints.

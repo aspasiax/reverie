@@ -13,7 +13,7 @@ CREATE TABLE genres
     uuid UUID NOT NULL UNIQUE,
 
     -- Basic genre information.
-    name VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
 
     -- Frontend presentation fields.
@@ -26,3 +26,9 @@ CREATE TABLE genres
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMPTZ
 );
+
+-- Genre names are unique among active genres only. Comparison is
+-- case-insensitive so that "Horror" and "horror" cannot coexist.
+CREATE UNIQUE INDEX uq_genres_name_active
+    ON genres (LOWER(name))
+    WHERE deleted = FALSE;

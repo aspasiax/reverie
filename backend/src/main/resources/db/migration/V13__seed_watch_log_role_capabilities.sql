@@ -1,5 +1,5 @@
 -- =========================================================
--- V14: Seed watch log role capabilities
+-- V13: Seed watch log role capabilities
 -- =========================================================
 -- Assigns all watch-log capabilities to both predefined
 -- roles.

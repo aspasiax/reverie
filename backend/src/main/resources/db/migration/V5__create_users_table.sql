@@ -41,13 +41,15 @@ CREATE TABLE users
             REFERENCES roles (id)
 );
 
--- Enforces case-insensitive username uniqueness.
+-- Enforces case-insensitive username uniqueness among active users.
 CREATE UNIQUE INDEX uq_users_username_lower
-    ON users (LOWER(username));
+    ON users (LOWER(username))
+    WHERE deleted = FALSE;
 
--- Enforces case-insensitive email uniqueness.
+-- Enforces case-insensitive email uniqueness among active users.
 CREATE UNIQUE INDEX uq_users_email_lower
-    ON users (LOWER(email));
+    ON users (LOWER(email))
+    WHERE deleted = FALSE;
 
 -- Supports role-based user filtering.
 CREATE INDEX idx_users_role_id

@@ -1,5 +1,5 @@
 -- =========================================================
--- V11: Seed role_capabilities table
+-- V10: Seed role_capabilities table
 -- =========================================================
 -- Assigns capabilities to the predefined roles.
 --

@@ -28,24 +28,25 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByUuidAndDeletedFalse(UUID uuid);
 
     /**
-     * Finds a genre by its name, ignoring letter case.
+     * Finds an active genre by its name, ignoring letter case.
      *
-     * <p>Soft-deleted genres are included because the database
-     * uniqueness constraint also includes those records.</p>
+     * <p>Soft-deleted genres are excluded because the database uniqueness
+     * constraint only applies to active records.</p>
      *
      * @param name the genre name
-     * @return the matching genre, if found
+     * @return the matching active genre, if found
      */
-    Optional<Genre> findByNameIgnoreCase(String name);
+    Optional<Genre> findByNameIgnoreCaseAndDeletedFalse(String name);
 
     /**
-     * Checks whether a genre name is already used, ignoring letter case.
+     * Checks whether an active genre already uses the given name,
+     * ignoring letter case.
      *
-     * <p>Soft-deleted genres are included because the database
-     * uniqueness constraint also includes those records.</p>
+     * <p>Soft-deleted genres are excluded because the database uniqueness
+     * constraint only applies to active records.</p>
      *
      * @param name the genre name
-     * @return {@code true} if the name already exists
+     * @return {@code true} if an active genre uses the name
      */
-    boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCaseAndDeletedFalse(String name);
 }

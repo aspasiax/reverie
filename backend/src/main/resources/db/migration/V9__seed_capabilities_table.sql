@@ -1,5 +1,5 @@
 -- =========================================================
--- V10: Seed capabilities table
+-- V9: Seed capabilities table
 -- =========================================================
 -- Inserts the default fine-grained permissions used by the
 -- application for role-based authorization.
