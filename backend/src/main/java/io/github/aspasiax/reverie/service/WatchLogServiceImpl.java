@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.service;
 import io.github.aspasiax.reverie.domain.Movie;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.domain.WatchLog;
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import io.github.aspasiax.reverie.exception.MovieNotFoundException;
@@ -11,6 +12,8 @@ import io.github.aspasiax.reverie.mapper.WatchLogMapper;
 import io.github.aspasiax.reverie.repository.MovieRepository;
 import io.github.aspasiax.reverie.repository.WatchLogRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,17 +43,14 @@ public class WatchLogServiceImpl implements IWatchLogService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<WatchLogResponse> findMyWatchLogs() {
-
+    public PageResponse<WatchLogResponse> findMyWatchLogs(Pageable pageable) {
         User currentUser = currentUserService.getCurrentUser();
 
-        return watchLogRepository
-                .findAllByUserUuidAndDeletedFalseOrderByCreatedAtDesc(
-                        currentUser.getUuid()
-                )
-                .stream()
-                .map(watchLogMapper::toResponse)
-                .toList();
+        Page<WatchLogResponse> page = watchLogRepository
+                .findAllByUserUuidAndDeletedFalse(currentUser.getUuid(), pageable)
+                .map(watchLogMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 
     /**

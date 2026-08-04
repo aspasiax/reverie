@@ -1,8 +1,10 @@
 package io.github.aspasiax.reverie.service;
 
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,11 +15,12 @@ import java.util.UUID;
 public interface IMovieService {
 
     /**
-     * Retrieves all active movies.
+     * Returns a page of active movies.
      *
-     * @return a list containing all active movies
+     * @param pageable the requested page and sort order
+     * @return a page of active movies
      */
-    List<MovieResponse> findAll();
+    PageResponse<MovieResponse> findAll(Pageable pageable);
 
     /**
      * Finds an active movie by its public UUID.

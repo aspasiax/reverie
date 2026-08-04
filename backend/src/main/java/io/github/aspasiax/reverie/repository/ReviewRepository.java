@@ -1,9 +1,10 @@
 package io.github.aspasiax.reverie.repository;
 
 import io.github.aspasiax.reverie.domain.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,20 +14,22 @@ import java.util.UUID;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     /**
-     * Returns all active reviews for a specific movie ordered by creation date (newest first).
+     * Returns a page of active reviews written for a specific movie.
      *
      * @param movieUuid the UUID of the movie
-     * @return a list of active reviews
+     * @param pageable  the requested page and sort order
+     * @return a page of active reviews
      */
-    List<Review> findAllByMovieUuidAndDeletedFalseOrderByCreatedAtDesc(UUID movieUuid);
+    Page<Review> findAllByMovieUuidAndDeletedFalse(UUID movieUuid, Pageable pageable);
 
     /**
-     * Returns all active reviews created by a specific user ordered by creation date (newest first).
+     * Returns a page of active reviews written by a specific user.
      *
      * @param userUuid the UUID of the user
-     * @return a list of active reviews
+     * @param pageable the requested page and sort order
+     * @return a page of active reviews
      */
-    List<Review> findAllByUserUuidAndDeletedFalseOrderByCreatedAtDesc(UUID userUuid);
+    Page<Review> findAllByUserUuidAndDeletedFalse(UUID userUuid, Pageable pageable);
 
     /**
      * Finds an active review by its public UUID.

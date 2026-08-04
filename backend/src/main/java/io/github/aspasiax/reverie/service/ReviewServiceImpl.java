@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.service;
 import io.github.aspasiax.reverie.domain.Movie;
 import io.github.aspasiax.reverie.domain.Review;
 import io.github.aspasiax.reverie.domain.User;
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.review.CreateReviewRequest;
 import io.github.aspasiax.reverie.dto.review.ReviewResponse;
 import io.github.aspasiax.reverie.dto.review.UpdateReviewRequest;
@@ -16,6 +17,8 @@ import io.github.aspasiax.reverie.mapper.ReviewMapper;
 import io.github.aspasiax.reverie.repository.MovieRepository;
 import io.github.aspasiax.reverie.repository.ReviewRepository;
 import io.github.aspasiax.reverie.repository.WatchLogRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,14 +83,17 @@ public class ReviewServiceImpl implements IReviewService {
      *                                been soft deleted
      */
     @Override
-    public List<ReviewResponse> findMovieReviews(UUID movieUuid) {
+    public PageResponse<ReviewResponse> findMovieReviews(
+            UUID movieUuid,
+            Pageable pageable
+    ) {
         findActiveMovie(movieUuid);
 
-        return reviewRepository
-                .findAllByMovieUuidAndDeletedFalseOrderByCreatedAtDesc(movieUuid)
-                .stream()
-                .map(reviewMapper::toResponse)
-                .toList();
+        Page<ReviewResponse> page = reviewRepository
+                .findAllByMovieUuidAndDeletedFalse(movieUuid, pageable)
+                .map(reviewMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 
     /**
@@ -98,16 +104,14 @@ public class ReviewServiceImpl implements IReviewService {
      * @return the authenticated user's active reviews
      */
     @Override
-    public List<ReviewResponse> findMyReviews() {
+    public PageResponse<ReviewResponse> findMyReviews(Pageable pageable) {
         User currentUser = currentUserService.getCurrentUser();
 
-        return reviewRepository
-                .findAllByUserUuidAndDeletedFalseOrderByCreatedAtDesc(
-                        currentUser.getUuid()
-                )
-                .stream()
-                .map(reviewMapper::toResponse)
-                .toList();
+        Page<ReviewResponse> page = reviewRepository
+                .findAllByUserUuidAndDeletedFalse(currentUser.getUuid(), pageable)
+                .map(reviewMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 
     /**

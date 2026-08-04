@@ -2,6 +2,7 @@ package io.github.aspasiax.reverie.service;
 
 import io.github.aspasiax.reverie.domain.Genre;
 import io.github.aspasiax.reverie.domain.Movie;
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
@@ -12,6 +13,8 @@ import io.github.aspasiax.reverie.mapper.MovieMapper;
 import io.github.aspasiax.reverie.repository.GenreRepository;
 import io.github.aspasiax.reverie.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,11 +43,12 @@ public class MovieServiceImpl implements IMovieService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<MovieResponse> findAll() {
-        return movieRepository.findAllByDeletedFalse()
-                .stream()
-                .map(movieMapper::toResponse)
-                .toList();
+    public PageResponse<MovieResponse> findAll(Pageable pageable) {
+        Page<MovieResponse> page = movieRepository
+                .findAllByDeletedFalse(pageable)
+                .map(movieMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 
     /**

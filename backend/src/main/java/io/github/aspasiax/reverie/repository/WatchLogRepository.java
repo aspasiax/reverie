@@ -1,9 +1,10 @@
 package io.github.aspasiax.reverie.repository;
 
 import io.github.aspasiax.reverie.domain.WatchLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,15 +14,13 @@ import java.util.UUID;
 public interface WatchLogRepository extends JpaRepository<WatchLog, Long> {
 
     /**
-     * Retrieves all active watch logs belonging to a user,
-     * ordered from newest to oldest.
+     * Returns a page of active watch logs belonging to a user.
      *
      * @param userUuid the public UUID of the user
-     * @return the user's active watch logs ordered by creation timestamp
+     * @param pageable the requested page and sort order
+     * @return a page of the user's active watch logs
      */
-    List<WatchLog> findAllByUserUuidAndDeletedFalseOrderByCreatedAtDesc(
-            UUID userUuid
-    );
+    Page<WatchLog> findAllByUserUuidAndDeletedFalse(UUID userUuid, Pageable pageable);
 
     /**
      * Finds an active watch log by its public UUID.

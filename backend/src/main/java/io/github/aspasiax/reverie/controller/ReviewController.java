@@ -1,5 +1,6 @@
 package io.github.aspasiax.reverie.controller;
 
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.review.CreateReviewRequest;
 import io.github.aspasiax.reverie.dto.review.ReviewResponse;
 import io.github.aspasiax.reverie.dto.review.UpdateReviewRequest;
@@ -11,11 +12,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,10 +54,11 @@ public class ReviewController {
             @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
-    public List<ReviewResponse> getMovieReviews(
-            @PathVariable UUID movieUuid
+    public PageResponse<ReviewResponse> getMovieReviews(
+            @PathVariable UUID movieUuid,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return reviewService.findMovieReviews(movieUuid);
+        return reviewService.findMovieReviews(movieUuid, pageable);
     }
 
     /**
@@ -70,8 +74,10 @@ public class ReviewController {
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Insufficient permissions")
     })
-    public List<ReviewResponse> getMyReviews() {
-        return reviewService.findMyReviews();
+    public PageResponse<ReviewResponse> getMyReviews(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return reviewService.findMyReviews(pageable);
     }
 
     /**

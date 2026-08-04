@@ -1,5 +1,6 @@
 package io.github.aspasiax.reverie.controller;
 
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import io.github.aspasiax.reverie.service.IWatchLogService;
@@ -10,6 +11,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -70,10 +73,10 @@ public class WatchLogController {
     })
     @GetMapping
     @PreAuthorize("hasAuthority('WATCH_LOG_READ')")
-    public ResponseEntity<List<WatchLogResponse>> findMyWatchLogs() {
-        return ResponseEntity.ok(
-                watchLogService.findMyWatchLogs()
-        );
+    public ResponseEntity<PageResponse<WatchLogResponse>> findMyWatchLogs(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(watchLogService.findMyWatchLogs(pageable));
     }
 
     /**

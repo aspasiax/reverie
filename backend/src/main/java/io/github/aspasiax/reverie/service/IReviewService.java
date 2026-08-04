@@ -1,8 +1,10 @@
 package io.github.aspasiax.reverie.service;
 
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.review.CreateReviewRequest;
 import io.github.aspasiax.reverie.dto.review.ReviewResponse;
 import io.github.aspasiax.reverie.dto.review.UpdateReviewRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,16 +18,18 @@ public interface IReviewService {
      * Returns all active reviews for a movie.
      *
      * @param movieUuid the movie UUID
+     * @param pageable the requested page and sort order
      * @return a list of review responses
      */
-    List<ReviewResponse> findMovieReviews(UUID movieUuid);
+    PageResponse<ReviewResponse> findMovieReviews(UUID movieUuid, Pageable pageable);
 
     /**
      * Returns all active reviews created by the authenticated user.
      *
+     * @param pageable the requested page and sort order
      * @return a list of review responses
      */
-    List<ReviewResponse> findMyReviews();
+    PageResponse<ReviewResponse> findMyReviews(Pageable pageable);
 
     /**
      * Creates a new review.

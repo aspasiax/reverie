@@ -1,9 +1,10 @@
 package io.github.aspasiax.reverie.repository;
 
 import io.github.aspasiax.reverie.domain.Movie;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,11 +14,12 @@ import java.util.UUID;
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     /**
-     * Returns all movies that have not been soft deleted.
+     * Returns a page of movies that have not been soft deleted.
      *
-     * @return a list containing all active movies
+     * @param pageable the requested page and sort order
+     * @return a page of active movies
      */
-    List<Movie> findAllByDeletedFalse();
+    Page<Movie> findAllByDeletedFalse(Pageable pageable);
 
     /**
      * Finds an active movie by its public UUID.

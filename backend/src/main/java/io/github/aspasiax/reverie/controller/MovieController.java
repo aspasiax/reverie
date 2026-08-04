@@ -1,5 +1,6 @@
 package io.github.aspasiax.reverie.controller;
 
+import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -48,32 +50,26 @@ public class MovieController {
     private final IMovieService movieService;
 
     /**
-     * Returns all active movies.
+     * Returns a page of active movies.
      *
-     * @return a list containing all active movies
+     * @param pageable the requested page and sort order
+     * @return a page of active movies
      */
     @Operation(
             summary = "Get all movies",
-            description = "Returns all active movies currently available in the catalog."
+            description = "Returns a page of active movies. Use the page, size and sort parameters to navigate the catalogue."
     )
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Movies retrieved successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Authentication required"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Insufficient permissions"
-            )
+            @ApiResponse(responseCode = "200", description = "Movies retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
     })
     @GetMapping
     @PreAuthorize("hasAuthority('MOVIE_READ')")
-    public ResponseEntity<List<MovieResponse>> findAll() {
-        return ResponseEntity.ok(movieService.findAll());
+    public ResponseEntity<PageResponse<MovieResponse>> findAll(
+            @PageableDefault(size = 20, sort = "title") Pageable pageable
+    ) {
+        return ResponseEntity.ok(movieService.findAll(pageable));
     }
 
     /**
