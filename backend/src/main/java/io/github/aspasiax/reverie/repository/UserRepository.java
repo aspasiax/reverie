@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.repository;
 import io.github.aspasiax.reverie.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -74,4 +75,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return {@code true} if an active user uses the email address
      */
     boolean existsByEmailIgnoreCaseAndDeletedFalse(String email);
+
+    /**
+     * Returns all users that have not been soft deleted.
+     *
+     * @return the active users ordered alphabetically by username
+     */
+    List<User> findAllByDeletedFalseOrderByUsernameAsc();
 }

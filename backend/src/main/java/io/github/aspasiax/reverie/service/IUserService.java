@@ -1,70 +1,59 @@
 package io.github.aspasiax.reverie.service;
 
-import io.github.aspasiax.reverie.domain.User;
+import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
+import io.github.aspasiax.reverie.dto.user.UpdateUserRoleRequest;
+import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
+import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Defines the business operations related to users.
- *
- * <p>This interface acts as the contract between the application
- * layer and the persistence layer for user management.</p>
+ * Provides the operations available for user profiles and for the
+ * administration of user accounts.
  */
 public interface IUserService {
 
     /**
-     * Returns all registered users.
+     * Returns the profile of the authenticated user.
      *
-     * @return a list containing all users
+     * @return the authenticated user's own profile
      */
-    List<User> findAll();
+    UserProfileResponse getCurrentUserProfile();
 
     /**
-     * Finds a user by its internal database identifier.
+     * Updates the profile of the authenticated user.
      *
-     * @param id the user id
-     * @return the matching user, if found
+     * @param request the profile update request
+     * @return the updated profile
      */
-    Optional<User> findById(Long id);
+    UserProfileResponse updateCurrentUserProfile(UpdateUserRequest request);
 
     /**
-     * Finds a user by its public UUID.
+     * Returns the publicly visible profile of a user.
      *
-     * @param uuid the user UUID
-     * @return the matching user, if found
+     * @param uuid the public user identifier
+     * @return the public profile of the user
      */
-    Optional<User> findByUuid(UUID uuid);
+    UserSummaryResponse findByUuid(UUID uuid);
 
     /**
-     * Finds a user by username.
+     * Returns every active user.
      *
-     * @param username the username
-     * @return the matching user, if found
+     * @return the active users ordered by username
      */
-    Optional<User> findByUsernameIgnoreCase(String username);
+    List<UserSummaryResponse> findAll();
 
     /**
-     * Finds a user by email address.
+     * Assigns a different security role to a user.
      *
-     * @param email the email address
-     * @return the matching user, if found
-     */
-    Optional<User> findByEmailIgnoreCase(String email);
-
-    /**
-     * Persists a new user.
+     * <p>This is the operation through which additional administrators are
+     * created. Administrators may not change their own role, which prevents
+     * the last administrator from removing their own privileges.</p>
      *
-     * @param user the user to save
-     * @return the saved user
+     * @param uuid    the public identifier of the user to modify
+     * @param request the role to assign
+     * @return the updated profile of the modified user
      */
-    User save(User user);
-
-    /**
-     * Deletes a user by its internal identifier.
-     *
-     * @param id the user id
-     */
-    void deleteById(Long id);
+    UserProfileResponse updateUserRole(UUID uuid, UpdateUserRoleRequest request);
 }

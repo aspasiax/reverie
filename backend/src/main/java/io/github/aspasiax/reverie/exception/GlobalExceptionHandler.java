@@ -378,6 +378,44 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles requests referring to a security role that does not exist.
+     *
+     * @param exception the role-not-found exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleRoleNotFound(
+            RoleNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles attempts by an administrator to change their own role.
+     *
+     * @param exception the self role change exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(SelfRoleChangeException.class)
+    public ResponseEntity<ApiErrorResponse> handleSelfRoleChange(
+            SelfRoleChangeException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles invalid arguments that violate application business rules.
      *
      * <p>This handler is currently also used by existing authentication

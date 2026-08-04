@@ -1,82 +1,142 @@
 package io.github.aspasiax.reverie.service;
 
+import io.github.aspasiax.reverie.domain.Role;
 import io.github.aspasiax.reverie.domain.User;
+import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
+import io.github.aspasiax.reverie.dto.user.UpdateUserRoleRequest;
+import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
+import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
+import io.github.aspasiax.reverie.exception.RoleNotFoundException;
+import io.github.aspasiax.reverie.exception.SelfRoleChangeException;
+import io.github.aspasiax.reverie.exception.UserNotFoundException;
+import io.github.aspasiax.reverie.mapper.UserMapper;
+import io.github.aspasiax.reverie.repository.RoleRepository;
 import io.github.aspasiax.reverie.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
  * Default implementation of {@link IUserService}.
  *
- * <p>Delegates persistence operations to the {@link UserRepository}.
- * Additional business logic will be added as the application evolves.</p>
- *
- * @author Aspasia
- * @version 1.0
+ * <p>Handles profile retrieval and updates for the authenticated user, as
+ * well as the administrative operations that expose and modify accounts.</p>
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
+    private final ICurrentUserService currentUserService;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    @Transactional(readOnly = true)
+    public UserProfileResponse getCurrentUserProfile() {
+        User currentUser = currentUserService.getCurrentUser();
+
+        return userMapper.toProfileResponse(currentUser);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    @Transactional
+    public UserProfileResponse updateCurrentUserProfile(UpdateUserRequest request) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        userMapper.updateEntity(currentUser, request);
+
+        User updatedUser = userRepository.save(currentUser);
+
+        return userMapper.toProfileResponse(updatedUser);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<User> findByUuid(UUID uuid) {
-        return userRepository.findByUuid(uuid);
+    @Transactional(readOnly = true)
+    public UserSummaryResponse findByUuid(UUID uuid) {
+        User user = findActiveUser(uuid);
+
+        return userMapper.toSummaryResponse(user);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<User> findByUsernameIgnoreCase(String username) {
-        return userRepository.findByUsernameIgnoreCase(username);
+    @Transactional(readOnly = true)
+    public List<UserSummaryResponse> findAll() {
+        return userRepository.findAllByDeletedFalseOrderByUsernameAsc()
+                .stream()
+                .map(userMapper::toSummaryResponse)
+                .toList();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<User> findByEmailIgnoreCase(String email) {
-        return userRepository.findByEmailIgnoreCase(email);
+    @Transactional
+    public UserProfileResponse updateUserRole(
+            UUID uuid,
+            UpdateUserRoleRequest request
+    ) {
+        User currentUser = currentUserService.getCurrentUser();
+        User targetUser = findActiveUser(uuid);
+
+        /*
+         * An administrator who demotes their own account could remove the
+         * last set of administrative privileges in the system, leaving no
+         * way to grant them again through the API.
+         */
+        if (targetUser.getUuid().equals(currentUser.getUuid())) {
+            throw new SelfRoleChangeException();
+        }
+
+        String normalizedRoleName = request.roleName()
+                .trim()
+                .toUpperCase(Locale.ROOT);
+
+        Role role = roleRepository.findByName(normalizedRoleName)
+                .orElseThrow(() -> new RoleNotFoundException(normalizedRoleName));
+
+        targetUser.setRole(role);
+
+        User updatedUser = userRepository.save(targetUser);
+
+        log.info(
+                "Role of user {} changed to {} by {}",
+                targetUser.getUuid(),
+                normalizedRoleName,
+                currentUser.getUuid()
+        );
+
+        return userMapper.toProfileResponse(updatedUser);
     }
 
     /**
-     * {@inheritDoc}
+     * Finds a user that has not been soft deleted.
+     *
+     * @param uuid the public user identifier
+     * @return the active user entity
+     * @throws UserNotFoundException if no active user exists
      */
-    @Override
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
+    private User findActiveUser(UUID uuid) {
+        return userRepository.findByUuidAndDeletedFalse(uuid)
+                .orElseThrow(() -> new UserNotFoundException(uuid));
     }
 }
