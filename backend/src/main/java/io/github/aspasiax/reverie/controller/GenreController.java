@@ -244,4 +244,29 @@ public class GenreController {
 
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Restores a previously soft-deleted genre.
+     *
+     * @param uuid the genre UUID
+     * @return the restored genre
+     */
+    @Operation(
+            summary = "Restore a genre",
+            description = "Restores a genre that was previously soft-deleted, making it visible again."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Genre restored successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Genre not found"),
+            @ApiResponse(responseCode = "409", description = "Genre is not deleted")
+    })
+    @PostMapping("/{uuid}/restore")
+    @PreAuthorize("hasAuthority('GENRE_UPDATE')")
+    public ResponseEntity<GenreResponse> restore(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(genreService.restore(uuid));
+    }
 }

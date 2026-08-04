@@ -6,6 +6,7 @@ import io.github.aspasiax.reverie.dto.genre.GenreResponse;
 import io.github.aspasiax.reverie.dto.genre.UpdateGenreRequest;
 import io.github.aspasiax.reverie.exception.DuplicateGenreNameException;
 import io.github.aspasiax.reverie.exception.GenreNotFoundException;
+import io.github.aspasiax.reverie.exception.RestoreNotApplicableException;
 import io.github.aspasiax.reverie.mapper.GenreMapper;
 import io.github.aspasiax.reverie.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +100,26 @@ public class GenreServiceImpl implements IGenreService {
 
         genre.softDelete();
         genreRepository.save(genre);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public GenreResponse restore(UUID uuid) {
+        Genre genre = genreRepository.findByUuid(uuid)
+                .orElseThrow(() -> new GenreNotFoundException(uuid));
+
+        if (!genre.isDeleted()) {
+            throw new RestoreNotApplicableException("Genre", uuid);
+        }
+
+        genre.restoreFromSoftDelete();
+
+        Genre restoredGenre = genreRepository.save(genre);
+
+        return genreMapper.toResponse(restoredGenre);
     }
 
     /**

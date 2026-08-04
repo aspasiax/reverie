@@ -237,4 +237,29 @@ public class MovieController {
 
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Restores a previously soft-deleted movie.
+     *
+     * @param uuid the movie UUID
+     * @return the restored movie
+     */
+    @Operation(
+            summary = "Restore a movie",
+            description = "Restores a movie that was previously soft-deleted, making it visible again."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Movie restored successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Movie not found"),
+            @ApiResponse(responseCode = "409", description = "Movie is not deleted")
+    })
+    @PostMapping("/{uuid}/restore")
+    @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
+    public ResponseEntity<MovieResponse> restore(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(movieService.restore(uuid));
+    }
 }

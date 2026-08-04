@@ -53,4 +53,12 @@ public interface IGenreService {
      * @param uuid the genre UUID
      */
     void delete(UUID uuid);
+
+    /**
+     * Restores a previously soft-deleted genre.
+     *
+     * @param uuid the public genre identifier
+     * @return the restored genre
+     */
+    GenreResponse restore(UUID uuid);
 }

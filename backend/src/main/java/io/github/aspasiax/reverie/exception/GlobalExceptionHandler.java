@@ -416,6 +416,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles restore requests for records that are not deleted.
+     *
+     * @param exception the restore-not-applicable exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(RestoreNotApplicableException.class)
+    public ResponseEntity<ApiErrorResponse> handleRestoreNotApplicable(
+            RestoreNotApplicableException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles invalid arguments that violate application business rules.
      *
      * <p>This handler is currently also used by existing authentication

@@ -9,6 +9,7 @@ import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
 import io.github.aspasiax.reverie.exception.DuplicateMovieIdentifierException;
 import io.github.aspasiax.reverie.exception.GenreNotFoundException;
 import io.github.aspasiax.reverie.exception.MovieNotFoundException;
+import io.github.aspasiax.reverie.exception.RestoreNotApplicableException;
 import io.github.aspasiax.reverie.mapper.MovieMapper;
 import io.github.aspasiax.reverie.repository.GenreRepository;
 import io.github.aspasiax.reverie.repository.MovieRepository;
@@ -122,6 +123,26 @@ public class MovieServiceImpl implements IMovieService {
 
         movie.softDelete();
         movieRepository.save(movie);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public MovieResponse restore(UUID uuid) {
+        Movie movie = movieRepository.findByUuid(uuid)
+                .orElseThrow(() -> new MovieNotFoundException(uuid));
+
+        if (!movie.isDeleted()) {
+            throw new RestoreNotApplicableException("Movie", uuid);
+        }
+
+        movie.restoreFromSoftDelete();
+
+        Movie restoredMovie = movieRepository.save(movie);
+
+        return movieMapper.toResponse(restoredMovie);
     }
 
     /**

@@ -58,6 +58,14 @@ public interface IMovieService {
     void delete(UUID uuid);
 
     /**
+     * Restores a previously soft-deleted movie.
+     *
+     * @param uuid the public movie identifier
+     * @return the restored movie
+     */
+    MovieResponse restore(UUID uuid);
+
+    /**
      * Checks whether a movie with the given TMDB identifier exists.
      *
      * @param tmdbId the TMDB movie identifier

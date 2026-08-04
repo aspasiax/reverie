@@ -30,6 +30,17 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByUuidAndDeletedFalse(UUID uuid);
 
     /**
+     * Finds a movie by its public UUID, including soft-deleted records.
+     *
+     * <p>Unlike {@link #findByUuidAndDeletedFalse(UUID)}, this lookup also
+     * returns deleted movies, which is required in order to restore them.</p>
+     *
+     * @param uuid the movie UUID
+     * @return the matching movie, if found
+     */
+    Optional<Movie> findByUuid(UUID uuid);
+
+    /**
      * Finds an active movie by its unique TMDB identifier.
      *
      * <p>Soft-deleted movies are excluded because the database uniqueness

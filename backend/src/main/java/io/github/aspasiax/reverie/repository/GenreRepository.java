@@ -28,6 +28,17 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByUuidAndDeletedFalse(UUID uuid);
 
     /**
+     * Finds a genre by its public UUID, including soft-deleted records.
+     *
+     * <p>Unlike {@link #findByUuidAndDeletedFalse(UUID)}, this lookup also
+     * returns deleted genres, which is required in order to restore them.</p>
+     *
+     * @param uuid the genre UUID
+     * @return the matching genre, if found
+     */
+    Optional<Genre> findByUuid(UUID uuid);
+
+    /**
      * Finds an active genre by its name, ignoring letter case.
      *
      * <p>Soft-deleted genres are excluded because the database uniqueness
