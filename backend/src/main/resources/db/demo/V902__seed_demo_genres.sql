@@ -41,7 +41,7 @@ VALUES
 
     (gen_random_uuid(), 'Drama',
      'Character driven stories focused on emotional and personal conflict.',
-     'masks', '#0EA5E9', NOW(), NOW(), FALSE),
+     'drama', '#0EA5E9', NOW(), NOW(), FALSE),
 
     (gen_random_uuid(), 'Fantasy',
      'Worlds shaped by magic and rules that do not apply to our own.',
