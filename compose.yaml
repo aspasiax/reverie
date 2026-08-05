@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: reverie-postgres
+    environment:
+      POSTGRES_DB: reverie_db
+      POSTGRES_USER: reverie_user
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - '5432:5432'
+    volumes:
+      - reverie-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U reverie_user -d reverie_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  reverie-pgdata:
