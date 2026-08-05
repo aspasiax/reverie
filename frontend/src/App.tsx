@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
+import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<MoviesPage />} />
+                <Route path="/movies/:uuid" element={<MoviePage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

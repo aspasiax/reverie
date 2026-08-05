@@ -64,3 +64,16 @@ export interface UserProfile {
     role: string
     createdAt: string
 }
+
+export interface Review {
+    uuid: string
+    userUuid: string
+    username: string
+    movieUuid: string
+    movieTitle: string
+    posterPath: string | null
+    rating: number | null
+    reviewText: string | null
+    createdAt: string
+    updatedAt: string
+}
