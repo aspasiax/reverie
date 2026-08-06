@@ -6,6 +6,7 @@ import { useAuth } from '@/auth/AuthContext'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page } from '@/types/api'
 import { Button } from '@/components/ui/button'
+import { tmdbImage } from '@/lib/images'
 
 async function fetchMovies(page: number) {
     const { data } = await api.get<Page<Movie>>('/api/movies', {
@@ -57,27 +58,36 @@ export function MoviesPage() {
                             {data.totalElements} films
                         </p>
 
-                        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                             {data.content.map((movie) => (
                                 <li key={movie.uuid}>
                                     <Link
                                         to={`/movies/${movie.uuid}`}
-                                        className="block rounded-lg border p-4 transition-colors hover:bg-accent"
+                                        className="group block overflow-hidden rounded-lg border transition-colors hover:border-primary"
                                     >
-                                        <h2 className="font-medium">{movie.title}</h2>
-                                        <p className="text-sm text-muted-foreground">
-                                            {movie.releaseDate?.slice(0, 4) ?? 'Unknown year'}
-                                            {movie.runtime !== null && ` · ${movie.runtime} min`}
-                                        </p>
-                                        <div className="mt-2 flex flex-wrap gap-1">
-                                            {movie.genres.map((genre) => (
-                                                <span
-                                                    key={genre.uuid}
-                                                    className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
-                                                >
-                          {genre.name}
-                        </span>
-                                            ))}
+                                        <div className="aspect-[2/3] overflow-hidden bg-muted">
+                                            {tmdbImage(movie.posterPath, 'w342') !== null ? (
+                                                <img
+                                                    src={tmdbImage(movie.posterPath, 'w342')!}
+                                                    alt=""
+                                                    loading="lazy"
+                                                    className="size-full object-cover transition-transform group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="flex size-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
+                                                    {movie.title}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="p-3">
+                                            <h2 className="truncate font-medium" title={movie.title}>
+                                                {movie.title}
+                                            </h2>
+                                            <p className="text-sm text-muted-foreground">
+                                                {movie.releaseDate?.slice(0, 4) ?? 'Unknown year'}
+                                                {movie.runtime !== null && ` · ${movie.runtime} min`}
+                                            </p>
                                         </div>
                                     </Link>
                                 </li>
