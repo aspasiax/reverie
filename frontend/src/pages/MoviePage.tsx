@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Eye, Star } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
+import { Button } from '@/components/ui/button'
 
 async function fetchMovie(uuid: string) {
     const { data } = await api.get<Movie>(`/api/movies/${uuid}`)
@@ -13,6 +14,11 @@ async function fetchReviews(uuid: string) {
     const { data } = await api.get<Page<Review>>(`/api/reviews/movie/${uuid}`, {
         params: { page: 0, size: 20 },
     })
+    return data
+}
+
+async function createWatchLog(movieUuid: string) {
+    const { data } = await api.post('/api/watch-logs', { movieUuid })
     return data
 }
 
@@ -34,6 +40,15 @@ export function MoviePage() {
         queryKey: ['reviews', 'movie', uuid],
         queryFn: () => fetchReviews(uuid!),
         enabled: uuid !== undefined,
+    })
+
+    const queryClient = useQueryClient()
+
+    const logWatch = useMutation({
+        mutationFn: () => createWatchLog(uuid!),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['watch-logs'] })
+        },
     })
 
     if (isPending) {
@@ -90,6 +105,27 @@ export function MoviePage() {
                     {movie.overview !== null && (
                         <p className="pt-2 leading-relaxed">{movie.overview}</p>
                     )}
+
+                    <div className="pt-2">
+                        <Button
+                            onClick={() => logWatch.mutate()}
+                            disabled={logWatch.isPending}
+                        >
+                            <Eye className="size-4" />
+                            {logWatch.isPending ? 'Saving…' : 'Log as watched'}
+                        </Button>
+
+                        {logWatch.isSuccess && (
+                            <p className="mt-2 text-sm text-green-500">Added to your watch history.</p>
+                        )}
+
+                        {logWatch.isError && (
+                            <p role="alert" className="mt-2 text-sm text-destructive">
+                                {errorMessage(logWatch.error)}
+                            </p>
+                        )}
+                    </div>
+
                 </section>
 
                 <section className="space-y-4">

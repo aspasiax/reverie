@@ -77,3 +77,12 @@ export interface Review {
     createdAt: string
     updatedAt: string
 }
+
+export interface WatchLog {
+    uuid: string
+    movieUuid: string
+    movieTitle: string
+    posterPath: string | null
+    watchedAt: string | null
+    createdAt: string
+}

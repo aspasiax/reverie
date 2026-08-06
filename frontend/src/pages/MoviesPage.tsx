@@ -29,6 +29,9 @@ export function MoviesPage() {
             <header className="flex items-center justify-between border-b px-6 py-4">
                 <h1 className="text-xl font-semibold">Reverie</h1>
                 <div className="flex items-center gap-4">
+                    <Link to="/watch-logs" className="text-sm hover:underline">
+                        History
+                    </Link>
           <span className="text-sm text-muted-foreground">
             {user?.displayName}
           </span>
