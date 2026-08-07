@@ -7,7 +7,14 @@ import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
+import {TmdbAttribution} from "@/components/TmdbAttribution.tsx";
 
+/**
+ * Retrieves one page of the film catalogue.
+ *
+ * @param page the zero based page index
+ * @returns the requested page of films
+ */
 async function fetchMovies(page: number) {
     const { data } = await api.get<Page<Movie>>('/api/movies', {
         params: { page, size: 12 },
@@ -15,6 +22,13 @@ async function fetchMovies(page: number) {
     return data
 }
 
+/**
+ * The film catalogue.
+ *
+ * The page index is part of the query key, so moving between pages is
+ * enough to make the data reload. Previously loaded pages stay in the
+ * cache and reappear instantly when the user goes back to them.
+ */
 export function MoviesPage() {
     const { user, logout } = useAuth()
 
@@ -120,6 +134,8 @@ export function MoviesPage() {
                     </>
                 )}
             </main>
+
+            <TmdbAttribution />
         </div>
     )
 }

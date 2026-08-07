@@ -1,3 +1,5 @@
+// Infrastructure
+
 /** Matches ApiErrorResponse on the server. */
 export interface ApiError {
     timestamp: string
@@ -18,17 +20,38 @@ export interface Page<T> {
     last: boolean
 }
 
+// Authentication
+
+/** Credentials submitted to the login endpoint. */
+export interface LoginRequest {
+    email: string
+    password: string
+}
+
+/** The token returned after a successful sign in. */
 export interface AuthResponse {
     accessToken: string
     tokenType: string
     expiresIn: number
 }
 
-export interface LoginRequest {
+// Users
+
+/** The profile of the authenticated user, including private fields. */
+export interface UserProfile {
+    uuid: string
+    username: string
     email: string
-    password: string
+    displayName: string
+    bio: string | null
+    profileImageUrl: string | null
+    role: string
+    createdAt: string
 }
 
+// Catalogue
+
+/** A genre badge attached to a film. */
 export interface GenreSummary {
     uuid: string
     name: string
@@ -36,6 +59,7 @@ export interface GenreSummary {
     color: string | null
 }
 
+/** A film in the catalogue, as returned by the API. */
 export interface Movie {
     uuid: string
     title: string
@@ -54,17 +78,19 @@ export interface Movie {
     updatedAt: string
 }
 
-export interface UserProfile {
+// Activity
+
+/** A single recorded viewing in a user's watch history. */
+export interface WatchLog {
     uuid: string
-    username: string
-    email: string
-    displayName: string
-    bio: string | null
-    profileImageUrl: string | null
-    role: string
+    movieUuid: string
+    movieTitle: string
+    posterPath: string | null
+    watchedAt: string | null
     createdAt: string
 }
 
+/** A review written by a user for a film. */
 export interface Review {
     uuid: string
     userUuid: string
@@ -76,13 +102,4 @@ export interface Review {
     reviewText: string | null
     createdAt: string
     updatedAt: string
-}
-
-export interface WatchLog {
-    uuid: string
-    movieUuid: string
-    movieTitle: string
-    posterPath: string | null
-    watchedAt: string | null
-    createdAt: string
 }

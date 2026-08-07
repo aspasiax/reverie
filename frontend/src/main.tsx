@@ -7,6 +7,11 @@ import { AuthProvider } from '@/auth/AuthContext'
 import App from '@/App'
 import './index.css'
 
+/**
+ * Creates the query client shared by the whole application.
+ *
+ * The defaults here apply to every query unless a screen overrides them.
+ */
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -33,6 +38,11 @@ const queryClient = new QueryClient({
     },
 })
 
+/*
+ * The providers are nested from the most general to the most specific:
+ * data fetching, then routing, then the authenticated user, who is only
+ * meaningful once both exist.
+ */
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <QueryClientProvider client={queryClient}>

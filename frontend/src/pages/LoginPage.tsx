@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+/**
+ * The sign in screen.
+ *
+ * Authentication is handled through the auth context rather than a
+ * mutation, because the result is not cached data but the identity of the
+ * session itself. Everything else in the application depends on it.
+ */
 export function LoginPage() {
     const { login, isAuthenticated, isLoading } = useAuth()
     const navigate = useNavigate()
@@ -17,11 +24,12 @@ export function LoginPage() {
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Someone who is already signed in has no reason to see this screen.
-    if (!isLoading && isAuthenticated) {
-        return <Navigate to="/" replace />
-    }
-
+    /**
+     * Signs the user in and sends them to the catalogue.
+     *
+     * The previous error is cleared before each attempt so that a failure
+     * from an earlier submission does not linger next to a new one.
+     */
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
         setError(null)
@@ -37,6 +45,11 @@ export function LoginPage() {
         }
     }
 
+    // Someone who is already signed in has no reason to see this screen.
+    if (!isLoading && isAuthenticated) {
+        return <Navigate to="/" replace />
+    }
+    
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
             <form

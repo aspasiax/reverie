@@ -5,6 +5,11 @@ import { api, errorMessage } from '@/lib/api'
 import type { Page, WatchLog } from '@/types/api'
 import { Button } from '@/components/ui/button'
 
+/**
+ * Retrieves the viewing history of the authenticated user.
+ *
+ * @returns the first page of the user's watch logs, newest first
+ */
 async function fetchWatchLogs() {
     const { data } = await api.get<Page<WatchLog>>('/api/watch-logs', {
         params: { page: 0, size: 50 },
@@ -12,6 +17,11 @@ async function fetchWatchLogs() {
     return data
 }
 
+/**
+ * Removes a single viewing from the history.
+ *
+ * @param uuid the public identifier of the watch log
+ */
 async function deleteWatchLog(uuid: string) {
     await api.delete(`/api/watch-logs/${uuid}`)
 }
@@ -32,6 +42,11 @@ export function WatchLogsPage() {
 
     const removeLog = useMutation({
         mutationFn: deleteWatchLog,
+        /*
+         * The list is invalidated rather than edited in place, so the count and
+         * the ordering come back from the server instead of being recalculated
+         * here.
+         */
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['watch-logs'] })
         },

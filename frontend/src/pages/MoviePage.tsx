@@ -5,12 +5,23 @@ import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
+import { TmdbAttribution } from "@/components/TmdbAttribution"
 
+/**
+ * Retrieves a single film.
+ *
+ * @param uuid the public identifier of the film
+ */
 async function fetchMovie(uuid: string) {
     const { data } = await api.get<Movie>(`/api/movies/${uuid}`)
     return data
 }
 
+/**
+ * Retrieves the reviews written for a film, newest first.
+ *
+ * @param uuid the public identifier of the film
+ */
 async function fetchReviews(uuid: string) {
     const { data } = await api.get<Page<Review>>(`/api/reviews/movie/${uuid}`, {
         params: { page: 0, size: 20 },
@@ -18,11 +29,23 @@ async function fetchReviews(uuid: string) {
     return data
 }
 
+/**
+ * Records that the authenticated user watched a film.
+ *
+ * @param movieUuid the public identifier of the film
+ */
 async function createWatchLog(movieUuid: string) {
     const { data } = await api.post('/api/watch-logs', { movieUuid })
     return data
 }
 
+/**
+ * A single film with its details, its reviews and a way to log a viewing.
+ *
+ * The film and its reviews are fetched separately so that a slow review
+ * list never delays the details, and so that logging a viewing invalidates
+ * only what it affects.
+ */
 export function MoviePage() {
     const { uuid } = useParams<{ uuid: string }>()
 
@@ -34,6 +57,11 @@ export function MoviePage() {
     } = useQuery({
         queryKey: ['movie', uuid],
         queryFn: () => fetchMovie(uuid!),
+        /*
+         * The route parameter is typed as possibly undefined, so the queries wait
+         * until it is present rather than requesting an address with "undefined"
+         * in it.
+         */
         enabled: uuid !== undefined,
     })
 
@@ -126,10 +154,9 @@ export function MoviePage() {
                             {movie.genres.map((genre) => (
                                 <span
                                     key={genre.uuid}
-                                    className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
-                                >
-          {genre.name}
-        </span>
+                                    className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                                  {genre.name}
+                                </span>
                             ))}
                         </div>
 
@@ -138,6 +165,11 @@ export function MoviePage() {
                         )}
 
                         <div className="pt-2">
+                            /*
+                            * The film is not checked against the existing history first: the domain
+                            * treats a rewatch as a separate entry, which is why watch logs carry no
+                            * uniqueness rule while reviews do.
+                            */
                             <Button onClick={() => logWatch.mutate()} disabled={logWatch.isPending}>
                                 <Eye className="size-4" />
                                 {logWatch.isPending ? 'Saving…' : 'Log as watched'}
@@ -196,6 +228,8 @@ export function MoviePage() {
                     </ul>
                 </section>
             </main>
+
+            <TmdbAttribution />
         </div>
     )
 }
