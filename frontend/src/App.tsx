@@ -4,6 +4,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
 import {WatchLogsPage} from "@/pages/WatchLogsPage.tsx";
+import {MyReviewsPage} from "@/pages/MyReviewsPage.tsx";
 
 /**
  * The route table of the application.
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/" element={<MoviesPage />} />
                 <Route path="/movies/:uuid" element={<MoviePage />} />
                 <Route path="/watch-logs" element={<WatchLogsPage />} />
+                <Route path="/my-reviews" element={<MyReviewsPage />} />
             </Route>
 
             {/* Unknown addresses fall back to the catalogue rather than a dead end. */}

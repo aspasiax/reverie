@@ -6,6 +6,8 @@ import type { Movie, Page, Review } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
 import { TmdbAttribution } from "@/components/TmdbAttribution"
+import { useAuth } from '@/auth/AuthContext'
+import { ReviewEditor } from '@/components/ReviewEditor'
 
 /**
  * Retrieves a single film.
@@ -48,6 +50,7 @@ async function createWatchLog(movieUuid: string) {
  */
 export function MoviePage() {
     const { uuid } = useParams<{ uuid: string }>()
+    const { user } = useAuth()
 
     const {
         data: movie,
@@ -73,6 +76,22 @@ export function MoviePage() {
 
     const queryClient = useQueryClient()
 
+    /*
+     * The user's own review is picked out of the film's review list rather
+     * than fetched separately. The list is paginated, so this only holds while
+     * a film has few enough reviews to fit on the first page.
+     */
+    const myReview =
+        reviews?.content.find((review) => review.userUuid === user?.uuid) ?? null
+
+    const otherReviews =
+        reviews?.content.filter((review) => review.userUuid !== user?.uuid) ?? []
+
+    /*
+     * The film is not checked against the existing history first: the domain
+     * treats a rewatch as a separate entry, which is why watch logs carry no
+     * uniqueness rule while reviews do.
+     */
     const logWatch = useMutation({
         mutationFn: () => createWatchLog(uuid!),
         onSuccess: () => {
@@ -165,11 +184,6 @@ export function MoviePage() {
                         )}
 
                         <div className="pt-2">
-                            /*
-                            * The film is not checked against the existing history first: the domain
-                            * treats a rewatch as a separate entry, which is why watch logs carry no
-                            * uniqueness rule while reviews do.
-                            */
                             <Button onClick={() => logWatch.mutate()} disabled={logWatch.isPending}>
                                 <Eye className="size-4" />
                                 {logWatch.isPending ? 'Saving…' : 'Log as watched'}
@@ -195,27 +209,36 @@ export function MoviePage() {
                         Reviews
                         {reviews !== undefined && (
                             <span className="ml-2 text-sm text-muted-foreground">
-                {reviews.totalElements}
-              </span>
+                                {reviews.totalElements}
+                            </span>
                         )}
                     </h2>
 
-                    {reviews !== undefined && reviews.content.length === 0 && (
+                    {/* The user's own review, or the form to write one. */}
+                    {uuid !== undefined && reviews !== undefined && (
+                        <ReviewEditor
+                            key={myReview?.uuid ?? 'new'}
+                            movieUuid={uuid}
+                            existing={myReview}
+                        />
+                    )}
+
+                    {otherReviews.length === 0 && reviews !== undefined && (
                         <p className="text-sm text-muted-foreground">
-                            No one has reviewed this film yet.
+                            No one else has reviewed this film yet.
                         </p>
                     )}
 
                     <ul className="space-y-4">
-                        {reviews?.content.map((review) => (
+                        {otherReviews.map((review) => (
                             <li key={review.uuid} className="rounded-lg border p-4">
                                 <div className="flex items-center justify-between">
                                     <span className="font-medium">{review.username}</span>
                                     {review.rating !== null && (
                                         <span className="inline-flex items-center gap-1 text-sm">
-                      <Star className="size-4 fill-current text-yellow-500" />
-                                            {review.rating}
-                    </span>
+                                          <Star className="size-4 fill-current text-yellow-500" />
+                                                                        {review.rating}
+                                        </span>
                                     )}
                                 </div>
                                 {review.reviewText !== null && (

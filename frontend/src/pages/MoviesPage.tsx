@@ -47,6 +47,9 @@ export function MoviesPage() {
                     <Link to="/watch-logs" className="text-sm hover:underline">
                         History
                     </Link>
+                    <Link to="/my-reviews" className="text-sm hover:underline">
+                        Reviews
+                    </Link>
           <span className="text-sm text-muted-foreground">
             {user?.displayName}
           </span>
