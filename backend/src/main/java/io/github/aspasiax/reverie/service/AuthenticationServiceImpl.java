@@ -5,6 +5,7 @@ import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.auth.AuthResponse;
 import io.github.aspasiax.reverie.dto.auth.LoginRequest;
 import io.github.aspasiax.reverie.dto.auth.RegisterRequest;
+import io.github.aspasiax.reverie.exception.DuplicateCredentialException;
 import io.github.aspasiax.reverie.repository.RoleRepository;
 import io.github.aspasiax.reverie.repository.UserRepository;
 import io.github.aspasiax.reverie.security.jwt.JwtService;
@@ -55,15 +56,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
         // Validate that the username and email address are available.
         if (userRepository.existsByUsernameIgnoreCaseAndDeletedFalse(normalizedUsername)) {
-            throw new IllegalArgumentException(
-                    "Username is already in use."
-            );
+            throw new DuplicateCredentialException("Username", normalizedUsername);
         }
 
         if (userRepository.existsByEmailIgnoreCaseAndDeletedFalse(normalizedEmail)) {
-            throw new IllegalArgumentException(
-                    "Email is already in use."
-            );
+            throw new DuplicateCredentialException("Email", normalizedEmail);
         }
 
         // Retrieve the default role assigned to newly registered users.

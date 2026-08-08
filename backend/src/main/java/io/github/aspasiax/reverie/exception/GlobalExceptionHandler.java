@@ -288,6 +288,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles registrations that reuse an existing username or email address.
+     *
+     * @param exception the duplicate credential exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(DuplicateCredentialException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateCredential(
+            DuplicateCredentialException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles request bodies that cannot be parsed, such as malformed
      * JSON or values that do not match the expected field types.
      *
