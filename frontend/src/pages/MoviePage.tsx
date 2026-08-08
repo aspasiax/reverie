@@ -1,13 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Star } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import { Star } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
 import { tmdbImage } from '@/lib/images'
-import { TmdbAttribution } from "@/components/TmdbAttribution"
 import { useAuth } from '@/auth/AuthContext'
 import { ReviewEditor } from '@/components/ReviewEditor'
-import {WatchActions} from "@/components/WatchActions.tsx";
+import { WatchActions } from '@/components/WatchActions'
 
 /**
  * Retrieves a single film.
@@ -90,18 +89,7 @@ export function MoviePage() {
     }
 
     return (
-        <div className="min-h-screen">
-            <header className="border-b px-6 py-4">
-                <Link
-                    to="/"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                    <ArrowLeft className="size-4" />
-                    Back to films
-                </Link>
-            </header>
-
-            <main className="mx-auto max-w-3xl space-y-8 p-6">
+        <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 sm:px-6">
                 {/* Backdrop banner, fading into the page background. */}
                 {tmdbImage(movie.backdropPath, 'w780') !== null && (
                     <div className="relative -mx-6 -mt-6 mb-6 h-48 overflow-hidden sm:h-64">
@@ -211,9 +199,6 @@ export function MoviePage() {
                         ))}
                     </ul>
                 </section>
-            </main>
-
-            <TmdbAttribution />
-        </div>
+            </div>
     )
 }

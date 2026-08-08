@@ -1,13 +1,10 @@
 import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { LogOut } from 'lucide-react'
-import { useAuth } from '@/auth/AuthContext'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
-import {TmdbAttribution} from "@/components/TmdbAttribution.tsx";
 
 /**
  * Retrieves one page of the film catalogue.
@@ -30,8 +27,6 @@ async function fetchMovies(page: number) {
  * cache and reappear instantly when the user goes back to them.
  */
 export function MoviesPage() {
-    const { user, logout } = useAuth()
-
     const [page, setPage] = useState(0)
     const { data, isPending, isError, error } = useQuery({
         queryKey: ['movies', page],
@@ -40,27 +35,7 @@ export function MoviesPage() {
     })
 
     return (
-        <div className="min-h-screen">
-            <header className="flex items-center justify-between border-b px-6 py-4">
-                <h1 className="text-xl font-semibold">Reverie</h1>
-                <div className="flex items-center gap-4">
-                    <Link to="/watch-logs" className="text-sm hover:underline">
-                        History
-                    </Link>
-                    <Link to="/my-reviews" className="text-sm hover:underline">
-                        Reviews
-                    </Link>
-          <span className="text-sm text-muted-foreground">
-            {user?.displayName}
-          </span>
-                    <Button variant="ghost" size="sm" onClick={logout}>
-                        <LogOut className="size-4" />
-                        Sign out
-                    </Button>
-                </div>
-            </header>
-
-            <main className="p-6">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
                 {isPending && <p className="text-muted-foreground">Loading films…</p>}
 
                 {isError && (
@@ -136,9 +111,6 @@ export function MoviesPage() {
                         </div>
                     </>
                 )}
-            </main>
-
-            <TmdbAttribution />
-        </div>
+            </div>
     )
 }

@@ -1,10 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+
+import { AppLayout } from '@/components/AppLayout'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+
 import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
-import {WatchLogsPage} from "@/pages/WatchLogsPage.tsx";
-import {MyReviewsPage} from "@/pages/MyReviewsPage.tsx";
+import { MyReviewsPage } from '@/pages/MyReviewsPage'
+import { WatchLogsPage } from '@/pages/WatchLogsPage'
 
 /**
  * The route table of the application.
@@ -19,10 +22,12 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
 
             <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<MoviesPage />} />
-                <Route path="/movies/:uuid" element={<MoviePage />} />
-                <Route path="/watch-logs" element={<WatchLogsPage />} />
-                <Route path="/my-reviews" element={<MyReviewsPage />} />
+                <Route element={<AppLayout />}>
+                    <Route path="/" element={<MoviesPage />} />
+                    <Route path="/movies/:uuid" element={<MoviePage />} />
+                    <Route path="/watch-logs" element={<WatchLogsPage />} />
+                    <Route path="/my-reviews" element={<MyReviewsPage />} />
+                </Route>
             </Route>
 
             {/* Unknown addresses fall back to the catalogue rather than a dead end. */}
