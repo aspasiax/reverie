@@ -114,6 +114,14 @@ and introduces a race between two administrators demoting themselves at the
 same time. The simpler rule achieves the same protection at a fraction of
 the complexity.
 
+## Separate request records instead of entities
+
+Endpoints accept purpose built records rather than the entities themselves.
+An update request for a profile carries only the three fields a user may
+change, so an email address or a role sent alongside them is discarded
+before it reaches the service. Accepting the entity would have made every
+column writable by anyone able to guess its name.
+
 ## An explicit page representation
 
 Paginated endpoints return a `PageResponse`, a record defined by the
