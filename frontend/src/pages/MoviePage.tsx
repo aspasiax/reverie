@@ -1,13 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Eye, Star } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
-import { Button } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
 import { TmdbAttribution } from "@/components/TmdbAttribution"
 import { useAuth } from '@/auth/AuthContext'
 import { ReviewEditor } from '@/components/ReviewEditor'
+import {WatchActions} from "@/components/WatchActions.tsx";
 
 /**
  * Retrieves a single film.
@@ -28,16 +28,6 @@ async function fetchReviews(uuid: string) {
     const { data } = await api.get<Page<Review>>(`/api/reviews/movie/${uuid}`, {
         params: { page: 0, size: 20 },
     })
-    return data
-}
-
-/**
- * Records that the authenticated user watched a film.
- *
- * @param movieUuid the public identifier of the film
- */
-async function createWatchLog(movieUuid: string) {
-    const { data } = await api.post('/api/watch-logs', { movieUuid })
     return data
 }
 
@@ -74,8 +64,6 @@ export function MoviePage() {
         enabled: uuid !== undefined,
     })
 
-    const queryClient = useQueryClient()
-
     /*
      * The user's own review is picked out of the film's review list rather
      * than fetched separately. The list is paginated, so this only holds while
@@ -87,17 +75,7 @@ export function MoviePage() {
     const otherReviews =
         reviews?.content.filter((review) => review.userUuid !== user?.uuid) ?? []
 
-    /*
-     * The film is not checked against the existing history first: the domain
-     * treats a rewatch as a separate entry, which is why watch logs carry no
-     * uniqueness rule while reviews do.
-     */
-    const logWatch = useMutation({
-        mutationFn: () => createWatchLog(uuid!),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['watch-logs'] })
-        },
-    })
+
 
     if (isPending) {
         return <p className="p-6 text-muted-foreground">Loading…</p>
@@ -183,24 +161,7 @@ export function MoviePage() {
                             <p className="pt-2 leading-relaxed">{movie.overview}</p>
                         )}
 
-                        <div className="pt-2">
-                            <Button onClick={() => logWatch.mutate()} disabled={logWatch.isPending}>
-                                <Eye className="size-4" />
-                                {logWatch.isPending ? 'Saving…' : 'Log as watched'}
-                            </Button>
-
-                            {logWatch.isSuccess && (
-                                <p className="mt-2 text-sm text-green-500">
-                                    Added to your watch history.
-                                </p>
-                            )}
-
-                            {logWatch.isError && (
-                                <p role="alert" className="mt-2 text-sm text-destructive">
-                                    {errorMessage(logWatch.error)}
-                                </p>
-                            )}
-                        </div>
+                        <WatchActions movieUuid={uuid!} />
                     </div>
                 </section>
 
