@@ -5,6 +5,7 @@ import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.domain.WatchLog;
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
+import io.github.aspasiax.reverie.dto.watchlog.UpdateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import io.github.aspasiax.reverie.exception.MovieNotFoundException;
 import io.github.aspasiax.reverie.exception.WatchLogNotFoundException;
@@ -75,6 +76,32 @@ public class WatchLogServiceImpl implements IWatchLogService {
         WatchLog savedWatchLog = watchLogRepository.save(watchLog);
 
         return watchLogMapper.toResponse(savedWatchLog);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public WatchLogResponse update(
+            UUID uuid,
+            UpdateWatchLogRequest request
+    ) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        WatchLog watchLog = findActiveWatchLog(uuid);
+
+        if (!watchLog.getUser().equals(currentUser)) {
+            throw new AccessDeniedException(
+                    "You are not allowed to modify this watch log."
+            );
+        }
+
+        watchLog.setWatchedAt(request.watchedAt());
+
+        WatchLog updatedWatchLog = watchLogRepository.save(watchLog);
+
+        return watchLogMapper.toResponse(updatedWatchLog);
     }
 
     /**

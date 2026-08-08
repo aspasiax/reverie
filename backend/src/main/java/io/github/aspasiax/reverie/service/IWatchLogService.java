@@ -2,6 +2,7 @@ package io.github.aspasiax.reverie.service;
 
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
+import io.github.aspasiax.reverie.dto.watchlog.UpdateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import org.springframework.data.domain.Pageable;
 
@@ -28,6 +29,15 @@ public interface IWatchLogService {
      * @return the created watch log response
      */
     WatchLogResponse create(CreateWatchLogRequest request);
+
+    /**
+     * Corrects the viewing date of an existing watch log.
+     *
+     * @param uuid    the public watch log identifier
+     * @param request the corrected values
+     * @return the updated watch log
+     */
+    WatchLogResponse update(UUID uuid, UpdateWatchLogRequest request);
 
     /**
      * Deletes one of the authenticated user's watch logs.

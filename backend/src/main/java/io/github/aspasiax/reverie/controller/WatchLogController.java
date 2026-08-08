@@ -2,6 +2,7 @@ package io.github.aspasiax.reverie.controller;
 
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
+import io.github.aspasiax.reverie.dto.watchlog.UpdateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import io.github.aspasiax.reverie.service.IWatchLogService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,13 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -122,6 +117,50 @@ public class WatchLogController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdWatchLog);
+    }
+
+    /**
+     * Corrects the viewing date of one of the authenticated user's watch logs.
+     *
+     * @param uuid    the watch-log UUID
+     * @param request the validated update request
+     * @return the updated watch log
+     */
+    @Operation(
+            summary = "Update a watch log",
+            description = "Corrects the viewing date of a watch log that belongs to the authenticated user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Watch log updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid watch-log data"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Watch log belongs to another user or permissions are insufficient"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Watch log not found"
+            )
+    })
+    @PutMapping("/{uuid}")
+    @PreAuthorize("hasAuthority('WATCH_LOG_UPDATE')")
+    public ResponseEntity<WatchLogResponse> update(
+            @PathVariable UUID uuid,
+            @Valid @RequestBody UpdateWatchLogRequest request
+    ) {
+        return ResponseEntity.ok(
+                watchLogService.update(uuid, request)
+        );
     }
 
     /**
