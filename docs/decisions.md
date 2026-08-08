@@ -75,10 +75,14 @@ moved to `classpath:db/demo`, which only the development profile loads. The
 default configuration loads only `classpath:db/migration`, so no other
 environment ever receives it.
 
-Demonstration migrations are numbered from `V901` upward so that they can
-never collide with future schema changes. Because a new schema migration
-then carries a lower version than demonstration data that has already run,
-out of order migrations are enabled in the development profile.
+Demonstration migrations are numbered from V901 upward so that they can
+never collide with future schema changes. A schema migration added later
+therefore carries a lower version than demonstration data already applied,
+which Flyway refuses by default, so out of order migrations are enabled in
+the development profile. The log records each such migration as
+[out of order]. The trade off is that a database built from scratch applies
+the files in a different sequence than one migrated incrementally —
+acceptable here because no migration depends on demonstration data.
 
 ## Two response shapes for a user profile
 
