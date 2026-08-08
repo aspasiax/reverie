@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Clapperboard } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { errorMessage } from '@/lib/api'
@@ -99,6 +99,13 @@ export function LoginPage() {
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? 'Signing in…' : 'Sign in'}
                 </Button>
+
+                <p className="text-center text-sm text-muted-foreground">
+                    New here?{' '}
+                    <Link to="/register" className="underline hover:text-foreground">
+                        Create an account
+                    </Link>
+                </p>
             </form>
         </div>
     )
