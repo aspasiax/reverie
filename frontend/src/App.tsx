@@ -8,6 +8,7 @@ import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
 import { MyReviewsPage } from '@/pages/MyReviewsPage'
 import { WatchLogsPage } from '@/pages/WatchLogsPage'
+import { ProfilePage } from '@/pages/ProfilePage.tsx'
 
 /**
  * The route table of the application.
@@ -27,6 +28,7 @@ function App() {
                     <Route path="/movies/:uuid" element={<MoviePage />} />
                     <Route path="/watch-logs" element={<WatchLogsPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
                 </Route>
             </Route>
 

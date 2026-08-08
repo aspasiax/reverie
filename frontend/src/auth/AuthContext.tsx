@@ -11,6 +11,16 @@ interface AuthContextValue {
     logout: () => void
 }
 
+interface AuthContextValue {
+    user: UserProfile | null
+    isLoading: boolean
+    isAuthenticated: boolean
+    login: (email: string, password: string) => Promise<void>
+    logout: () => void
+    /** Reloads the profile after the user changes it. */
+    refreshUser: () => Promise<void>
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 /**
@@ -59,6 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null)
     }, [])
 
+    const refreshUser = useCallback(async () => {
+        const { data } = await api.get<UserProfile>('/api/users/me')
+        setUser(data)
+    }, [])
+
     return (
         <AuthContext.Provider
             value={{
@@ -66,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isLoading,
                 isAuthenticated: user !== null,
                 login,
+                refreshUser,
                 logout,
             }}
         >

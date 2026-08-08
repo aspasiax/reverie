@@ -49,6 +49,13 @@ export interface UserProfile {
     createdAt: string
 }
 
+/** The profile fields a user may change. */
+export interface UpdateUserRequest {
+    displayName: string
+    bio: string | null
+    profileImageUrl: string | null
+}
+
 // Catalogue
 
 /** A genre badge attached to a film. */

@@ -52,9 +52,19 @@ export function AppLayout() {
                     </nav>
 
                     <div className="ml-auto flex items-center gap-3">
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              {user?.displayName}
-            </span>
+                        <NavLink
+                            to="/profile"
+                            className={({ isActive }) =>
+                                cn(
+                                    'rounded-md px-2 py-1 text-sm transition-colors',
+                                    isActive
+                                        ? 'bg-accent font-medium text-accent-foreground'
+                                        : 'text-muted-foreground hover:text-foreground',
+                                )
+                            }
+                        >
+                            {user?.displayName}
+                        </NavLink>
                         <Button variant="ghost" size="sm" onClick={logout}>
                             <LogOut className="size-4" />
                             <span className="hidden sm:inline">Sign out</span>
