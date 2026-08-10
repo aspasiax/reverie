@@ -1,3 +1,5 @@
+import type { Capability } from '@/lib/capabilities'
+
 // Infrastructure
 
 /** Matches ApiErrorResponse on the server. */
@@ -46,6 +48,7 @@ export interface UserProfile {
     bio: string | null
     profileImageUrl: string | null
     role: string
+    capabilities: Capability[]
     createdAt: string
 }
 
@@ -57,6 +60,17 @@ export interface UpdateUserRequest {
 }
 
 // Catalogue
+
+/** A genre with every field the API exposes. */
+export interface Genre {
+    uuid: string
+    name: string
+    description: string | null
+    icon: string | null
+    color: string | null
+    createdAt: string
+    updatedAt: string
+}
 
 /** A genre badge attached to a film. */
 export interface GenreSummary {

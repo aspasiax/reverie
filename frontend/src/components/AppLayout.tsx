@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/AuthContext'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { TmdbAttribution } from '@/components/TmdbAttribution'
+import { ADMIN_CAPABILITIES } from '@/lib/capabilities'
 
 /** The destinations available to every signed in user. */
 const navigation = [
@@ -11,6 +12,9 @@ const navigation = [
     { to: '/watch-logs', label: 'History', end: false },
     { to: '/my-reviews', label: 'Reviews', end: false },
 ]
+
+/** The destination reserved for accounts that may administer the catalogue. */
+const adminNavigation = { to: '/admin', label: 'Admin', end: false }
 
 /**
  * The shell shared by every screen behind the sign in wall.
@@ -20,7 +24,12 @@ const navigation = [
  * apart as the application grows.
  */
 export function AppLayout() {
-    const { user, logout } = useAuth()
+    const { user, logout, can } = useAuth()
+
+    // The administration area is only offered to accounts that can use it.
+    const items = ADMIN_CAPABILITIES.some(can)
+        ? [...navigation, adminNavigation]
+        : navigation
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -32,7 +41,7 @@ export function AppLayout() {
                     </NavLink>
 
                     <nav className="flex items-center gap-1">
-                        {navigation.map((item) => (
+                        {items.map((item) => (
                             <NavLink
                                 key={item.to}
                                 to={item.to}

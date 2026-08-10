@@ -2,14 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import type { ReactNode } from 'react'
 import { api, clearToken, getToken, setToken } from '@/lib/api'
 import type { AuthResponse, UserProfile } from '@/types/api'
-
-interface AuthContextValue {
-    user: UserProfile | null
-    isLoading: boolean
-    isAuthenticated: boolean
-    login: (email: string, password: string) => Promise<void>
-    logout: () => void
-}
+import type { Capability } from '@/lib/capabilities'
 
 interface AuthContextValue {
     user: UserProfile | null
@@ -19,6 +12,8 @@ interface AuthContextValue {
     logout: () => void
     /** Reloads the profile after the user changes it. */
     refreshUser: () => Promise<void>
+    /** Reports whether the signed in user holds the given capability. */
+    can: (capability: Capability) => boolean
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -74,6 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data)
     }, [])
 
+    const can = useCallback(
+        (capability: Capability) => user?.capabilities.includes(capability) ?? false,
+        [user],
+    )
+
     return (
         <AuthContext.Provider
             value={{
@@ -82,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated: user !== null,
                 login,
                 refreshUser,
+                can,
                 logout,
             }}
         >
