@@ -14,6 +14,7 @@ import { MyReviewsPage } from '@/pages/MyReviewsPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { WatchLogsPage } from '@/pages/WatchLogsPage'
+import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 
 /**
  * The route table of the application.
@@ -41,6 +42,7 @@ function App() {
                             <Route index element={<Navigate to="/admin/genres" replace />} />
                             <Route path="genres" element={<AdminGenresPage />} />
                             <Route path="movies" element={<AdminMoviesPage />} />
+                            <Route path="users" element={<AdminUsersPage />} />
                         </Route>
                     </Route>
                 </Route>

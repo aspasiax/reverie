@@ -52,6 +52,16 @@ export interface UserProfile {
     createdAt: string
 }
 
+/** A user account as an administrator sees it. */
+export interface UserAdmin {
+    uuid: string
+    username: string
+    displayName: string
+    role: string
+    enabled: boolean
+    createdAt: string
+}
+
 /** The profile fields a user may change. */
 export interface UpdateUserRequest {
     displayName: string
