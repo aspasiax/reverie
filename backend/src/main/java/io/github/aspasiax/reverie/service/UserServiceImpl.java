@@ -2,10 +2,7 @@ package io.github.aspasiax.reverie.service;
 
 import io.github.aspasiax.reverie.domain.Role;
 import io.github.aspasiax.reverie.domain.User;
-import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
-import io.github.aspasiax.reverie.dto.user.UpdateUserRoleRequest;
-import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
-import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
+import io.github.aspasiax.reverie.dto.user.*;
 import io.github.aspasiax.reverie.exception.RoleNotFoundException;
 import io.github.aspasiax.reverie.exception.SelfRoleChangeException;
 import io.github.aspasiax.reverie.exception.UserNotFoundException;
@@ -14,6 +11,7 @@ import io.github.aspasiax.reverie.repository.RoleRepository;
 import io.github.aspasiax.reverie.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,10 +77,10 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<UserSummaryResponse> findAll() {
-        return userRepository.findAllByDeletedFalseOrderByUsernameAsc()
+    public List<UserAdminResponse> findAll() {
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "displayName"))
                 .stream()
-                .map(userMapper::toSummaryResponse)
+                .map(userMapper::toAdminResponse)
                 .toList();
     }
 
@@ -91,7 +89,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     @Transactional
-    public UserProfileResponse updateUserRole(
+    public UserAdminResponse updateUserRole(
             UUID uuid,
             UpdateUserRoleRequest request
     ) {
@@ -125,7 +123,7 @@ public class UserServiceImpl implements IUserService {
                 currentUser.getUuid()
         );
 
-        return userMapper.toProfileResponse(updatedUser);
+        return userMapper.toAdminResponse(updatedUser);
     }
 
     /**

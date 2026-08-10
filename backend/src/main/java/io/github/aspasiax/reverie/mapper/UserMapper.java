@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.mapper;
 import io.github.aspasiax.reverie.domain.Capability;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
+import io.github.aspasiax.reverie.dto.user.UserAdminResponse;
 import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
 import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,23 @@ public class UserMapper {
                 user.getRole().getCapabilities().stream()
                         .map(Capability::getName)
                         .collect(Collectors.toSet())
+        );
+    }
+
+    /**
+     * Maps a user to the administrative response.
+     *
+     * @param user the user entity
+     * @return the account as an administrator sees it
+     */
+    public UserAdminResponse toAdminResponse(User user) {
+        return new UserAdminResponse(
+                user.getUuid(),
+                user.getUsername(),
+                user.getDisplayName(),
+                user.getRole().getName(),
+                user.isEnabled(),
+                user.getCreatedAt()
         );
     }
 

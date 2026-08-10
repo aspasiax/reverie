@@ -1,9 +1,6 @@
 package io.github.aspasiax.reverie.service;
 
-import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
-import io.github.aspasiax.reverie.dto.user.UpdateUserRoleRequest;
-import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
-import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
+import io.github.aspasiax.reverie.dto.user.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,22 +35,22 @@ public interface IUserService {
     UserSummaryResponse findByUuid(UUID uuid);
 
     /**
-     * Returns every active user.
+     * Retrieves every user account for administration.
      *
-     * @return the active users ordered by username
+     * <p>The returned view carries the email address and the role, which is
+     * what makes the accounts manageable, and is therefore restricted to
+     * callers holding the user read capability.</p>
+     *
+     * @return a list containing every account
      */
-    List<UserSummaryResponse> findAll();
+    List<UserAdminResponse> findAll();
 
     /**
-     * Assigns a different security role to a user.
+     * Changes the role assigned to a user.
      *
-     * <p>This is the operation through which additional administrators are
-     * created. Administrators may not change their own role, which prevents
-     * the last administrator from removing their own privileges.</p>
-     *
-     * @param uuid    the public identifier of the user to modify
-     * @param request the role to assign
-     * @return the updated profile of the modified user
+     * @param uuid    the public identifier of the user
+     * @param request the requested role
+     * @return the account after the change
      */
-    UserProfileResponse updateUserRole(UUID uuid, UpdateUserRoleRequest request);
+    UserAdminResponse updateUserRole(UUID uuid, UpdateUserRoleRequest request);
 }

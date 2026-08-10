@@ -1,9 +1,6 @@
 package io.github.aspasiax.reverie.controller;
 
-import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
-import io.github.aspasiax.reverie.dto.user.UpdateUserRoleRequest;
-import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
-import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
+import io.github.aspasiax.reverie.dto.user.*;
 import io.github.aspasiax.reverie.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -126,7 +123,7 @@ public class UserController {
     })
     @GetMapping
     @PreAuthorize("hasAuthority('USER_READ')")
-    public ResponseEntity<List<UserSummaryResponse>> findAll() {
+    public ResponseEntity<List<UserAdminResponse>> findAll() {
         return ResponseEntity.ok(userService.findAll());
     }
 
@@ -151,7 +148,7 @@ public class UserController {
     })
     @PutMapping("/{uuid}/role")
     @PreAuthorize("hasAuthority('USER_UPDATE')")
-    public ResponseEntity<UserProfileResponse> updateUserRole(
+    public ResponseEntity<UserAdminResponse> updateUserRole(
             @PathVariable UUID uuid,
             @Valid @RequestBody UpdateUserRoleRequest request
     ) {
