@@ -1,10 +1,13 @@
 package io.github.aspasiax.reverie.mapper;
 
+import io.github.aspasiax.reverie.domain.Capability;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
 import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
 import io.github.aspasiax.reverie.dto.user.UserSummaryResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 /**
  * Maps user entities to API response DTOs and applies profile update
@@ -32,7 +35,10 @@ public class UserMapper {
                 user.getBio(),
                 user.getProfileImageUrl(),
                 user.getRole().getName(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getRole().getCapabilities().stream()
+                        .map(Capability::getName)
+                        .collect(Collectors.toSet())
         );
     }
 

@@ -3,13 +3,16 @@ package io.github.aspasiax.reverie.dto.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents the authenticated user's own profile.
  *
- * <p>This response includes the email address and the assigned role, and is
- * therefore only returned to the account owner.</p>
+ * <p>This response includes the email address, the assigned role and the
+ * capabilities it grants, and is therefore only returned to the account
+ * owner. The client uses the capabilities to decide which controls to show,
+ * mirroring the checks the API performs on every request.</p>
  */
 @Schema(
         name = "UserProfileResponse",
@@ -39,6 +42,12 @@ public record UserProfileResponse(
         String role,
 
         @Schema(description = "When the account was created.")
-        Instant createdAt
+        Instant createdAt,
+
+        @Schema(
+                description = "Names of the capabilities granted through the assigned role.",
+                example = "[\"MOVIE_READ\", \"REVIEW_CREATE\"]"
+        )
+        Set<String> capabilities
 ) {
 }
