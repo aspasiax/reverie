@@ -1,8 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
+import { AdminRoute } from '@/components/AdminRoute'
 import { AppLayout } from '@/components/AppLayout'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
+import { AdminGenresPage } from '@/pages/admin/AdminGenresPage'
+import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
@@ -31,6 +34,13 @@ function App() {
                     <Route path="/watch-logs" element={<WatchLogsPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+
+                    <Route element={<AdminRoute />}>
+                        <Route path="/admin" element={<AdminLayout />}>
+                            <Route index element={<Navigate to="/admin/genres" replace />} />
+                            <Route path="genres" element={<AdminGenresPage />} />
+                        </Route>
+                    </Route>
                 </Route>
             </Route>
 
