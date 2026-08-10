@@ -44,9 +44,35 @@ public class MovieServiceImpl implements IMovieService {
      */
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MovieResponse> findAll(Pageable pageable) {
+    public PageResponse<MovieResponse> findAllPublished(Pageable pageable) {
+        Page<MovieResponse> page = movieRepository
+                .findAllByDeletedFalseAndPublishedTrue(pageable)
+                .map(movieMapper::toResponse);
+
+        return PageResponse.from(page);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<MovieResponse> findAllActive(Pageable pageable) {
         Page<MovieResponse> page = movieRepository
                 .findAllByDeletedFalse(pageable)
+                .map(movieMapper::toResponse);
+
+        return PageResponse.from(page);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<MovieResponse> findAllDeleted(Pageable pageable) {
+        Page<MovieResponse> page = movieRepository
+                .findAllByDeletedTrue(pageable)
                 .map(movieMapper::toResponse);
 
         return PageResponse.from(page);
@@ -143,6 +169,32 @@ public class MovieServiceImpl implements IMovieService {
         Movie restoredMovie = movieRepository.save(movie);
 
         return movieMapper.toResponse(restoredMovie);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public MovieResponse publish(UUID uuid) {
+        Movie movie = findActiveMovie(uuid);
+
+        movie.publish();
+
+        return movieMapper.toResponse(movieRepository.save(movie));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public MovieResponse unpublish(UUID uuid) {
+        Movie movie = findActiveMovie(uuid);
+
+        movie.unpublish();
+
+        return movieMapper.toResponse(movieRepository.save(movie));
     }
 
     /**

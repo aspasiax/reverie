@@ -50,14 +50,14 @@ public class MovieController {
     private final IMovieService movieService;
 
     /**
-     * Returns a page of active movies.
+     * Returns a page of published movies.
      *
      * @param pageable the requested page and sort order
-     * @return a page of active movies
+     * @return a page of published movies
      */
     @Operation(
-            summary = "Get all movies",
-            description = "Returns a page of active movies. Use the page, size and sort parameters to navigate the catalogue."
+            summary = "Get all published movies",
+            description = "Returns a page of published movies. Use the page, size and sort parameters to navigate the catalogue."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Movies retrieved successfully"),
@@ -66,10 +66,56 @@ public class MovieController {
     })
     @GetMapping
     @PreAuthorize("hasAuthority('MOVIE_READ')")
-    public ResponseEntity<PageResponse<MovieResponse>> findAll(
+    public ResponseEntity<PageResponse<MovieResponse>> findAllPublished(
             @PageableDefault(size = 20, sort = "title") Pageable pageable
     ) {
-        return ResponseEntity.ok(movieService.findAll(pageable));
+        return ResponseEntity.ok(movieService.findAllPublished(pageable));
+    }
+
+    /**
+     * Returns a page of every movie that has not been deleted.
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of active movies, published or not
+     */
+    @Operation(
+            summary = "Get all movies for administration",
+            description = "Returns a page of every movie that has not been deleted, including the ones that are not published yet."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Movies retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
+    public ResponseEntity<PageResponse<MovieResponse>> findAllActive(
+            @PageableDefault(size = 20, sort = "title") Pageable pageable
+    ) {
+        return ResponseEntity.ok(movieService.findAllActive(pageable));
+    }
+
+    /**
+     * Returns a page of soft-deleted movies.
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of soft-deleted movies
+     */
+    @Operation(
+            summary = "Get all deleted movies",
+            description = "Returns a page of soft-deleted movies, which are the ones that can be restored."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Deleted movies retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
+    @GetMapping("/deleted")
+    @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
+    public ResponseEntity<PageResponse<MovieResponse>> findAllDeleted(
+            @PageableDefault(size = 20, sort = "title") Pageable pageable
+    ) {
+        return ResponseEntity.ok(movieService.findAllDeleted(pageable));
     }
 
     /**
@@ -261,5 +307,53 @@ public class MovieController {
             @PathVariable UUID uuid
     ) {
         return ResponseEntity.ok(movieService.restore(uuid));
+    }
+
+    /**
+     * Publishes a movie, making it visible in the catalogue.
+     *
+     * @param uuid the movie UUID
+     * @return the published movie
+     */
+    @Operation(
+            summary = "Publish a movie",
+            description = "Makes a movie visible in the public catalogue."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Movie published successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Movie not found")
+    })
+    @PostMapping("/{uuid}/publish")
+    @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
+    public ResponseEntity<MovieResponse> publish(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(movieService.publish(uuid));
+    }
+
+    /**
+     * Withdraws a movie from the catalogue without deleting it.
+     *
+     * @param uuid the movie UUID
+     * @return the unpublished movie
+     */
+    @Operation(
+            summary = "Unpublish a movie",
+            description = "Withdraws a movie from the public catalogue without deleting it."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Movie unpublished successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Movie not found")
+    })
+    @PostMapping("/{uuid}/unpublish")
+    @PreAuthorize("hasAuthority('MOVIE_UPDATE')")
+    public ResponseEntity<MovieResponse> unpublish(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(movieService.unpublish(uuid));
     }
 }

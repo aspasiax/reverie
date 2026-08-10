@@ -88,7 +88,7 @@ check "unknown movie"                  "404" "$(code -H "Authorization: Bearer $
 echo ""
 echo "DEMO DATASET"
 check "12 genres"                      "12" "$(curl -s -H "Authorization: Bearer $ALEX" $API/api/genres | grep -o '"uuid"' | wc -l | tr -d ' ')"
-check "20 movies"                      "20" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "24 movies"                      "24" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
 check "alex has 9 watch logs"          "9"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/watch-logs?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
 check "alex has 6 reviews"             "6"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/me?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
 check "emma has 5 reviews"             "5"  "$(curl -s -H "Authorization: Bearer $EMMA" "$API/api/reviews/me?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
@@ -98,11 +98,28 @@ check "daniel has 4 reviews"           "4"  "$(curl -s -H "Authorization: Bearer
 echo ""
 echo "PAGINATION"
 check "default page size"              "20" "$(curl -s -H "Authorization: Bearer $ALEX" $API/api/movies | json "print(json.load(sys.stdin)['size'])")"
-check "size=5 gives 4 pages"           "4"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=5" | json "print(json.load(sys.stdin)['totalPages'])")"
+check "size=5 gives 5 pages"           "5"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=5" | json "print(json.load(sys.stdin)['totalPages'])")"
 check "first page flagged first"       "True" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?page=0&size=5" | json "print(json.load(sys.stdin)['first'])")"
-check "last page flagged last"         "True" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?page=3&size=5" | json "print(json.load(sys.stdin)['last'])")"
+check "last page flagged last"         "True" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?page=4&size=5" | json "print(json.load(sys.stdin)['last'])")"
 check "page beyond end is empty"       "0"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?page=99&size=5" | json "print(len(json.load(sys.stdin)['content']))")"
-check "movies sorted by title"         "Arrival" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=1" | json "print(json.load(sys.stdin)['content'][0]['title'])")"
+check "movies sorted by title"         "Alien" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=1" | json "print(json.load(sys.stdin)['content'][0]['title'])")"
+
+# ---------- Publication ----------
+echo ""
+echo "PUBLICATION"
+
+ALIEN=$(curl -s -H "Authorization: Bearer $ADMIN" "$API/api/movies/all?size=100" | json "print([m['uuid'] for m in json.load(sys.stdin)['content'] if m['title']=='Alien'][0])")
+
+check "USER cannot list all movies"    "403" "$(code -H "Authorization: Bearer $ALEX" $API/api/movies/all)"
+check "USER cannot list deleted"       "403" "$(code -H "Authorization: Bearer $ALEX" $API/api/movies/deleted)"
+check "ADMIN sees 24 to manage"        "24" "$(curl -s -H "Authorization: Bearer $ADMIN" "$API/api/movies/all?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "no deleted movies"              "0"  "$(curl -s -H "Authorization: Bearer $ADMIN" "$API/api/movies/deleted?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "USER cannot unpublish"          "403" "$(code -X POST $API/api/movies/$ALIEN/unpublish -H "Authorization: Bearer $ALEX")"
+check "ADMIN unpublishes"              "200" "$(code -X POST $API/api/movies/$ALIEN/unpublish -H "Authorization: Bearer $ADMIN")"
+check "catalogue drops to 23"          "23" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "management still shows 24"      "24" "$(curl -s -H "Authorization: Bearer $ADMIN" "$API/api/movies/all?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "ADMIN republishes"              "200" "$(code -X POST $API/api/movies/$ALIEN/publish -H "Authorization: Bearer $ADMIN")"
+check "catalogue back to 24"           "24" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=100" | json "print(json.load(sys.stdin)['totalElements'])")"
 
 # ---------- Privacy ----------
 echo ""

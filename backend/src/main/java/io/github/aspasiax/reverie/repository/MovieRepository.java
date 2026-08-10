@@ -22,6 +22,29 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Page<Movie> findAllByDeletedFalse(Pageable pageable);
 
     /**
+     * Returns a page of movies that are active and published.
+     *
+     * <p>This is what the public catalogue shows. Unpublished movies exist
+     * but are not offered to readers, which is what allows a movie to be
+     * prepared before it becomes visible.</p>
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of published movies
+     */
+    Page<Movie> findAllByDeletedFalseAndPublishedTrue(Pageable pageable);
+
+    /**
+     * Returns a page of movies that have been soft deleted.
+     *
+     * <p>This is the counterpart of {@link #findAllByDeletedFalse(Pageable)}
+     * and exists so that deleted movies can be listed and restored.</p>
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of soft-deleted movies
+     */
+    Page<Movie> findAllByDeletedTrue(Pageable pageable);
+
+    /**
      * Finds an active movie by its public UUID.
      *
      * @param uuid the movie UUID
