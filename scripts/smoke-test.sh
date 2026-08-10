@@ -6,11 +6,12 @@
 # rule against a running application.
 #
 # Usage:  bash smoke-test.sh
-# Expects the API on http://localhost:8080 and the demo
-# dataset loaded (dev profile).
+#         API=http://localhost:3000 bash smoke-test.sh
+# Expects the API on http://localhost:8080 unless API says
+# otherwise, and the demo dataset loaded (dev profile).
 # =========================================================
 
-API="http://localhost:8080"
+API="${API:-http://localhost:8080}"
 PASS=0
 FAIL=0
 

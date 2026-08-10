@@ -1,0 +1,12 @@
+# Build output: the image builds its own, and the jar alone is 60 MB.
+build/
+.gradle/
+
+# Local tooling
+.idea/
+*.iml
+*.log
+
+# Documentation is not needed to run the application.
+HELP.md
+README.md

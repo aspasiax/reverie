@@ -47,6 +47,10 @@ dist/
 .env
 .env.*
 
+# The example carries no real values and documents what the application
+# needs in order to start. It is the only one that belongs in the repository.
+!.env.example
+
 # OS
 .DS_Store
 Thumbs.db

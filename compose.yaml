@@ -1,20 +1,71 @@
+# =========================================================
+# Reverie
+# =========================================================
+# Brings up the whole application: database, API and the
+# web interface behind a single address.
+#
+#   docker compose up --build
+#   http://localhost:3000
+#
+# Values come from .env, which is not committed. Copy
+# .env.example to .env before the first run.
+# =========================================================
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: reverie-postgres
     environment:
-      POSTGRES_DB: reverie_db
-      POSTGRES_USER: reverie_user
-      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: ${PG_DB:-reverie_db}
+      POSTGRES_USER: ${PG_USER:-reverie_user}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?set PG_PASSWORD in .env}
     ports:
       - '5432:5432'
     volumes:
       - reverie-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U reverie_user -d reverie_db']
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${PG_USER:-reverie_user} -d ${PG_DB:-reverie_db}
       interval: 5s
       timeout: 5s
       retries: 5
+
+  backend:
+    build: ./backend
+    container_name: reverie-backend
+    environment:
+      # 'postgres' is the service name above, which is also its address on
+      # the network compose creates. The port is the one inside that
+      # network, not the one published to the host.
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_DB: ${PG_DB:-reverie_db}
+      PG_USER: ${PG_USER:-reverie_user}
+      PG_PASSWORD: ${PG_PASSWORD:?set PG_PASSWORD in .env}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
+      # The demo dataset lives in this profile, so the application comes up
+      # with a populated catalogue rather than an empty one.
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      # The interface does not need this: nginx reaches the API over the
+      # internal network. It is published so the API can be called and the
+      # smoke test run directly against it.
+      - '8080:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: reverie-frontend
+    ports:
+      - '3000:80'
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   reverie-pgdata:

@@ -1,0 +1,11 @@
+# Installed and built output: the image produces its own.
+node_modules/
+dist/
+
+# Local tooling
+.idea/
+*.log
+
+# Local environment overrides must never reach the image.
+.env
+.env.*
