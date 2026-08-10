@@ -20,6 +20,16 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     List<Genre> findAllByDeletedFalseOrderByNameAsc();
 
     /**
+     * Returns all genres that have been soft deleted.
+     *
+     * <p>This is the counterpart of {@link #findAllByDeletedFalseOrderByNameAsc()}
+     * and exists so that deleted genres can be listed and restored.</p>
+     *
+     * @return a list containing all soft-deleted genres
+     */
+    List<Genre> findAllByDeletedTrueOrderByNameAsc();
+
+    /**
      * Finds an active genre by its public UUID.
      *
      * @param uuid the genre UUID

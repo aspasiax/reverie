@@ -115,6 +115,35 @@ public class GenreController {
     }
 
     /**
+     * Returns all soft-deleted genres in alphabetical order.
+     *
+     * @return a list containing all soft-deleted genres
+     */
+    @Operation(
+            summary = "Get all deleted genres",
+            description = "Returns all soft-deleted genres, which are the ones that can be restored."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Deleted genres retrieved successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Insufficient permissions"
+            )
+    })
+    @GetMapping("/deleted")
+    @PreAuthorize("hasAuthority('GENRE_UPDATE')")
+    public ResponseEntity<List<GenreResponse>> findAllDeleted() {
+        return ResponseEntity.ok(genreService.findAllDeleted());
+    }
+
+    /**
      * Creates a new genre.
      *
      * @param request the validated genre creation request
@@ -268,5 +297,32 @@ public class GenreController {
             @PathVariable UUID uuid
     ) {
         return ResponseEntity.ok(genreService.restore(uuid));
+    }
+
+    /**
+     * Permanently removes a genre that has already been soft deleted.
+     *
+     * @param uuid the genre UUID
+     * @return an empty {@code 204 No Content} response
+     */
+    @Operation(
+            summary = "Permanently delete a genre",
+            description = "Destroys a genre that has already been soft-deleted, together with its links to films. This cannot be undone."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Genre permanently deleted"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "Genre not found"),
+            @ApiResponse(responseCode = "409", description = "Genre has not been deleted yet")
+    })
+    @DeleteMapping("/{uuid}/permanent")
+    @PreAuthorize("hasAuthority('GENRE_DELETE')")
+    public ResponseEntity<Void> deletePermanently(
+            @PathVariable UUID uuid
+    ) {
+        genreService.deletePermanently(uuid);
+
+        return ResponseEntity.noContent().build();
     }
 }

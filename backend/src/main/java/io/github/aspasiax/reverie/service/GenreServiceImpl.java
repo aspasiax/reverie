@@ -6,6 +6,7 @@ import io.github.aspasiax.reverie.dto.genre.GenreResponse;
 import io.github.aspasiax.reverie.dto.genre.UpdateGenreRequest;
 import io.github.aspasiax.reverie.exception.DuplicateGenreNameException;
 import io.github.aspasiax.reverie.exception.GenreNotFoundException;
+import io.github.aspasiax.reverie.exception.PermanentDeleteNotApplicableException;
 import io.github.aspasiax.reverie.exception.RestoreNotApplicableException;
 import io.github.aspasiax.reverie.mapper.GenreMapper;
 import io.github.aspasiax.reverie.repository.GenreRepository;
@@ -37,6 +38,18 @@ public class GenreServiceImpl implements IGenreService {
     @Transactional(readOnly = true)
     public List<GenreResponse> findAll() {
         return genreRepository.findAllByDeletedFalseOrderByNameAsc()
+                .stream()
+                .map(genreMapper::toResponse)
+                .toList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<GenreResponse> findAllDeleted() {
+        return genreRepository.findAllByDeletedTrueOrderByNameAsc()
                 .stream()
                 .map(genreMapper::toResponse)
                 .toList();
@@ -115,11 +128,38 @@ public class GenreServiceImpl implements IGenreService {
             throw new RestoreNotApplicableException("Genre", uuid);
         }
 
+        /*
+         * The name may have been taken by another genre in the meantime. The
+         * unique index would reject the restore anyway, but failing here says
+         * which name is the problem instead of reporting a generic conflict.
+         */
+        validateUniqueName(genre.getName(), genre.getId());
+
         genre.restoreFromSoftDelete();
 
         Genre restoredGenre = genreRepository.save(genre);
 
         return genreMapper.toResponse(restoredGenre);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void deletePermanently(UUID uuid) {
+        Genre genre = genreRepository.findByUuid(uuid)
+                .orElseThrow(() -> new GenreNotFoundException(uuid));
+
+        if (!genre.isDeleted()) {
+            throw new PermanentDeleteNotApplicableException("Genre", uuid);
+        }
+
+        /*
+         * The genre is the inverse side of the association, so the rows in
+         * movie_genres are removed by the foreign key rather than by JPA.
+         */
+        genreRepository.delete(genre);
     }
 
     /**

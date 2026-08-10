@@ -454,6 +454,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles permanent deletions requested for records that are still active.
+     *
+     * @param exception the thrown exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(PermanentDeleteNotApplicableException.class)
+    public ResponseEntity<ApiErrorResponse> handlePermanentDeleteNotApplicable(
+            PermanentDeleteNotApplicableException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles invalid arguments that violate application business rules.
      *
      * <p>This handler is currently also used by existing authentication
