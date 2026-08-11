@@ -4,6 +4,7 @@ import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.watchlog.CreateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.UpdateWatchLogRequest;
 import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
+import io.github.aspasiax.reverie.exception.MovieNotFoundException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -23,10 +24,14 @@ public interface IWatchLogService {
     PageResponse<WatchLogResponse> findMyWatchLogs(Pageable pageable);
 
     /**
-     * Creates a new watch log for the authenticated user.
+     * Records a new viewing for the authenticated user.
      *
-     * @param request the watch log creation request
-     * @return the created watch log response
+     * <p>If the film was on the user's watchlist, the entry is removed:
+     * the list states an intention, and watching the film fulfils it.</p>
+     *
+     * @param request the viewing to record
+     * @return the created watch log
+     * @throws MovieNotFoundException if the film does not exist
      */
     WatchLogResponse create(CreateWatchLogRequest request);
 

@@ -38,6 +38,7 @@ public class WatchLogServiceImpl implements IWatchLogService {
     private final MovieRepository movieRepository;
     private final WatchLogMapper watchLogMapper;
     private final ICurrentUserService currentUserService;
+    private final IWatchlistService watchlistService;
 
     /**
      * {@inheritDoc}
@@ -74,6 +75,15 @@ public class WatchLogServiceImpl implements IWatchLogService {
         watchLog.setWatchedAt(request.watchedAt());
 
         WatchLog savedWatchLog = watchLogRepository.save(watchLog);
+
+        /*
+         * Both calls run inside this transaction, so a film is never left
+         * both watched and still waiting to be watched.
+         */
+        watchlistService.removeForWatchedMovie(
+                currentUser.getUuid(),
+                movie.getUuid()
+        );
 
         return watchLogMapper.toResponse(savedWatchLog);
     }

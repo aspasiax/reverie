@@ -193,6 +193,38 @@ check "admin cannot disable self"     "409" "$(code -X POST $API/api/users/$ADMI
 check "admin enables daniel"          "200" "$(code -X POST $API/api/users/$DAN_UUID/enable -H "Authorization: Bearer $ADMIN")"
 check "daniel can sign in again"      "200" "$(danLogin)"
 
+# ---------- Watchlist ----------
+echo ""
+echo "WATCHLIST"
+
+# Alien is chosen because Alex has never logged it, so this section
+# leaves his viewing history exactly as it found it.
+ALIEN_UUID=$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=100" | json "print([m['uuid'] for m in json.load(sys.stdin)['content'] if m['title']=='Alien'][0])")
+wlCount() { curl -s -H "Authorization: Bearer $ALEX" $API/api/watchlist | json "print(json.load(sys.stdin)['totalElements'])"; }
+wlAdd() { code -X POST $API/api/watchlist -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d "{\"movieUuid\":\"$ALIEN_UUID\"}"; }
+
+# Counts are compared against what is already there, so the demo
+# watchlist can grow without breaking this section.
+BEFORE=$(wlCount)
+
+check "alex adds a film"              "201" "$(wlAdd)"
+check "watchlist grew by one"         "$((BEFORE + 1))" "$(wlCount)"
+check "the same film twice is 409"    "409" "$(wlAdd)"
+check "unknown film rejected"         "404" "$(code -X POST $API/api/watchlist -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d '{"movieUuid":"00000000-0000-0000-0000-000000000001"}')"
+
+ENTRY_UUID=$(curl -s -H "Authorization: Bearer $ALEX" $API/api/watchlist | json "print([e['uuid'] for e in json.load(sys.stdin)['content'] if e['movieUuid']=='$ALIEN_UUID'][0])")
+check "others may not remove it"      "403" "$(code -X DELETE $API/api/watchlist/$ENTRY_UUID -H "Authorization: Bearer $EMMA")"
+
+LOG_UUID=$(curl -s -X POST $API/api/watch-logs -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d "{\"movieUuid\":\"$ALIEN_UUID\",\"watchedAt\":null}" | json "print(json.load(sys.stdin)['uuid'])")
+check "watching removes the entry"    "$BEFORE" "$(wlCount)"
+
+check "cleanup removes the log"       "204" "$(code -X DELETE $API/api/watch-logs/$LOG_UUID -H "Authorization: Bearer $ALEX")"
+check "the film can be added again"   "201" "$(wlAdd)"
+
+ENTRY_UUID=$(curl -s -H "Authorization: Bearer $ALEX" $API/api/watchlist | json "print([e['uuid'] for e in json.load(sys.stdin)['content'] if e['movieUuid']=='$ALIEN_UUID'][0])")
+check "owner removes it"              "204" "$(code -X DELETE $API/api/watchlist/$ENTRY_UUID -H "Authorization: Bearer $ALEX")"
+check "cleanup left the list as found" "$BEFORE" "$(wlCount)"
+
 # ---------- Soft delete and restore ----------
 echo ""
 echo "SOFT DELETE AND RESTORE"

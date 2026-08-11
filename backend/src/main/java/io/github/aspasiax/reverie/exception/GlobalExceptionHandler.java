@@ -398,6 +398,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles requests for watchlist entries that do not exist or have
+     * been removed.
+     *
+     * @param exception the watchlist entry not found exception
+     * @param request   the current HTTP request
+     * @return a {@code 404 Not Found} response
+     */
+    @ExceptionHandler(WatchlistEntryNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleWatchlistEntryNotFound(
+            WatchlistEntryNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles requests addressed to endpoints that do not exist.
      *
      * @param exception the missing resource exception
@@ -523,6 +543,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateReviewException.class)
     public ResponseEntity<ApiErrorResponse> handleDuplicateReview(
             DuplicateReviewException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
+     * Handles films added to a watchlist they are already on.
+     *
+     * @param exception the duplicate entry exception
+     * @param request   the current HTTP request
+     * @return a {@code 409 Conflict} response
+     */
+    @ExceptionHandler(DuplicateWatchlistEntryException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateWatchlistEntry(
+            DuplicateWatchlistEntryException exception,
             HttpServletRequest request
     ) {
         return buildErrorResponse(
