@@ -1,6 +1,8 @@
 package io.github.aspasiax.reverie.service;
 
 import io.github.aspasiax.reverie.dto.user.*;
+import io.github.aspasiax.reverie.exception.SelfDisableException;
+import io.github.aspasiax.reverie.exception.UserNotFoundException;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,4 +55,23 @@ public interface IUserService {
      * @return the account after the change
      */
     UserAdminResponse updateUserRole(UUID uuid, UpdateUserRoleRequest request);
+
+    /**
+     * Allows a previously disabled account to sign in again.
+     *
+     * @param uuid the public identifier of the user
+     * @return the account after the change
+     * @throws UserNotFoundException if no user exists
+     */
+    UserAdminResponse enable(UUID uuid);
+
+    /**
+     * Withdraws an account from use without removing anything it created.
+     *
+     * @param uuid the public identifier of the user
+     * @return the account after the change
+     * @throws UserNotFoundException  if no user exists
+     * @throws SelfDisableException   if the caller is disabling themselves
+     */
+    UserAdminResponse disable(UUID uuid);
 }

@@ -4,6 +4,7 @@ import io.github.aspasiax.reverie.domain.Role;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.user.*;
 import io.github.aspasiax.reverie.exception.RoleNotFoundException;
+import io.github.aspasiax.reverie.exception.SelfDisableException;
 import io.github.aspasiax.reverie.exception.SelfRoleChangeException;
 import io.github.aspasiax.reverie.exception.UserNotFoundException;
 import io.github.aspasiax.reverie.mapper.UserMapper;
@@ -120,6 +121,53 @@ public class UserServiceImpl implements IUserService {
                 "Role of user {} changed to {} by {}",
                 targetUser.getUuid(),
                 normalizedRoleName,
+                currentUser.getUuid()
+        );
+
+        return userMapper.toAdminResponse(updatedUser);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public UserAdminResponse enable(UUID uuid) {
+        User targetUser = findActiveUser(uuid);
+
+        targetUser.enable();
+
+        User updatedUser = userRepository.save(targetUser);
+
+        log.info("Account {} enabled", targetUser.getUuid());
+
+        return userMapper.toAdminResponse(updatedUser);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public UserAdminResponse disable(UUID uuid) {
+        User currentUser = currentUserService.getCurrentUser();
+        User targetUser = findActiveUser(uuid);
+
+        /*
+         * An administrator who disables their own account would lose the
+         * ability to sign in, and with it the only way to undo the change.
+         */
+        if (targetUser.getUuid().equals(currentUser.getUuid())) {
+            throw new SelfDisableException();
+        }
+
+        targetUser.disable();
+
+        User updatedUser = userRepository.save(targetUser);
+
+        log.info(
+                "Account {} disabled by {}",
+                targetUser.getUuid(),
                 currentUser.getUuid()
         );
 

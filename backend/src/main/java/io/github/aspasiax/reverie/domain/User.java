@@ -112,6 +112,23 @@ public class User extends AbstractEntity {
     private boolean enabled = true;
 
     /**
+     * Allows the account to sign in again.
+     */
+    public void enable() {
+        this.enabled = true;
+    }
+
+    /**
+     * Withdraws the account from use.
+     *
+     * <p>Nothing the account created is removed. It simply stops being able
+     * to authenticate, which the JWT filter checks on every request.</p>
+     */
+    public void disable() {
+        this.enabled = false;
+    }
+
+    /**
      * Security role assigned to the user.
      */
     @ManyToOne(fetch = FetchType.LAZY)

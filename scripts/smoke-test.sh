@@ -176,6 +176,23 @@ DAN2=$(login "daniel@reverie.com" "User123!")
 check "daniel now has admin rights"    "200" "$(code -H "Authorization: Bearer $DAN2" $API/api/users)"
 check "admin demotes daniel back"      "200" "$(code -X PUT $API/api/users/$DAN_UUID/role -H "Authorization: Bearer $ADMIN" -H 'Content-Type: application/json' -d '{"roleName":"USER"}')"
 
+# ---------- Account state ----------
+echo ""
+echo "ACCOUNT STATE"
+
+DAN_UUID=$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='daniel'][0])")
+ADMIN_UUID=$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='admin'][0])")
+danLogin() { code -X POST $API/api/auth/login -H 'Content-Type: application/json' -d '{"email":"daniel@reverie.com","password":"User123!"}'; }
+
+check "daniel can sign in"            "200" "$(danLogin)"
+check "user cannot disable anyone"    "403" "$(code -X POST $API/api/users/$DAN_UUID/disable -H "Authorization: Bearer $ALEX")"
+check "admin disables daniel"         "200" "$(code -X POST $API/api/users/$DAN_UUID/disable -H "Authorization: Bearer $ADMIN")"
+check "disabled account is refused"   "401" "$(danLogin)"
+check "token issued before is dead"   "401" "$(code $API/api/movies -H "Authorization: Bearer $DAN")"
+check "admin cannot disable self"     "409" "$(code -X POST $API/api/users/$ADMIN_UUID/disable -H "Authorization: Bearer $ADMIN")"
+check "admin enables daniel"          "200" "$(code -X POST $API/api/users/$DAN_UUID/enable -H "Authorization: Bearer $ADMIN")"
+check "daniel can sign in again"      "200" "$(danLogin)"
+
 # ---------- Soft delete and restore ----------
 echo ""
 echo "SOFT DELETE AND RESTORE"

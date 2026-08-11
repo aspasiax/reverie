@@ -11,12 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -155,5 +150,54 @@ public class UserController {
         return ResponseEntity.ok(
                 userService.updateUserRole(uuid, request)
         );
+    }
+
+    /**
+     * Allows a previously disabled account to sign in again.
+     *
+     * @param uuid the user UUID
+     * @return the account after the change
+     */
+    @Operation(
+            summary = "Enable a user account",
+            description = "Allows an account that was disabled to sign in again."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account enabled successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @PostMapping("/{uuid}/enable")
+    @PreAuthorize("hasAuthority('USER_DISABLE')")
+    public ResponseEntity<UserAdminResponse> enable(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(userService.enable(uuid));
+    }
+
+    /**
+     * Withdraws an account from use without removing anything it created.
+     *
+     * @param uuid the user UUID
+     * @return the account after the change
+     */
+    @Operation(
+            summary = "Disable a user account",
+            description = "Stops an account from signing in. Nothing the account created is removed."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account disabled successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "409", description = "An administrator cannot disable their own account")
+    })
+    @PostMapping("/{uuid}/disable")
+    @PreAuthorize("hasAuthority('USER_DISABLE')")
+    public ResponseEntity<UserAdminResponse> disable(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(userService.disable(uuid));
     }
 }
