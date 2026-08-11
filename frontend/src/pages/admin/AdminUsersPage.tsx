@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { UserCheck, UserX } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { api, errorMessage } from '@/lib/api'
 import type { UserAdmin } from '@/types/api'
@@ -23,9 +24,12 @@ async function fetchUsers() {
  * Lets an administrator see the accounts and change what they may do.
  *
  * Changing a role changes a set of capabilities, not a label: the new
- * permissions apply to the next request that account makes. An
- * administrator cannot change their own role, which the server enforces
- * and this screen reflects by offering nothing on that row.
+ * permissions apply to the next request that account makes. Disabling goes
+ * further and ends the session immediately, because the token is checked
+ * against the account on every request rather than trusted on its own.
+ *
+ * Neither action is offered on the administrator's own row. The server
+ * refuses both, and this screen reflects that rather than restating it.
  */
 export function AdminUsersPage() {
     const queryClient = useQueryClient()
@@ -36,13 +40,28 @@ export function AdminUsersPage() {
         queryFn: fetchUsers,
     })
 
+    /** Refreshes the listing after any change to an account. */
+    function invalidateUsers() {
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+    }
+
     const changeRole = useMutation({
         mutationFn: ({ uuid, roleName }: { uuid: string; roleName: string }) =>
             api.put(`/api/users/${uuid}/role`, { roleName }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] })
-        },
+        onSuccess: invalidateUsers,
     })
+
+    /*
+     * Enabling and withdrawing an account are the same decision seen from
+     * two sides, so they share one mutation and differ only in the address.
+     */
+    const setEnabled = useMutation({
+        mutationFn: ({ uuid, enabled }: { uuid: string; enabled: boolean }) =>
+            api.post(`/api/users/${uuid}/${enabled ? 'enable' : 'disable'}`),
+        onSuccess: invalidateUsers,
+    })
+
+    const failure = changeRole.error ?? setEnabled.error
 
     return (
         <div className="space-y-4">
@@ -54,9 +73,9 @@ export function AdminUsersPage() {
                 </p>
             )}
 
-            {changeRole.isError && (
+            {failure !== null && (
                 <p role="alert" className="text-sm text-destructive">
-                    {errorMessage(changeRole.error)}
+                    {errorMessage(failure)}
                 </p>
             )}
 
@@ -120,6 +139,31 @@ export function AdminUsersPage() {
                                             </Button>
                                         ))}
                                     </div>
+
+                                    {can('USER_DISABLE') && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
+                                                setEnabled.mutate({
+                                                    uuid: account.uuid,
+                                                    enabled: !account.enabled,
+                                                })
+                                            }
+                                            disabled={isSelf || setEnabled.isPending}
+                                            aria-label={
+                                                account.enabled
+                                                    ? `Disable ${account.displayName}`
+                                                    : `Enable ${account.displayName}`
+                                            }
+                                        >
+                                            {account.enabled ? (
+                                                <UserCheck className="size-4" />
+                                            ) : (
+                                                <UserX className="size-4 text-destructive" />
+                                            )}
+                                        </Button>
+                                    )}
                                 </li>
                             )
                         })}

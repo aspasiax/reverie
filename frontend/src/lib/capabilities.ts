@@ -26,7 +26,7 @@ export type Capability =
     | 'USER_READ'
     | 'USER_CREATE'
     | 'USER_UPDATE'
-    | 'USER_DELETE'
+    | 'USER_DISABLE'
 
 /**
  * The capabilities that unlock the administration area.
