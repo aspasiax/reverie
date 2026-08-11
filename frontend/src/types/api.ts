@@ -90,6 +90,9 @@ export interface GenreSummary {
     color: string | null
 }
 
+/** The orders in which the catalogue can be browsed. */
+export type MovieSort = 'TITLE' | 'MOST_WATCHED' | 'TOP_RATED'
+
 /** A film in the catalogue, as returned by the API. */
 export interface Movie {
     uuid: string
