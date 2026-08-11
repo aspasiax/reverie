@@ -8,6 +8,10 @@ uses stateless JWT access tokens, and authorisation is capability based:
 each role owns a set of fine grained capabilities, and every protected
 endpoint requires a specific one.
 
+> For running the whole application with Docker, see the
+> [README in the project root](../README.md). This file covers developing
+> the backend on its own.
+
 ## Requirements
 
 - **JDK 21**
@@ -94,7 +98,7 @@ Available only when the `dev` profile is active.
 | `emma@reverie.com` | `User123!` | USER |
 | `daniel@reverie.com` | `User123!` | USER |
 
-The dataset contains 12 genres, 20 films, 25 watch logs and 15 reviews
+The dataset contains 12 genres, 24 films, 25 watch logs and 15 reviews
 spread across the three regular accounts.
 
 ## Verifying the API
