@@ -5,6 +5,7 @@ import io.github.aspasiax.reverie.domain.Movie;
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
+import io.github.aspasiax.reverie.dto.movie.MovieSort;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
 import io.github.aspasiax.reverie.exception.DuplicateMovieIdentifierException;
 import io.github.aspasiax.reverie.exception.GenreNotFoundException;
@@ -15,6 +16,7 @@ import io.github.aspasiax.reverie.repository.GenreRepository;
 import io.github.aspasiax.reverie.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +46,20 @@ public class MovieServiceImpl implements IMovieService {
      */
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<MovieResponse> findAllPublished(Pageable pageable) {
-        Page<MovieResponse> page = movieRepository
-                .findAllByDeletedFalseAndPublishedTrue(pageable)
-                .map(movieMapper::toResponse);
+    public PageResponse<MovieResponse> findAllPublished(
+            Pageable pageable,
+            MovieSort order
+    ) {
+        Page<Movie> movies = switch (order) {
+            case TITLE -> movieRepository
+                    .findAllByDeletedFalseAndPublishedTrue(pageable);
+            case MOST_WATCHED -> movieRepository
+                    .findPublishedOrderedByViewings(withoutSort(pageable));
+            case TOP_RATED -> movieRepository
+                    .findPublishedOrderedByRating(withoutSort(pageable));
+        };
 
-        return PageResponse.from(page);
+        return PageResponse.from(movies.map(movieMapper::toResponse));
     }
 
     /**
@@ -217,6 +227,20 @@ public class MovieServiceImpl implements IMovieService {
     private Movie findActiveMovie(UUID uuid) {
         return movieRepository.findByUuidAndDeletedFalse(uuid)
                 .orElseThrow(() -> new MovieNotFoundException(uuid));
+    }
+
+    /**
+     * Strips the sort order from a page request.
+     *
+     * <p>The computed orders are written into the query itself. Leaving the
+     * incoming sort in place would make Spring Data append a second ordering
+     * after it, which at best repeats what the query already does.</p>
+     *
+     * @param pageable the incoming page request
+     * @return the same page and size, without any sort order
+     */
+    private Pageable withoutSort(Pageable pageable) {
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
     }
 
     /**

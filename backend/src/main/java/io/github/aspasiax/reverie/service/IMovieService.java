@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.service;
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
+import io.github.aspasiax.reverie.dto.movie.MovieSort;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
 import io.github.aspasiax.reverie.exception.MovieNotFoundException;
 import org.springframework.data.domain.Pageable;
@@ -15,20 +16,21 @@ import java.util.UUID;
 public interface IMovieService {
 
     /**
-     * Retrieves a page of published movies.
+     * Retrieves a page of published movies in the requested order.
      *
      * <p>This is the catalogue as readers see it. Movies that exist but have
      * not been published yet are excluded.</p>
      *
-     * @param pageable the requested page and sort order
+     * @param pageable the requested page
+     * @param order    the order in which to return the page
      * @return a page of published movies
      */
-    PageResponse<MovieResponse> findAllPublished(Pageable pageable);
+    PageResponse<MovieResponse> findAllPublished(Pageable pageable, MovieSort order);
 
     /**
      * Retrieves a page of every movie that has not been deleted.
      *
-     * <p>Unlike {@link #findAllPublished(Pageable)}, this listing also
+     * <p>Unlike {@link #findAllPublished(Pageable, MovieSort)}, this listing also
      * returns unpublished movies, which is what makes them reachable for
      * administration.</p>
      *

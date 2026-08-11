@@ -4,6 +4,7 @@ import io.github.aspasiax.reverie.domain.Movie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +33,58 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      * @return a page of published movies
      */
     Page<Movie> findAllByDeletedFalseAndPublishedTrue(Pageable pageable);
+
+    /**
+     * Returns a page of published movies, most watched first.
+     *
+     * <p>The number of viewings is counted in a subquery rather than through
+     * a join, so that a movie nobody has watched still appears, with a count
+     * of zero, at the end of the list.</p>
+     *
+     * @param pageable the requested page, whose own sort order is ignored
+     * @return a page of published movies ordered by recorded viewings
+     */
+    @Query(
+            value = """
+                    SELECT m FROM Movie m
+                    WHERE m.deleted = FALSE AND m.published = TRUE
+                    ORDER BY (
+                        SELECT COUNT(w) FROM WatchLog w
+                        WHERE w.movie = m AND w.deleted = FALSE
+                    ) DESC, m.title ASC
+                    """,
+            countQuery = """
+                    SELECT COUNT(m) FROM Movie m
+                    WHERE m.deleted = FALSE AND m.published = TRUE
+                    """
+    )
+    Page<Movie> findPublishedOrderedByViewings(Pageable pageable);
+
+    /**
+     * Returns a page of published movies, highest rated first.
+     *
+     * <p>Ratings are optional on a review, and a movie may have no reviews
+     * at all. Both cases produce no average, which is turned into zero so
+     * that unrated movies sort last instead of disappearing or leading.</p>
+     *
+     * @param pageable the requested page, whose own sort order is ignored
+     * @return a page of published movies ordered by average rating
+     */
+    @Query(
+            value = """
+                    SELECT m FROM Movie m
+                    WHERE m.deleted = FALSE AND m.published = TRUE
+                    ORDER BY COALESCE((
+                        SELECT AVG(r.rating) FROM Review r
+                        WHERE r.movie = m AND r.deleted = FALSE
+                    ), 0) DESC, m.title ASC
+                    """,
+            countQuery = """
+                    SELECT COUNT(m) FROM Movie m
+                    WHERE m.deleted = FALSE AND m.published = TRUE
+                    """
+    )
+    Page<Movie> findPublishedOrderedByRating(Pageable pageable);
 
     /**
      * Returns a page of movies that have been soft deleted.

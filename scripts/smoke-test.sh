@@ -105,6 +105,21 @@ check "last page flagged last"         "True" "$(curl -s -H "Authorization: Bear
 check "page beyond end is empty"       "0"  "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?page=99&size=5" | json "print(len(json.load(sys.stdin)['content']))")"
 check "movies sorted by title"         "Alien" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?size=1" | json "print(json.load(sys.stdin)['content'][0]['title'])")"
 
+# ---------- Ordering ----------
+echo ""
+echo "ORDERING"
+
+firstOf() { curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?order=$1&size=1" | json "print(json.load(sys.stdin)['content'][0]['title'])"; }
+countOf() { curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?order=$1&size=100" | json "print(len(json.load(sys.stdin)['content']))"; }
+
+check "default order is alphabetical" "Alien"         "$(firstOf TITLE)"
+check "most watched leads"            "Interstellar"  "$(firstOf MOST_WATCHED)"
+check "top rated leads"               "Spirited Away" "$(firstOf TOP_RATED)"
+check "most watched loses no film"    "24"            "$(countOf MOST_WATCHED)"
+check "top rated loses no film"       "24"            "$(countOf TOP_RATED)"
+check "unknown order rejected"        "400" "$(code -H "Authorization: Bearer $ALEX" "$API/api/movies?order=WIZARD")"
+check "order is case sensitive"       "400" "$(code -H "Authorization: Bearer $ALEX" "$API/api/movies?order=top_rated")"
+
 # ---------- Publication ----------
 echo ""
 echo "PUBLICATION"

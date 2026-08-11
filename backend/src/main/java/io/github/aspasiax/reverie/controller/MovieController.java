@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.controller;
 import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.movie.CreateMovieRequest;
 import io.github.aspasiax.reverie.dto.movie.MovieResponse;
+import io.github.aspasiax.reverie.dto.movie.MovieSort;
 import io.github.aspasiax.reverie.dto.movie.UpdateMovieRequest;
 import io.github.aspasiax.reverie.service.IMovieService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,14 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -50,26 +44,29 @@ public class MovieController {
     private final IMovieService movieService;
 
     /**
-     * Returns a page of published movies.
+     * Returns a page of published movies in the requested order.
      *
      * @param pageable the requested page and sort order
+     * @param order    the order in which to return the page
      * @return a page of published movies
      */
     @Operation(
             summary = "Get all published movies",
-            description = "Returns a page of published movies. Use the page, size and sort parameters to navigate the catalogue."
+            description = "Returns a page of published movies. Use the page and size parameters to navigate, and order to choose between alphabetical, most watched and highest rated."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Movies retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Unknown order requested"),
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Insufficient permissions")
     })
     @GetMapping
     @PreAuthorize("hasAuthority('MOVIE_READ')")
     public ResponseEntity<PageResponse<MovieResponse>> findAllPublished(
-            @PageableDefault(size = 20, sort = "title") Pageable pageable
+            @PageableDefault(size = 20, sort = "title") Pageable pageable,
+            @RequestParam(defaultValue = "TITLE") MovieSort order
     ) {
-        return ResponseEntity.ok(movieService.findAllPublished(pageable));
+        return ResponseEntity.ok(movieService.findAllPublished(pageable, order));
     }
 
     /**
