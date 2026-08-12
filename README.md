@@ -32,8 +32,9 @@ starts with one command.
 
 **For everyone**
 
-- Browse a catalogue of films, ordered alphabetically, by how often they
-  have been watched, or by average rating
+- Browse a catalogue of films, search it by title, narrow it to a genre,
+  and order it alphabetically, by how often films have been watched, or by
+  average rating
 - Keep a list of films you mean to watch, which clears itself as you watch them
 - Record a viewing, with or without a date — a film seen three times is
   three entries, because a rewatch is a real event

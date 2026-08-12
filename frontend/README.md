@@ -100,7 +100,7 @@ invalidation work.
 
 | Key | Contents |
 |---|---|
-| `['movies', order, page]` | One page of the catalogue in one order |
+| `['movies', order, search, genre, page]` | One page of the catalogue for one selection |
 | `['movies', 'manage', page]` | One page of the administration listing |
 | `['movies', 'deleted']` | Films that were deleted |
 | `['movie', uuid]` | A single film |
@@ -139,7 +139,7 @@ from exactly that list:
 ```tsx
 const { can } = useAuth()
 
-{can('GENRE_DELETE') && <Button …>}
+const deleteButton = can('GENRE_DELETE') && <Button>Delete</Button>
 ```
 
 Checking the role name instead would mean two systems answering the same
