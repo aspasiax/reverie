@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { UserStatistics } from '@/components/UserStatistics'
 
 /**
  * Sends the changed profile fields to the server.
@@ -55,6 +56,8 @@ export function ProfilePage() {
     return (
         <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:px-6">
             <h1 className="text-2xl font-semibold">Profile</h1>
+
+            {user !== null && <UserStatistics uuid={user.uuid} />}
 
             {/* Fields the account owns rather than the user. */}
             <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">

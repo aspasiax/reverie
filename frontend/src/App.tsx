@@ -14,6 +14,7 @@ import { MoviesPage } from '@/pages/MoviesPage'
 import { MyReviewsPage } from '@/pages/MyReviewsPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { UserPage } from '@/pages/UserPage'
 import { WatchLogsPage } from '@/pages/WatchLogsPage'
 import { WatchlistPage } from '@/pages/WatchlistPage'
 
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/watchlist" element={<WatchlistPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/users/:uuid" element={<UserPage />} />
 
                     <Route element={<AdminRoute />}>
                         <Route path="/admin" element={<AdminLayout />}>

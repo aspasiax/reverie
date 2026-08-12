@@ -62,6 +62,25 @@ export interface UserAdmin {
     createdAt: string
 }
 
+/** The public view of another user. */
+export interface UserSummary {
+    uuid: string
+    username: string
+    displayName: string
+    bio: string | null
+    profileImageUrl: string | null
+    createdAt: string
+}
+
+/** A summary of a user's public activity. */
+export interface UserStatistics {
+    filmsWatched: number
+    viewingsRecorded: number
+    reviewsWritten: number
+    averageRating: number | null
+    favouriteGenre: string | null
+}
+
 /** The profile fields a user may change. */
 export interface UpdateUserRequest {
     displayName: string

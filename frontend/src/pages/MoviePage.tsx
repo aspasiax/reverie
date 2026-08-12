@@ -211,7 +211,12 @@ export function MoviePage() {
                         {otherReviews.map((review) => (
                             <li key={review.uuid} className="rounded-lg border p-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="font-medium">{review.username}</span>
+                                    <Link
+                                        to={`/users/${review.userUuid}`}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {review.username}
+                                    </Link>
                                     {review.rating !== null && (
                                         <span className="inline-flex items-center gap-1 text-sm">
                                           <Star className="size-4 fill-current text-yellow-500" />
