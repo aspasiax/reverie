@@ -4,6 +4,8 @@ import io.github.aspasiax.reverie.domain.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -47,4 +49,28 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      * @return {@code true} if an active review exists
      */
     boolean existsByUserUuidAndMovieUuidAndDeletedFalse(UUID userUuid, UUID movieUuid);
+
+    /**
+     * Counts the reviews a user has written.
+     *
+     * @param userUuid the public user identifier
+     * @return how many reviews the user has written
+     */
+    long countByUserUuidAndDeletedFalse(UUID userUuid);
+
+    /**
+     * Returns the average score a user gives.
+     *
+     * <p>Reviews without a score are ignored rather than counted as zero,
+     * so a user who only writes text has no average at all.</p>
+     *
+     * @param userUuid the public user identifier
+     * @return the average rating, or {@code null} when the user rates nothing
+     */
+    @Query("""
+            SELECT AVG(r.rating)
+            FROM Review r
+            WHERE r.user.uuid = :userUuid AND r.deleted = FALSE
+            """)
+    Double findAverageRatingGivenBy(@Param("userUuid") UUID userUuid);
 }

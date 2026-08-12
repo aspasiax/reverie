@@ -1,6 +1,7 @@
 package io.github.aspasiax.reverie.controller;
 
 import io.github.aspasiax.reverie.dto.user.*;
+import io.github.aspasiax.reverie.service.IStatisticsService;
 import io.github.aspasiax.reverie.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,6 +38,7 @@ import java.util.UUID;
 public class UserController {
 
     private final IUserService userService;
+    private final IStatisticsService statisticsService;
 
     /**
      * Returns the profile of the authenticated user.
@@ -100,6 +102,28 @@ public class UserController {
             @PathVariable UUID uuid
     ) {
         return ResponseEntity.ok(userService.findByUuid(uuid));
+    }
+
+    /**
+     * Returns a summary of a user's public activity.
+     *
+     * @param uuid the user UUID
+     * @return the user's activity in numbers
+     */
+    @Operation(
+            summary = "Get a user's statistics",
+            description = "Returns a summary of what a user has watched and reviewed. The watchlist is private and is not included."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/{uuid}/statistics")
+    public ResponseEntity<UserStatisticsResponse> getStatistics(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(statisticsService.getUserStatistics(uuid));
     }
 
     /**

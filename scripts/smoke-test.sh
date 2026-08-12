@@ -211,6 +211,21 @@ check "admin cannot disable self"     "409" "$(code -X POST $API/api/users/$ADMI
 check "admin enables daniel"          "200" "$(code -X POST $API/api/users/$DAN_UUID/enable -H "Authorization: Bearer $ADMIN")"
 check "daniel can sign in again"      "200" "$(danLogin)"
 
+# ---------- Statistics ----------
+echo ""
+echo "STATISTICS"
+
+ALEX_UUID=$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='alex'][0])")
+stat() { curl -s -H "Authorization: Bearer $ALEX" "$API/api/users/$1/statistics" | json "print(json.load(sys.stdin)['$2'])"; }
+
+check "alex has watched 8 films"       "8" "$(stat $ALEX_UUID filmsWatched)"
+check "rewatches counted separately"   "9" "$(stat $ALEX_UUID viewingsRecorded)"
+check "alex has written 6 reviews"     "6" "$(stat $ALEX_UUID reviewsWritten)"
+check "alex mostly watches sci-fi"     "Science Fiction" "$(stat $ALEX_UUID favouriteGenre)"
+check "an idle account has no average" "None" "$(stat $ADMIN_UUID averageRating)"
+check "statistics keep the watchlist out" "False" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/users/$ALEX_UUID/statistics" | json "print(any('watch' in k.lower() and 'list' in k.lower() for k in json.load(sys.stdin)))")"
+check "unknown user has no statistics" "404" "$(code -H "Authorization: Bearer $ALEX" $API/api/users/00000000-0000-0000-0000-000000000001/statistics)"
+
 # ---------- Watchlist ----------
 echo ""
 echo "WATCHLIST"
