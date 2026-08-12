@@ -119,6 +119,7 @@ export interface WatchlistEntry {
     uuid: string
     movieUuid: string
     movieTitle: string
+    releaseDate: string | null
     posterPath: string | null
     createdAt: string
 }

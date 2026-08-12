@@ -108,6 +108,9 @@ export function WatchlistPage() {
                                         <h2 className="truncate font-medium" title={item.movieTitle}>
                                             {item.movieTitle}
                                         </h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            {item.releaseDate?.slice(0, 4) ?? 'Unknown year'}
+                                        </p>
                                     </div>
                                 </Link>
 

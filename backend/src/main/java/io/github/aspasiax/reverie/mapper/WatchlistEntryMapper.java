@@ -21,6 +21,7 @@ public class WatchlistEntryMapper {
                 entry.getUuid(),
                 entry.getMovie().getUuid(),
                 entry.getMovie().getTitle(),
+                entry.getMovie().getReleaseDate(),
                 entry.getMovie().getPosterPath(),
                 entry.getCreatedAt()
         );

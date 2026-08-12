@@ -3,6 +3,7 @@ package io.github.aspasiax.reverie.dto.watchlist;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -14,6 +15,7 @@ import java.util.UUID;
  * @param uuid       public identifier of the entry
  * @param movieUuid  public identifier of the film
  * @param movieTitle title of the film
+ * @param releaseDate when the film was released, if known
  * @param posterPath relative TMDB poster path, if the film has one
  * @param createdAt  when the film was added to the list
  */
@@ -31,6 +33,13 @@ public record WatchlistEntryResponse(
 
         @Schema(description = "Title of the film.", example = "Arrival")
         String movieTitle,
+
+        @Schema(
+                description = "Release date of the film.",
+                type = "string",
+                format = "date"
+        )
+        LocalDate releaseDate,
 
         @Schema(description = "Relative TMDB poster path.", example = "/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg")
         String posterPath,
