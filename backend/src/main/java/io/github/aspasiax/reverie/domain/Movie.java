@@ -13,11 +13,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -143,6 +140,52 @@ public class Movie extends AbstractEntity {
     @Builder.Default
     @Column(nullable = false)
     private boolean published = false;
+
+    /**
+     * Average of the ratings given to this movie.
+     *
+     * <p>Computed by the database on every read. Movies with no ratings
+     * produce zero rather than nothing, so that ordering by rating places
+     * them last instead of first, which is where a null would put them.
+     * Whether the number means anything is told by {@link #ratingCount}.</p>
+     */
+    @Formula("""
+            (SELECT COALESCE(AVG(r.rating), 0)
+             FROM reviews r
+             WHERE r.movie_id = id AND r.deleted = FALSE)
+            """)
+    @Setter(AccessLevel.NONE)
+    private Double averageRating;
+
+    /**
+     * Number of ratings given to this movie.
+     *
+     * <p>A review may carry written text without a score, so this is not
+     * the number of reviews. It is what says whether {@link #averageRating}
+     * means anything: an average over no ratings is zero, and zero is not
+     * a score anybody gave.</p>
+     */
+    @Formula("""
+            (SELECT COUNT(r.rating)
+             FROM reviews r
+             WHERE r.movie_id = id AND r.deleted = FALSE)
+            """)
+    @Setter(AccessLevel.NONE)
+    private Long ratingCount;
+
+    /**
+     * Number of recorded viewings of this movie.
+     *
+     * <p>A rewatch counts again, because the domain treats it as a separate
+     * event. This is a count of viewings, not of viewers.</p>
+     */
+    @Formula("""
+            (SELECT COUNT(*)
+             FROM watch_logs w
+             WHERE w.movie_id = id AND w.deleted = FALSE)
+            """)
+    @Setter(AccessLevel.NONE)
+    private Long watchCount;
 
     /**
      * Genres associated with the movie.

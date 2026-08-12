@@ -112,6 +112,24 @@ public record MovieResponse(
         boolean published,
 
         @Schema(
+                description = "Average rating across the reviews of this film, zero when it has none.",
+                example = "8.4"
+        )
+        Double averageRating,
+
+        @Schema(
+                description = "Number of ratings given to this film, which may be fewer than its reviews.",
+                example = "3"
+        )
+        Long ratingCount,
+
+        @Schema(
+                description = "Number of recorded viewings of this film.",
+                example = "12"
+        )
+        Long watchCount,
+
+        @Schema(
                 description = "Genres assigned to the movie."
         )
         Set<GenreSummaryResponse> genres,

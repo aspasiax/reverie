@@ -90,6 +90,9 @@ public class MovieMapper {
                 movie.getTmdbId(),
                 movie.getImdbId(),
                 movie.isPublished(),
+                movie.getAverageRating(),
+                movie.getRatingCount(),
+                movie.getWatchCount(),
                 toGenreSummaries(movie.getGenres()),
                 movie.getCreatedAt(),
                 movie.getUpdatedAt()

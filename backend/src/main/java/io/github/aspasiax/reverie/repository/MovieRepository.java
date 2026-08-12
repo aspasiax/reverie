@@ -61,9 +61,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      * Returns a page of published movies matching the given filters, most
      * watched first.
      *
-     * <p>The number of viewings is counted in a subquery rather than through
-     * a join, so that a movie nobody has watched still appears, with a count
-     * of zero, at the end of the list.</p>
+     * <p>The count comes from the movie itself, where the database computes
+     * it, so a movie nobody has watched still appears with a count of zero
+     * at the end of the list.</p>
      *
      * @param search    part of a title to match, empty for no filter
      * @param genreUuid the genre a film must carry, or null for no filter
@@ -76,10 +76,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                     WHERE m.deleted = FALSE AND m.published = TRUE
                       AND LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%'))
                       AND (:genreUuid IS NULL OR :genreUuid IN (SELECT g.uuid FROM m.genres g))
-                    ORDER BY (
-                        SELECT COUNT(w) FROM WatchLog w
-                        WHERE w.movie = m AND w.deleted = FALSE
-                    ) DESC, m.title ASC
+                    ORDER BY m.watchCount DESC, m.title ASC
                     """,
             countQuery = """
                     SELECT COUNT(m) FROM Movie m
@@ -98,9 +95,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      * Returns a page of published movies matching the given filters, highest
      * rated first.
      *
-     * <p>Ratings are optional on a review, and a movie may have no reviews
-     * at all. Both cases produce no average, which is turned into zero so
-     * that unrated movies sort last instead of disappearing or leading.</p>
+     * <p>The average comes from the movie itself, where the database
+     * computes it. Movies with no ratings count as zero and therefore sort
+     * last, instead of disappearing or leading.</p>
      *
      * @param search    part of a title to match, empty for no filter
      * @param genreUuid the genre a film must carry, or null for no filter
@@ -113,10 +110,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                     WHERE m.deleted = FALSE AND m.published = TRUE
                       AND LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%'))
                       AND (:genreUuid IS NULL OR :genreUuid IN (SELECT g.uuid FROM m.genres g))
-                    ORDER BY COALESCE((
-                        SELECT AVG(r.rating) FROM Review r
-                        WHERE r.movie = m AND r.deleted = FALSE
-                    ), 0) DESC, m.title ASC
+                      ORDER BY m.averageRating DESC, m.title ASC
                     """,
             countQuery = """
                     SELECT COUNT(m) FROM Movie m
