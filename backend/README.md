@@ -98,8 +98,9 @@ Available only when the `dev` profile is active.
 | `emma@reverie.com` | `User123!` | USER |
 | `daniel@reverie.com` | `User123!` | USER |
 
-The dataset contains 12 genres, 24 films, 25 watch logs and 15 reviews
-spread across the three regular accounts.
+The dataset contains 12 genres, 24 films, 25 recorded viewings, 15
+reviews and 10 watchlist entries spread across the three regular
+accounts.
 
 ## Verifying the API
 

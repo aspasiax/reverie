@@ -34,6 +34,7 @@ starts with one command.
 
 - Browse a catalogue of films, ordered alphabetically, by how often they
   have been watched, or by average rating
+- Keep a list of films you mean to watch, which clears itself as you watch them
 - Record a viewing, with or without a date — a film seen three times is
   three entries, because a rewatch is a real event
 - Write one review per film, with a rating, written text, or both
@@ -273,9 +274,9 @@ Loaded by the `dev` profile, which is what `compose.yaml` activates.
 | `emma@reverie.com` | `User123!` | USER |
 | `daniel@reverie.com` | `User123!` | USER |
 
-The dataset contains 12 genres, 24 films, 25 recorded viewings and 15
-reviews spread across the three regular accounts, so the application has
-something to show the moment it opens.
+The dataset contains 12 genres, 24 films, 25 recorded viewings, 15
+reviews and 10 watchlist entries spread across the three regular
+accounts, so the application has something to show the moment it opens.
 
 Demonstration data is kept in a separate Flyway location from the schema.
 A deployment that does not activate the `dev` profile never receives

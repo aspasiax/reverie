@@ -62,6 +62,34 @@ unique because a public identifier should never be reused, even after
 deletion. Roles and capabilities stay unique for the same reason: they are
 reference data that is never deleted.
 
+## Watching a film clears it from the watchlist
+
+A watchlist entry records an intention rather than an event. Adding a film
+states that the user means to see it, and a user holds that intention once:
+a partial unique index over active rows allows a single entry per user and
+film, following the same pattern as reviews. Because the index ignores
+removed rows, a film taken off the list can be added back later.
+
+When a viewing is recorded for a film that is on the list, the entry is
+removed. The obvious alternative was to leave it there and let the user
+tidy up, which was rejected on the grounds that the list would slowly fill
+with films the user had already seen, and every user would end up
+performing the same cleanup by hand. A watchlist that needs maintenance
+stops being useful long before it stops being correct.
+
+The second alternative was to have the interface issue a second request
+after recording a viewing. That was rejected for a different reason: the
+rule would then live in the client, and anything calling the API directly
+would produce data the application considers impossible, namely a film that
+is both watched and still waiting to be watched. Rules that describe the
+domain belong on the server, where there is only one of them.
+
+The cost is a dependency from the watch log service to the watchlist
+service, and a side effect that the name `POST /api/watch-logs` does not
+advertise. Both are stated in the Javadoc of the operation. The dependency
+runs in one direction only, and the two changes share a transaction, so
+they either both happen or neither does.
+
 ## Demonstration data isolated from the migration chain
 
 Two different kinds of data were living in the same migration chain.

@@ -67,6 +67,9 @@ src/
 │   ├── ReviewEditor.tsx
 │   ├── WatchActions.tsx    Recording a viewing and the viewing history
 │   └── TmdbAttribution.tsx
+│   ├── WatchActions.tsx    Recording a viewing and the viewing history
+│   ├── WatchlistButton.tsx Adding a film to the watchlist and taking it off
+│   └── TmdbAttribution.tsx
 ├── lib/
 │   ├── api.ts              axios instance, token storage, interceptors
 │   ├── capabilities.ts     The permissions the interface reacts to
@@ -105,6 +108,7 @@ invalidation work.
 | `['genres', 'deleted']` | Genres that were deleted |
 | `['reviews', 'movie', uuid]` | Reviews of one film |
 | `['reviews', 'me']` | Reviews written by the signed in user |
+| `['watchlist']` | Films the user intends to watch |
 | `['watch-logs']` | The viewing history |
 | `['users']` | Accounts, for administration |
 
@@ -153,6 +157,7 @@ the API, which answers `403` whatever the interface believes.
 /register           create an account
 /                   the catalogue          ┐
 /movies/:uuid       one film               │ ProtectedRoute
+/watchlist          films to watch         │
 /watch-logs         viewing history        │
 /my-reviews         reviews written        │
 /profile            the signed in user     ┘
