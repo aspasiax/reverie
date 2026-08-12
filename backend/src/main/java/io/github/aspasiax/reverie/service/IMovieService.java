@@ -19,18 +19,26 @@ public interface IMovieService {
      * Retrieves a page of published movies in the requested order.
      *
      * <p>This is the catalogue as readers see it. Movies that exist but have
-     * not been published yet are excluded.</p>
+     * not been published yet are excluded. Both filters are optional: a
+     * missing one is simply not applied.</p>
      *
-     * @param pageable the requested page
-     * @param order    the order in which to return the page
+     * @param pageable  the requested page
+     * @param order     the order in which to return the page
+     * @param search    part of a title to match, or null for no filter
+     * @param genreUuid the genre a film must carry, or null for no filter
      * @return a page of published movies
      */
-    PageResponse<MovieResponse> findAllPublished(Pageable pageable, MovieSort order);
+    PageResponse<MovieResponse> findAllPublished(
+            Pageable pageable,
+            MovieSort order,
+            String search,
+            UUID genreUuid
+    );
 
     /**
      * Retrieves a page of every movie that has not been deleted.
      *
-     * <p>Unlike {@link #findAllPublished(Pageable, MovieSort)}, this listing also
+     * <p>Unlike {@link #findAllPublished(Pageable, MovieSort, String, UUID)}, this listing also
      * returns unpublished movies, which is what makes them reachable for
      * administration.</p>
      *

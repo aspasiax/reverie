@@ -48,15 +48,20 @@ public class MovieServiceImpl implements IMovieService {
     @Transactional(readOnly = true)
     public PageResponse<MovieResponse> findAllPublished(
             Pageable pageable,
-            MovieSort order
+            MovieSort order,
+            String search,
+            UUID genreUuid
     ) {
+        String normalizedSearch = normalizeSearch(search);
+        Pageable page = withoutSort(pageable);
+
         Page<Movie> movies = switch (order) {
             case TITLE -> movieRepository
-                    .findAllByDeletedFalseAndPublishedTrue(pageable);
+                    .findPublishedOrderedByTitle(normalizedSearch, genreUuid, page);
             case MOST_WATCHED -> movieRepository
-                    .findPublishedOrderedByViewings(withoutSort(pageable));
+                    .findPublishedOrderedByViewings(normalizedSearch, genreUuid, page);
             case TOP_RATED -> movieRepository
-                    .findPublishedOrderedByRating(withoutSort(pageable));
+                    .findPublishedOrderedByRating(normalizedSearch, genreUuid, page);
         };
 
         return PageResponse.from(movies.map(movieMapper::toResponse));
@@ -241,6 +246,22 @@ public class MovieServiceImpl implements IMovieService {
      */
     private Pageable withoutSort(Pageable pageable) {
         return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+    }
+
+    /**
+     * Turns a missing or blank search term into one that matches everything.
+     *
+     * <p>An empty box and an absent parameter mean the same thing to the
+     * reader, so they are made to mean the same thing to the query. The
+     * empty term is deliberate rather than null: PostgreSQL cannot infer a
+     * type for an untyped null inside a string concatenation, and picks one
+     * that has no {@code lower} function.</p>
+     *
+     * @param search the term as it arrived
+     * @return the trimmed term, or an empty string when there is none
+     */
+    private String normalizeSearch(String search) {
+        return search == null ? "" : search.trim();
     }
 
     /**

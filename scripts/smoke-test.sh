@@ -120,6 +120,24 @@ check "top rated loses no film"       "24"            "$(countOf TOP_RATED)"
 check "unknown order rejected"        "400" "$(code -H "Authorization: Bearer $ALEX" "$API/api/movies?order=WIZARD")"
 check "order is case sensitive"       "400" "$(code -H "Authorization: Bearer $ALEX" "$API/api/movies?order=top_rated")"
 
+# ---------- Filtering ----------
+echo ""
+echo "FILTERING"
+
+SCIFI_UUID=$(curl -s -H "Authorization: Bearer $ALEX" $API/api/genres | json "print([g['uuid'] for g in json.load(sys.stdin) if g['name']=='Science Fiction'][0])")
+found() { curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?$1" | json "print(json.load(sys.stdin)['totalElements'])"; }
+
+check "no filter returns everything"  "24" "$(found 'size=100')"
+check "an empty search changes nothing" "24" "$(found 'search=&size=100')"
+check "search matches part of a title" "6"  "$(found 'search=the&size=100')"
+check "search ignores letter case"    "6"  "$(found 'search=THE&size=100')"
+check "search with no match"          "0"  "$(found 'search=zzzzz&size=100')"
+check "genre narrows the catalogue"   "8"  "$(found "genre=$SCIFI_UUID&size=100")"
+check "filters combine"               "1"  "$(found "genre=$SCIFI_UUID&search=the&size=100")"
+check "filters survive another order" "8"  "$(found "genre=$SCIFI_UUID&order=TOP_RATED&size=100")"
+check "unknown genre matches nothing" "0"  "$(found 'genre=00000000-0000-0000-0000-000000000001&size=100')"
+check "paging counts the filtered set" "3" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/movies?search=the&size=2" | json "print(json.load(sys.stdin)['totalPages'])")"
+
 # ---------- Publication ----------
 echo ""
 echo "PUBLICATION"

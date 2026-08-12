@@ -46,13 +46,15 @@ public class MovieController {
     /**
      * Returns a page of published movies in the requested order.
      *
-     * @param pageable the requested page and sort order
+     * @param pageable the requested page
      * @param order    the order in which to return the page
+     * @param search   part of a title to match, if any
+     * @param genre    the genre a film must carry, if any
      * @return a page of published movies
      */
     @Operation(
             summary = "Get all published movies",
-            description = "Returns a page of published movies. Use the page and size parameters to navigate, and order to choose between alphabetical, most watched and highest rated."
+            description = "Returns a page of published movies. Use search and genre to narrow the catalogue, and order to choose between alphabetical, most watched and highest rated."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Movies retrieved successfully"),
@@ -63,10 +65,14 @@ public class MovieController {
     @GetMapping
     @PreAuthorize("hasAuthority('MOVIE_READ')")
     public ResponseEntity<PageResponse<MovieResponse>> findAllPublished(
-            @PageableDefault(size = 20, sort = "title") Pageable pageable,
-            @RequestParam(defaultValue = "TITLE") MovieSort order
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestParam(defaultValue = "TITLE") MovieSort order,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) UUID genre
     ) {
-        return ResponseEntity.ok(movieService.findAllPublished(pageable, order));
+        return ResponseEntity.ok(
+                movieService.findAllPublished(pageable, order, search, genre)
+        );
     }
 
     /**
