@@ -64,6 +64,11 @@ export function WatchActions({ movieUuid }: { movieUuid: string }) {
             api.post('/api/watch-logs', { movieUuid, watchedAt: date }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['watch-logs'] })
+            /*
+             * Recording a viewing removes the film from the watchlist on
+             * the server, so the cached list here is now out of date.
+             */
+            queryClient.invalidateQueries({ queryKey: ['watchlist'] })
             setIsLogOpen(false)
         },
     })

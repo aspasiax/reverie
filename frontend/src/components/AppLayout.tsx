@@ -9,6 +9,7 @@ import { ADMIN_CAPABILITIES } from '@/lib/capabilities'
 /** The destinations available to every signed in user. */
 const navigation = [
     { to: '/', label: 'Films', end: true },
+    { to: '/watchlist', label: 'Watchlist', end: false },
     { to: '/watch-logs', label: 'History', end: false },
     { to: '/my-reviews', label: 'Reviews', end: false },
 ]

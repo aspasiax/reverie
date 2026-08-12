@@ -114,6 +114,15 @@ export interface Movie {
 
 // Activity
 
+/** A film the signed in user intends to watch. */
+export interface WatchlistEntry {
+    uuid: string
+    movieUuid: string
+    movieTitle: string
+    posterPath: string | null
+    createdAt: string
+}
+
 /** A single recorded viewing in a user's watch history. */
 export interface WatchLog {
     uuid: string

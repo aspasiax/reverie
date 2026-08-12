@@ -7,6 +7,7 @@ import { tmdbImage } from '@/lib/images'
 import { useAuth } from '@/auth/AuthContext'
 import { ReviewEditor } from '@/components/ReviewEditor'
 import { WatchActions } from '@/components/WatchActions'
+import { WatchlistButton } from '@/components/WatchlistButton'
 
 /**
  * Retrieves a single film.
@@ -149,6 +150,7 @@ export function MoviePage() {
                             <p className="pt-2 leading-relaxed">{movie.overview}</p>
                         )}
 
+                        <WatchlistButton movieUuid={uuid!} />
                         <WatchActions movieUuid={uuid!} />
                     </div>
                 </section>

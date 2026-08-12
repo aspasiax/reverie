@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AdminGenresPage } from '@/pages/admin/AdminGenresPage'
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminMoviesPage } from '@/pages/admin/AdminMoviesPage'
+import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
@@ -14,7 +15,7 @@ import { MyReviewsPage } from '@/pages/MyReviewsPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { WatchLogsPage } from '@/pages/WatchLogsPage'
-import { AdminUsersPage } from './pages/admin/AdminUsersPage'
+import { WatchlistPage } from '@/pages/WatchlistPage'
 
 /**
  * The route table of the application.
@@ -34,6 +35,7 @@ function App() {
                     <Route path="/" element={<MoviesPage />} />
                     <Route path="/movies/:uuid" element={<MoviePage />} />
                     <Route path="/watch-logs" element={<WatchLogsPage />} />
+                    <Route path="/watchlist" element={<WatchlistPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
 
