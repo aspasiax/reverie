@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Star } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
@@ -138,11 +138,18 @@ export function MoviePage() {
 
                         <div className="flex flex-wrap gap-1">
                             {movie.genres.map((genre) => (
-                                <span
+                                <Link
                                     key={genre.uuid}
-                                    className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
-                                  {genre.name}
-                                </span>
+                                    to={`/?genre=${genre.uuid}`}
+                                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+                                >
+                                    <span
+                                        aria-hidden
+                                        className="size-1.5 rounded-full"
+                                        style={{ backgroundColor: genre.color ?? 'transparent' }}
+                                    />
+                                    {genre.name}
+                                </Link>
                             ))}
                         </div>
 

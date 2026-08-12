@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Genre, Movie, MovieSort, Page } from '@/types/api'
@@ -69,16 +69,27 @@ async function fetchMovies(
 /**
  * The film catalogue.
  *
- * The page index, the order and both filters are part of the query key, so
- * changing any of them is enough to make the data reload. Previously loaded
- * combinations stay in the cache and reappear instantly.
+ * The order, the genre and the page live in the address rather than in
+ * component state, so a narrowed catalogue can be linked to and the back
+ * button behaves as expected. That is what lets a genre on a film page be
+ * a link straight into this screen.
+ *
+ * The search term is deliberately not in the address. It is typing in
+ * progress rather than a destination, and every pause would otherwise
+ * leave an entry in the browser history.
  */
 export function MoviesPage() {
-    const [page, setPage] = useState(0)
-    const [order, setOrder] = useState<MovieSort>('TITLE')
-    const [genre, setGenre] = useState<string | null>(null)
-    const [search, setSearch] = useState('')
+    const [params, setParams] = useSearchParams()
 
+    const requestedOrder = params.get('order')
+    const order: MovieSort = orders.some((option) => option.value === requestedOrder)
+        ? (requestedOrder as MovieSort)
+        : 'TITLE'
+
+    const genre = params.get('genre')
+    const page = Number(params.get('page') ?? '0')
+
+    const [search, setSearch] = useState('')
     const debouncedSearch = useDebounced(search)
 
     const { data: genres } = useQuery({
@@ -92,21 +103,59 @@ export function MoviesPage() {
         placeholderData: keepPreviousData,
     })
 
+    /**
+     * Writes a change into the address.
+     *
+     * A null value removes the parameter, so the address only ever carries
+     * what has actually been chosen: the default order and the first page
+     * leave no trace.
+     */
+    function updateParams(changes: Record<string, string | null>) {
+        const next = new URLSearchParams(params)
+
+        for (const [key, value] of Object.entries(changes)) {
+            if (value === null) {
+                next.delete(key)
+            } else {
+                next.set(key, value)
+            }
+        }
+
+        setParams(next)
+    }
+
     /*
+     * Every change to a filter or to the order returns to the first page.
      * Page four of one selection has nothing to do with page four of
      * another, and someone who has just narrowed the catalogue is asking
      * to see what comes first.
      */
-    useEffect(() => {
-        setPage(0)
-    }, [order, debouncedSearch, genre])
+    function selectOrder(value: MovieSort) {
+        updateParams({ order: value === 'TITLE' ? null : value, page: null })
+    }
 
-    const hasFilters = debouncedSearch !== '' || genre !== null
+    function toggleGenre(uuid: string) {
+        updateParams({ genre: genre === uuid ? null : uuid, page: null })
+    }
+
+    function changeSearch(value: string) {
+        setSearch(value)
+
+        if (page !== 0) {
+            updateParams({ page: null })
+        }
+    }
+
+    function goToPage(next: number) {
+        updateParams({ page: next === 0 ? null : String(next) })
+    }
+
+    const hasFilters = search !== '' || genre !== null
 
     /** Clears both filters at once. */
     function clearFilters() {
         setSearch('')
-        setGenre(null)
+        updateParams({ genre: null, page: null })
     }
 
     return (
@@ -118,7 +167,7 @@ export function MoviesPage() {
                         <Input
                             type="search"
                             value={search}
-                            onChange={(event) => setSearch(event.target.value)}
+                            onChange={(event) => changeSearch(event.target.value)}
                             placeholder="Search by title"
                             aria-label="Search films by title"
                             className="pl-9"
@@ -130,7 +179,7 @@ export function MoviesPage() {
                             <button
                                 key={option.value}
                                 type="button"
-                                onClick={() => setOrder(option.value)}
+                                onClick={() => selectOrder(option.value)}
                                 aria-pressed={order === option.value}
                                 className={cn(
                                     'rounded-md px-3 py-1.5 text-sm transition-colors',
@@ -153,7 +202,7 @@ export function MoviesPage() {
                             <button
                                 key={option.uuid}
                                 type="button"
-                                onClick={() => setGenre(isSelected ? null : option.uuid)}
+                                onClick={() => toggleGenre(option.uuid)}
                                 aria-pressed={isSelected}
                                 className={cn(
                                     'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors',
@@ -246,7 +295,7 @@ export function MoviesPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setPage((current) => current - 1)}
+                                    onClick={() => goToPage(page - 1)}
                                     disabled={data.first}
                                 >
                                     Previous
@@ -259,7 +308,7 @@ export function MoviesPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setPage((current) => current + 1)}
+                                    onClick={() => goToPage(page + 1)}
                                     disabled={data.last}
                                 >
                                     Next
