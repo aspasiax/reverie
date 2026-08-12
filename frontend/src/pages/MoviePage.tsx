@@ -136,6 +136,26 @@ export function MoviePage() {
                                 ` · ${movie.originalLanguage.toUpperCase()}`}
                         </p>
 
+                        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                            {movie.ratingCount > 0 && (
+                                <span className="inline-flex items-center gap-1">
+                                    <Star className="size-4 fill-current text-yellow-500" />
+                                    <span className="font-medium text-foreground">
+                                        {movie.averageRating.toFixed(1)}
+                                    </span>
+                                    from {movie.ratingCount}{' '}
+                                    {movie.ratingCount === 1 ? 'rating' : 'ratings'}
+                                </span>
+                            )}
+
+                            {movie.watchCount > 0 && (
+                                <span>
+                                    watched {movie.watchCount}{' '}
+                                    {movie.watchCount === 1 ? 'time' : 'times'}
+                                </span>
+                            )}
+                        </p>
+
                         <div className="flex flex-wrap gap-1">
                             {movie.genres.map((genre) => (
                                 <Link

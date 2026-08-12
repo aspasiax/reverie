@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Search, X } from 'lucide-react'
+import { Search, Star, X } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Genre, Movie, MovieSort, Page } from '@/types/api'
 import { Button } from '@/components/ui/button'
@@ -262,7 +262,7 @@ export function MoviesPage() {
                                             to={`/movies/${movie.uuid}`}
                                             className="group block overflow-hidden rounded-lg border transition-colors hover:border-primary"
                                         >
-                                            <div className="aspect-[2/3] overflow-hidden bg-muted">
+                                            <div className="relative aspect-[2/3] overflow-hidden bg-muted">
                                                 {tmdbImage(movie.posterPath, 'w342') !== null ? (
                                                     <img
                                                         src={tmdbImage(movie.posterPath, 'w342')!}
@@ -274,6 +274,13 @@ export function MoviesPage() {
                                                     <div className="flex size-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
                                                         {movie.title}
                                                     </div>
+                                                )}
+
+                                                {movie.ratingCount > 0 && (
+                                                    <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium backdrop-blur">
+                                                        <Star className="size-3 fill-current text-yellow-500" />
+                                                        {movie.averageRating.toFixed(1)}
+                                                    </span>
                                                 )}
                                             </div>
 

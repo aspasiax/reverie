@@ -107,6 +107,9 @@ export interface Movie {
     tmdbId: number | null
     imdbId: string | null
     published: boolean
+    averageRating: number
+    ratingCount: number
+    watchCount: number
     genres: GenreSummary[]
     createdAt: string
     updatedAt: string
