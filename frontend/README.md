@@ -64,7 +64,10 @@ src/
 │   ├── AdminRoute.tsx      Guards the administration area
 │   ├── GenreEditor.tsx     Create and edit dialogs
 │   ├── MovieEditor.tsx
-│   ├── ReviewEditor.tsx
+│   ├── ReviewEditor.tsx     Writing, changing and removing your own review
+│   ├── ReviewCard.tsx       One review, shown as a row about its film
+│   ├── UserStatistics.tsx   What someone has watched and written, in numbers
+│   ├── WatchActions.tsx     Recording a viewing and the viewing history
 │   ├── WatchActions.tsx    Recording a viewing and the viewing history
 │   └── TmdbAttribution.tsx
 │   ├── WatchActions.tsx    Recording a viewing and the viewing history
@@ -107,10 +110,13 @@ invalidation work.
 | `['genres']` | Active genres |
 | `['genres', 'deleted']` | Genres that were deleted |
 | `['reviews', 'movie', uuid]` | Reviews of one film |
+| `['reviews', 'user', uuid]` | Reviews written by one user |
 | `['reviews', 'me']` | Reviews written by the signed in user |
 | `['watchlist']` | Films the user intends to watch |
 | `['watch-logs']` | The viewing history |
 | `['users']` | Accounts, for administration |
+| `['users', uuid, 'statistics']` | What a user has watched and written |
+| `['statistics', 'overview']` | The state of the whole application |
 
 Keys are arrays so that invalidation can work by prefix. Invalidating
 `['movies']` refreshes the catalogue, the administration listing and the
@@ -156,13 +162,15 @@ the API, which answers `403` whatever the interface believes.
 /login              sign in
 /register           create an account
 /                   the catalogue          ┐
-/movies/:uuid       one film               │ ProtectedRoute
-/watchlist          films to watch         │
+/movies/:uuid       one film               │
+/watchlist          films to watch         │ ProtectedRoute
 /watch-logs         viewing history        │
 /my-reviews         reviews written        │
-/profile            the signed in user     ┘
-/admin/movies       films                  ┐
-/admin/genres       genres                 │ ProtectedRoute + AdminRoute
+/profile            the signed in user     │
+/users/:uuid        another reader         ┘
+/admin/overview     what exists            ┐
+/admin/movies       films                  │ ProtectedRoute + AdminRoute
+/admin/genres       genres                 │
 /admin/users        accounts               ┘
 ```
 

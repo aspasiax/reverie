@@ -112,7 +112,7 @@ the development profile. The log records each such migration as
 the files in a different sequence than one migrated incrementally —
 acceptable here because no migration depends on demonstration data.
 
-## Two response shapes for a user profile
+## Three response shapes for a user profile
 
 A user profile is returned through two different records. `UserProfileResponse`
 is returned only from `/api/users/me` and includes the email address and the
@@ -123,6 +123,33 @@ A single shared DTO would have exposed every user's email address to any
 authenticated caller, simply because the profile endpoint needed it. Two
 shapes cost one extra record and one extra mapper method, and remove the
 possibility of that mistake entirely.
+
+## Viewings are counted in public, but never listed
+
+A review is public one by one. It appears on the page of the film it
+concerns, carrying the name of whoever wrote it, and the profile of that
+person gathers the same reviews in one place. Nothing is revealed by the
+gathering that the film pages did not already show.
+
+Viewings are treated differently. A film says how many times it has been
+watched, and a profile says how many films someone has seen, but no screen
+anywhere says that a particular person watched a particular film on a
+particular evening. The figures are public; the diary behind them is not.
+
+The alternative was a public viewing history, which is how several film
+journals work and which was considered while building the profile page.
+It was rejected because it changes what the application promises rather
+than what it displays. Every other private thing in Reverie is private by
+the same rule: the watchlist is visible only to its owner, and the
+statistics endpoint leaves it out deliberately. A public diary would make
+viewings the single exception, and the exception would have to be
+explained on every screen that touched it.
+
+The cost is a number without a list behind it: a profile states that
+someone has watched forty films and offers no way to see which. That is
+accepted. Should the promise ever change, the change belongs in one place
+— a new endpoint, guarded like any other — rather than in a page that
+quietly started showing more than it used to.
 
 ## Administrators cannot change their own role
 

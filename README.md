@@ -39,13 +39,16 @@ starts with one command.
 - Record a viewing, with or without a date — a film seen three times is
   three entries, because a rewatch is a real event
 - Write one review per film, with a rating, written text, or both
-- Keep a profile and a personal viewing history
+- Keep a profile with a personal viewing history, and see what other
+  readers have watched, rated and written
 
 **For administrators**
 
 - Manage films: create, edit, publish, withdraw, delete and restore
 - Manage genres, including permanently destroying ones already deleted
 - Manage accounts: change roles, disable and re-enable access
+- See an overview of the installation: what exists, how much has been
+    recorded, and which film and account lead each count
 
 Every administrative control is shown only to accounts that hold the
 capability it needs. The interface hides what it cannot use; the API
@@ -300,7 +303,7 @@ Against the containerised stack, through the nginx proxy:
 API=http://localhost:3000 bash scripts/smoke-test.sh
 ```
 
-It runs 89 checks and leaves the database exactly as it found it.
+It runs 128 checks and leaves the database exactly as it found it.
 
 ---
 
