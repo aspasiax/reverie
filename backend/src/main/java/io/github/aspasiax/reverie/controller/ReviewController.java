@@ -16,103 +16,128 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 /**
- * REST controller responsible for movie review operations.
+ * Exposes REST endpoints for reading and writing film reviews.
+ *
  * <p>
- * Provides endpoints for creating, updating, deleting,
- * and retrieving reviews.
+ * Reviews are public to read and private to change: any signed in user
+ * may see them, while only their author may edit or remove one.
+ * </p>
  */
+@SecurityRequirement(name = "bearerAuth")
+@Tag(
+        name = "Reviews",
+        description = "Operations for reading and writing film reviews."
+)
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
-@Tag(
-        name = "Reviews",
-        description = "Review management endpoints."
-)
-@SecurityRequirement(name = "bearerAuth")
 public class ReviewController {
 
     private final IReviewService reviewService;
 
     /**
-     * Returns all reviews for a movie.
+     * Returns a page of the reviews written for a film.
      *
-     * @param movieUuid movie identifier
-     * @return movie reviews
+     * @param movieUuid the movie UUID
+     * @param pageable  the requested page and sort order
+     * @return a page of the film's reviews
      */
-    @PreAuthorize("hasAuthority('REVIEW_READ')")
-    @GetMapping("/movie/{movieUuid}")
-    @Operation(summary = "Get reviews for a movie")
+    @Operation(
+            summary = "Get the reviews of a film",
+            description = "Returns a page of the reviews written for a film, newest first."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
-    public PageResponse<ReviewResponse> getMovieReviews(
+    @GetMapping("/movie/{movieUuid}")
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
+    public ResponseEntity<PageResponse<ReviewResponse>> findMovieReviews(
             @PathVariable UUID movieUuid,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return reviewService.findMovieReviews(movieUuid, pageable);
+        return ResponseEntity.ok(
+                reviewService.findMovieReviews(movieUuid, pageable)
+        );
     }
 
     /**
-     * Returns the reviews written by a user.
+     * Returns a page of the reviews written by a user.
      *
      * @param userUuid the user UUID
-     * @param pageable pagination information
-     * @return the user's reviews
+     * @param pageable the requested page and sort order
+     * @return a page of the user's reviews
      */
-    @PreAuthorize("hasAuthority('REVIEW_READ')")
-    @GetMapping("/user/{userUuid}")
-    @Operation(summary = "Get a user's reviews")
+    @Operation(
+            summary = "Get the reviews of a user",
+            description = "Returns a page of the reviews a user has written, newest first."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public PageResponse<ReviewResponse> getUserReviews(
+    @GetMapping("/user/{userUuid}")
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
+    public ResponseEntity<PageResponse<ReviewResponse>> findUserReviews(
             @PathVariable UUID userUuid,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return reviewService.findUserReviews(userUuid, pageable);
+        return ResponseEntity.ok(
+                reviewService.findUserReviews(userUuid, pageable)
+        );
     }
 
     /**
-     * Returns all reviews created by the authenticated user.
+     * Returns a page of the reviews written by the authenticated user.
      *
-     * @return authenticated user's reviews
+     * @param pageable the requested page and sort order
+     * @return a page of the authenticated user's reviews
      */
-    @PreAuthorize("hasAuthority('REVIEW_READ')")
-    @GetMapping("/me")
-    @Operation(summary = "Get my reviews")
+    @Operation(
+            summary = "Get my reviews",
+            description = "Returns a page of the reviews the authenticated user has written, newest first."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Insufficient permissions")
     })
-    public PageResponse<ReviewResponse> getMyReviews(
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
+    public ResponseEntity<PageResponse<ReviewResponse>> findMyReviews(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return reviewService.findMyReviews(pageable);
+        return ResponseEntity.ok(reviewService.findMyReviews(pageable));
     }
 
     /**
-     * Creates a new review.
+     * Creates a review for a film the authenticated user has watched.
      *
-     * @param request review creation request
-     * @return created review
+     * @param request the validated review creation request
+     * @return the created review
      */
-    @PreAuthorize("hasAuthority('REVIEW_CREATE')")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create review")
+    @Operation(
+            summary = "Write a review",
+            description = "Creates a review for a film. The film must already be logged as watched, and a user holds at most one review per film."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Review created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid review data or missing watch log"),
@@ -121,22 +146,29 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "Movie not found"),
             @ApiResponse(responseCode = "409", description = "A review already exists for this movie")
     })
-    public ReviewResponse createReview(
+    @PostMapping
+    @PreAuthorize("hasAuthority('REVIEW_CREATE')")
+    public ResponseEntity<ReviewResponse> create(
             @Valid @RequestBody CreateReviewRequest request
     ) {
-        return reviewService.create(request);
+        ReviewResponse createdReview = reviewService.create(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdReview);
     }
 
     /**
-     * Updates an existing review.
+     * Updates a review owned by the authenticated user.
      *
-     * @param reviewUuid review identifier
-     * @param request review update request
-     * @return updated review
+     * @param reviewUuid the review UUID
+     * @param request    the validated review update request
+     * @return the updated review
      */
-    @PreAuthorize("hasAuthority('REVIEW_UPDATE')")
-    @PutMapping("/{reviewUuid}")
-    @Operation(summary = "Update review")
+    @Operation(
+            summary = "Update a review",
+            description = "Updates a review. Only the author of a review may change it."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Review updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid review data"),
@@ -144,31 +176,40 @@ public class ReviewController {
             @ApiResponse(responseCode = "403", description = "Review belongs to another user or permissions are insufficient"),
             @ApiResponse(responseCode = "404", description = "Review not found")
     })
-    public ReviewResponse updateReview(
+    @PutMapping("/{reviewUuid}")
+    @PreAuthorize("hasAuthority('REVIEW_UPDATE')")
+    public ResponseEntity<ReviewResponse> update(
             @PathVariable UUID reviewUuid,
             @Valid @RequestBody UpdateReviewRequest request
     ) {
-        return reviewService.update(reviewUuid, request);
+        return ResponseEntity.ok(
+                reviewService.update(reviewUuid, request)
+        );
     }
 
     /**
-     * Deletes a review.
+     * Soft deletes a review owned by the authenticated user.
      *
-     * @param reviewUuid review identifier
+     * @param reviewUuid the review UUID
+     * @return an empty {@code 204 No Content} response
      */
-    @PreAuthorize("hasAuthority('REVIEW_DELETE')")
-    @DeleteMapping("/{reviewUuid}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Delete review")
+    @Operation(
+            summary = "Delete a review",
+            description = "Soft-deletes a review. Only the author of a review may remove it."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Review deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication required"),
             @ApiResponse(responseCode = "403", description = "Review belongs to another user or permissions are insufficient"),
             @ApiResponse(responseCode = "404", description = "Review not found")
     })
-    public void deleteReview(
+    @DeleteMapping("/{reviewUuid}")
+    @PreAuthorize("hasAuthority('REVIEW_DELETE')")
+    public ResponseEntity<Void> delete(
             @PathVariable UUID reviewUuid
     ) {
         reviewService.delete(reviewUuid);
+
+        return ResponseEntity.noContent().build();
     }
 }
