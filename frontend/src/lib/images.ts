@@ -15,7 +15,7 @@ const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p'
  */
 export function tmdbImage(
     path: string | null,
-    width: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'original' = 'w342',
+    width: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w342',
 ): string | null {
     if (path === null) {
         return null
