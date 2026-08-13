@@ -8,6 +8,7 @@ import { tmdbImage } from '@/lib/images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TmdbNotice } from '@/components/TmdbAttribution'
 
 /**
  * The film shown beside the sign in form.
@@ -92,6 +93,8 @@ export function LoginPage() {
                         A journal for the films you watch. Keep a record of what you have
                         seen, write about it, and decide what comes next.
                     </p>
+
+                    <TmdbNotice className="max-w-sm pt-1 opacity-70" />
                 </div>
             </div>
 

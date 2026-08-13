@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AdminGenresPage } from '@/pages/admin/AdminGenresPage'
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminMoviesPage } from '@/pages/admin/AdminMoviesPage'
+import { AdminOverviewPage } from '@/pages/admin/AdminOverviewPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
@@ -17,7 +18,6 @@ import { RegisterPage } from '@/pages/RegisterPage'
 import { UserPage } from '@/pages/UserPage'
 import { WatchLogsPage } from '@/pages/WatchLogsPage'
 import { WatchlistPage } from '@/pages/WatchlistPage'
-import { AdminOverviewPage } from '@/pages/admin/AdminOverviewPage'
 
 /**
  * The route table of the application.

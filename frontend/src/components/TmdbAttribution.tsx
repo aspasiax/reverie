@@ -1,13 +1,15 @@
+import { cn } from '@/lib/utils'
+
 /**
- * Credits TMDB as the source of the film images.
+ * The sentence TMDB asks to appear wherever their material is used.
  *
- * The TMDB terms of use require applications built on their data to state
- * that the product is neither endorsed nor certified by them, so this notice
- * appears on every screen that displays a poster or a backdrop.
+ * Kept separate from the footer so that screens outside the application
+ * shell can carry it too. The words live in one place; only the placing
+ * changes.
  */
-export function TmdbAttribution() {
+export function TmdbNotice({ className }: { className?: string }) {
     return (
-        <footer className="border-t px-6 py-4 text-center text-xs text-muted-foreground">
+        <p className={cn('text-xs text-muted-foreground', className)}>
             This product uses the TMDB API but is not endorsed or certified by{' '}
             <a
                 href="https://www.themoviedb.org"
@@ -18,6 +20,17 @@ export function TmdbAttribution() {
                 TMDB
             </a>
             .
+        </p>
+    )
+}
+
+/**
+ * The footer shown on every screen behind the sign in wall.
+ */
+export function TmdbAttribution() {
+    return (
+        <footer className="border-t px-6 py-4 text-center">
+            <TmdbNotice />
         </footer>
     )
 }

@@ -255,20 +255,20 @@ export function MoviesPage() {
                         </div>
                     ) : (
                         <>
-                            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                            <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                                 {data.content.map((movie) => (
                                     <li key={movie.uuid}>
                                         <Link
                                             to={`/movies/${movie.uuid}`}
-                                            className="group block overflow-hidden rounded-lg border transition-colors hover:border-primary"
+                                            className="group block space-y-2.5"
                                         >
-                                            <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+                                            <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-white/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60">
                                                 {tmdbImage(movie.posterPath, 'w342') !== null ? (
                                                     <img
                                                         src={tmdbImage(movie.posterPath, 'w342')!}
                                                         alt=""
                                                         loading="lazy"
-                                                        className="size-full object-cover transition-transform group-hover:scale-105"
+                                                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     />
                                                 ) : (
                                                     <div className="flex size-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
@@ -277,20 +277,22 @@ export function MoviesPage() {
                                                 )}
 
                                                 {movie.ratingCount > 0 && (
-                                                    <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium backdrop-blur">
+                                                    <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/80 px-2 py-0.5 text-xs font-medium backdrop-blur-sm">
                                                         <Star className="size-3 fill-current text-yellow-500" />
                                                         {movie.averageRating.toFixed(1)}
                                                     </span>
                                                 )}
                                             </div>
 
-                                            <div className="p-3">
-                                                <h2 className="truncate font-medium" title={movie.title}>
+                                            <div className="space-y-0.5">
+                                                <h2
+                                                    className="truncate text-sm font-medium leading-tight transition-colors group-hover:text-primary"
+                                                    title={movie.title}
+                                                >
                                                     {movie.title}
                                                 </h2>
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-xs text-muted-foreground">
                                                     {movie.releaseDate?.slice(0, 4) ?? 'Unknown year'}
-                                                    {movie.runtime !== null && ` · ${movie.runtime} min`}
                                                 </p>
                                             </div>
                                         </Link>
