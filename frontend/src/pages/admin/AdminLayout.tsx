@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
  * the part it can use.
  */
 const sections: { to: string; label: string; capability: Capability }[] = [
+    { to: '/admin/overview', label: 'Overview', capability: 'STATISTICS_READ' },
     { to: '/admin/movies', label: 'Films', capability: 'MOVIE_CREATE' },
     { to: '/admin/genres', label: 'Genres', capability: 'GENRE_CREATE' },
     { to: '/admin/users', label: 'People', capability: 'USER_READ' },

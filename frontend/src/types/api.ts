@@ -169,3 +169,26 @@ export interface Review {
     createdAt: string
     updatedAt: string
 }
+
+// Statistics
+
+/** A leading entry and the count behind it. */
+export interface Highlight {
+    name: string
+    count: number
+}
+
+/** A summary of the whole application. */
+export interface Overview {
+    users: number
+    disabledUsers: number
+    publishedFilms: number
+    unpublishedFilms: number
+    deletedFilms: number
+    genres: number
+    reviews: number
+    viewings: number
+    watchlistEntries: number
+    mostWatchedFilm: Highlight | null
+    mostActiveUser: Highlight | null
+}

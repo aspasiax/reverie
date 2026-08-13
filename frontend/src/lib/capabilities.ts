@@ -30,6 +30,7 @@ export type Capability =
     | 'USER_CREATE'
     | 'USER_UPDATE'
     | 'USER_DISABLE'
+    | 'STATISTICS_READ'
 
 /**
  * The capabilities that unlock the administration area.
