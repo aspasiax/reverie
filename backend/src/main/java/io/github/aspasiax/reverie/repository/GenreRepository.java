@@ -70,4 +70,11 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
      * @return {@code true} if an active genre uses the name
      */
     boolean existsByNameIgnoreCaseAndDeletedFalse(String name);
+
+    /**
+     * Counts the records that have not been deleted.
+     *
+     * @return how many active records exist
+     */
+    long countByDeletedFalse();
 }

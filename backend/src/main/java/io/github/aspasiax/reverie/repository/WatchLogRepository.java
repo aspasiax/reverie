@@ -86,4 +86,11 @@ public interface WatchLogRepository extends JpaRepository<WatchLog, Long> {
             @Param("userUuid") UUID userUuid,
             Pageable pageable
     );
+
+    /**
+     * Counts the records that have not been deleted.
+     *
+     * @return how many active records exist
+     */
+    long countByDeletedFalse();
 }

@@ -228,6 +228,23 @@ check "unknown user has no statistics" "404" "$(code -H "Authorization: Bearer $
 check "emma's reviews are public"      "5" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/user/$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='emma'][0])")" | json "print(json.load(sys.stdin)['totalElements'])")"
 check "reviews of an unknown user"     "404" "$(code -H "Authorization: Bearer $ALEX" $API/api/reviews/user/00000000-0000-0000-0000-000000000001)"
 
+# ---------- Overview ----------
+echo ""
+echo "OVERVIEW"
+
+over() { curl -s -H "Authorization: Bearer $ADMIN" $API/api/statistics | json "print(json.load(sys.stdin)['$1'])"; }
+
+check "user cannot read the overview" "403" "$(code -H "Authorization: Bearer $ALEX" $API/api/statistics)"
+check "admin reads the overview"      "200" "$(code -H "Authorization: Bearer $ADMIN" $API/api/statistics)"
+check "four accounts"                 "4"   "$(over users)"
+check "twenty four films published"   "24"  "$(over publishedFilms)"
+check "no drafts"                     "0"   "$(over unpublishedFilms)"
+check "twelve genres"                 "12"  "$(over genres)"
+check "fifteen reviews"               "15"  "$(over reviews)"
+check "twenty five viewings"          "25"  "$(over viewings)"
+check "ten watchlist entries"         "10"  "$(over watchlistEntries)"
+check "interstellar leads"            "Interstellar" "$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/statistics | json "print(json.load(sys.stdin)['mostWatchedFilm']['name'])")"
+
 # ---------- Watchlist ----------
 echo ""
 echo "WATCHLIST"

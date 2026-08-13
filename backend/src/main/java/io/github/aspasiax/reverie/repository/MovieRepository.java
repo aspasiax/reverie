@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -196,4 +197,38 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      * @return {@code true} if an active movie uses the identifier
      */
     boolean existsByTmdbIdAndDeletedFalse(Long tmdbId);
+
+    /**
+     * Counts the films visible in the catalogue.
+     *
+     * @return how many films are published
+     */
+    long countByDeletedFalseAndPublishedTrue();
+
+    /**
+     * Counts the films prepared but not published.
+     *
+     * @return how many films are drafts
+     */
+    long countByDeletedFalseAndPublishedFalse();
+
+    /**
+     * Counts the films that have been withdrawn.
+     *
+     * @return how many films are deleted
+     */
+    long countByDeletedTrue();
+
+    /**
+     * Returns the films with the most recorded viewings.
+     *
+     * @param pageable how many to return
+     * @return films ordered by recorded viewings
+     */
+    @Query("""
+            SELECT m FROM Movie m
+            WHERE m.deleted = FALSE
+            ORDER BY m.watchCount DESC, m.title ASC
+            """)
+    List<Movie> findMostWatched(Pageable pageable);
 }

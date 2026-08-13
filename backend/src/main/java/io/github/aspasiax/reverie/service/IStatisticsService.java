@@ -1,5 +1,6 @@
 package io.github.aspasiax.reverie.service;
 
+import io.github.aspasiax.reverie.dto.statistics.OverviewResponse;
 import io.github.aspasiax.reverie.dto.user.UserStatisticsResponse;
 import io.github.aspasiax.reverie.exception.UserNotFoundException;
 
@@ -21,4 +22,11 @@ public interface IStatisticsService {
      * @throws UserNotFoundException if no such user exists
      */
     UserStatisticsResponse getUserStatistics(UUID uuid);
+
+    /**
+     * Summarises the state of the whole application.
+     *
+     * @return what exists and how much has happened
+     */
+    OverviewResponse getOverview();
 }

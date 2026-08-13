@@ -1,7 +1,9 @@
 package io.github.aspasiax.reverie.repository;
 
 import io.github.aspasiax.reverie.domain.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,4 +84,30 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return the active users ordered alphabetically by username
      */
     List<User> findAllByDeletedFalseOrderByUsernameAsc();
+
+    /**
+     * Counts the accounts that cannot sign in.
+     *
+     * @return how many accounts are disabled
+     */
+    long countByEnabledFalse();
+
+    /**
+     * Returns the users who have recorded the most viewings.
+     *
+     * <p>The count comes from a subquery rather than a join, so a user who
+     * has watched nothing still appears, at the end of the list.</p>
+     *
+     * @param pageable how many to return
+     * @return users ordered by how much they have watched
+     */
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.deleted = FALSE
+            ORDER BY (
+                SELECT COUNT(w) FROM WatchLog w
+                WHERE w.user = u AND w.deleted = FALSE
+            ) DESC, u.displayName ASC
+            """)
+    List<User> findMostActive(Pageable pageable);
 }

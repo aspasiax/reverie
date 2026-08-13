@@ -49,4 +49,11 @@ public interface WatchlistEntryRepository extends JpaRepository<WatchlistEntry, 
             UUID userUuid,
             UUID movieUuid
     );
+
+    /**
+     * Counts the records that have not been deleted.
+     *
+     * @return how many active records exist
+     */
+    long countByDeletedFalse();
 }

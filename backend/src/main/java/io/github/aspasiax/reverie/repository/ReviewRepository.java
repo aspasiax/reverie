@@ -73,4 +73,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             WHERE r.user.uuid = :userUuid AND r.deleted = FALSE
             """)
     Double findAverageRatingGivenBy(@Param("userUuid") UUID userUuid);
+
+    /**
+     * Counts the records that have not been deleted.
+     *
+     * @return how many active records exist
+     */
+    long countByDeletedFalse();
 }
