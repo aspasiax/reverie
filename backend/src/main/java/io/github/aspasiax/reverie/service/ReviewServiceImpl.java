@@ -7,16 +7,13 @@ import io.github.aspasiax.reverie.dto.common.PageResponse;
 import io.github.aspasiax.reverie.dto.review.CreateReviewRequest;
 import io.github.aspasiax.reverie.dto.review.ReviewResponse;
 import io.github.aspasiax.reverie.dto.review.UpdateReviewRequest;
-import io.github.aspasiax.reverie.exception.DuplicateReviewException;
-import io.github.aspasiax.reverie.exception.InvalidReviewException;
-import io.github.aspasiax.reverie.exception.MovieNotFoundException;
-import io.github.aspasiax.reverie.exception.ReviewAccessDeniedException;
-import io.github.aspasiax.reverie.exception.ReviewNotFoundException;
-import io.github.aspasiax.reverie.exception.WatchLogRequiredException;
+import io.github.aspasiax.reverie.exception.*;
 import io.github.aspasiax.reverie.mapper.ReviewMapper;
 import io.github.aspasiax.reverie.repository.MovieRepository;
 import io.github.aspasiax.reverie.repository.ReviewRepository;
+import io.github.aspasiax.reverie.repository.UserRepository;
 import io.github.aspasiax.reverie.repository.WatchLogRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,37 +37,15 @@ import java.util.UUID;
  */
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ReviewServiceImpl implements IReviewService {
 
     private final ReviewRepository reviewRepository;
     private final MovieRepository movieRepository;
     private final WatchLogRepository watchLogRepository;
+    private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
     private final ICurrentUserService currentUserService;
-
-    /**
-     * Creates a new review service.
-     *
-     * @param reviewRepository   the repository used to access reviews
-     * @param movieRepository    the repository used to access movies
-     * @param watchLogRepository the repository used to access watch logs
-     * @param reviewMapper       the mapper used to convert reviews to DTOs
-     * @param currentUserService the service used to retrieve the
-     *                           authenticated user
-     */
-    public ReviewServiceImpl(
-            ReviewRepository reviewRepository,
-            MovieRepository movieRepository,
-            WatchLogRepository watchLogRepository,
-            ReviewMapper reviewMapper,
-            ICurrentUserService currentUserService
-    ) {
-        this.reviewRepository = reviewRepository;
-        this.movieRepository = movieRepository;
-        this.watchLogRepository = watchLogRepository;
-        this.reviewMapper = reviewMapper;
-        this.currentUserService = currentUserService;
-    }
 
     /**
      * Returns all active reviews for a specific movie.
@@ -91,6 +66,38 @@ public class ReviewServiceImpl implements IReviewService {
 
         Page<ReviewResponse> page = reviewRepository
                 .findAllByMovieUuidAndDeletedFalse(movieUuid, pageable)
+                .map(reviewMapper::toResponse);
+
+        return PageResponse.from(page);
+    }
+
+    /**
+     * Returns all active reviews written by a user.
+     *
+     * <p>The reviews are returned from newest to oldest.</p>
+     *
+     * @param userUuid the public user identifier
+     * @param pageable the requested page and sort order
+     * @return the user's active reviews
+     * @throws UserNotFoundException if no such user exists
+     */
+    @Override
+    public PageResponse<ReviewResponse> findUserReviews(
+            UUID userUuid,
+            Pageable pageable
+    ) {
+        /*
+         * A listing of somebody's reviews only makes sense if the somebody
+         * exists. Without this the endpoint would answer an empty page for
+         * any identifier at all, which reads as "wrote nothing" rather than
+         * "is nobody".
+         */
+        if (!userRepository.existsByUuid(userUuid)) {
+            throw new UserNotFoundException(userUuid);
+        }
+
+        Page<ReviewResponse> page = reviewRepository
+                .findAllByUserUuidAndDeletedFalse(userUuid, pageable)
                 .map(reviewMapper::toResponse);
 
         return PageResponse.from(page);

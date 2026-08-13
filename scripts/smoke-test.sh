@@ -225,6 +225,8 @@ check "alex mostly watches sci-fi"     "Science Fiction" "$(stat $ALEX_UUID favo
 check "an idle account has no average" "None" "$(stat $ADMIN_UUID averageRating)"
 check "statistics keep the watchlist out" "False" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/users/$ALEX_UUID/statistics" | json "print(any('watch' in k.lower() and 'list' in k.lower() for k in json.load(sys.stdin)))")"
 check "unknown user has no statistics" "404" "$(code -H "Authorization: Bearer $ALEX" $API/api/users/00000000-0000-0000-0000-000000000001/statistics)"
+check "emma's reviews are public"      "5" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/user/$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='emma'][0])")" | json "print(json.load(sys.stdin)['totalElements'])")"
+check "reviews of an unknown user"     "404" "$(code -H "Authorization: Bearer $ALEX" $API/api/reviews/user/00000000-0000-0000-0000-000000000001)"
 
 # ---------- Watchlist ----------
 echo ""

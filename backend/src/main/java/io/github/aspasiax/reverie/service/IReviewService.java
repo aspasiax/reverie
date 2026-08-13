@@ -24,6 +24,19 @@ public interface IReviewService {
     PageResponse<ReviewResponse> findMovieReviews(UUID movieUuid, Pageable pageable);
 
     /**
+     * Retrieves the reviews written by a user.
+     *
+     * <p>Reviews are public: each one already appears on the page of the
+     * film it concerns, carrying the name of whoever wrote it. Gathering
+     * them by author exposes nothing that was hidden.</p>
+     *
+     * @param userUuid the public user identifier
+     * @param pageable the requested page and sort order
+     * @return the user's active reviews
+     */
+    PageResponse<ReviewResponse> findUserReviews(UUID userUuid, Pageable pageable);
+
+    /**
      * Returns all active reviews created by the authenticated user.
      *
      * @param pageable the requested page and sort order

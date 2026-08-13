@@ -62,6 +62,29 @@ public class ReviewController {
     }
 
     /**
+     * Returns the reviews written by a user.
+     *
+     * @param userUuid the user UUID
+     * @param pageable pagination information
+     * @return the user's reviews
+     */
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
+    @GetMapping("/user/{userUuid}")
+    @Operation(summary = "Get a user's reviews")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public PageResponse<ReviewResponse> getUserReviews(
+            @PathVariable UUID userUuid,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return reviewService.findUserReviews(userUuid, pageable);
+    }
+
+    /**
      * Returns all reviews created by the authenticated user.
      *
      * @return authenticated user's reviews

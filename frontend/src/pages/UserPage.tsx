@@ -1,12 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { api, errorMessage } from '@/lib/api'
-import type { UserSummary } from '@/types/api'
+import type { Page, Review, UserSummary } from '@/types/api'
 import { UserStatistics } from '@/components/UserStatistics'
+import { ReviewCard } from '@/components/ReviewCard'
 
 /** Retrieves the public profile of a user. */
 async function fetchUser(uuid: string) {
     const { data } = await api.get<UserSummary>(`/api/users/${uuid}`)
+    return data
+}
+
+/** Retrieves the reviews a user has written, newest first. */
+async function fetchUserReviews(uuid: string) {
+    const { data } = await api.get<Page<Review>>(`/api/reviews/user/${uuid}`, {
+        params: { page: 0, size: 50 },
+    })
     return data
 }
 
@@ -23,6 +32,16 @@ export function UserPage() {
     const { data: user, isPending, isError, error } = useQuery({
         queryKey: ['users', uuid],
         queryFn: () => fetchUser(uuid!),
+        enabled: uuid !== undefined,
+    })
+
+    /*
+     * The key sits under 'reviews', so writing or removing a review
+     * refreshes this list along with every other place they appear.
+     */
+    const { data: reviews } = useQuery({
+        queryKey: ['reviews', 'user', uuid],
+        queryFn: () => fetchUserReviews(uuid!),
         enabled: uuid !== undefined,
     })
 
@@ -70,6 +89,22 @@ export function UserPage() {
                     )}
 
                     <UserStatistics uuid={user.uuid} />
+                    {reviews !== undefined && reviews.totalElements > 0 && (
+                        <section className="space-y-3">
+                            <h2 className="text-lg font-medium">
+                                Reviews
+                                <span className="ml-2 text-sm text-muted-foreground">
+                                    {reviews.totalElements}
+                                </span>
+                            </h2>
+
+                            <ul className="space-y-4">
+                                {reviews.content.map((review) => (
+                                    <ReviewCard key={review.uuid} review={review} />
+                                ))}
+                            </ul>
+                        </section>
+                    )}
                 </>
             )}
         </div>
