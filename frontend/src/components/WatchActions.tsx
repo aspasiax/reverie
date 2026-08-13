@@ -104,7 +104,7 @@ export function WatchActions({ movieUuid }: { movieUuid: string }) {
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-2 pt-2">
+        <div className="flex flex-wrap items-center gap-2">
             <Button onClick={openLogDialog}>
                 <Eye className="size-4" />
                 Log as watched

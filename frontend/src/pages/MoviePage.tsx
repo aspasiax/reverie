@@ -75,8 +75,6 @@ export function MoviePage() {
     const otherReviews =
         reviews?.content.filter((review) => review.userUuid !== user?.uuid) ?? []
 
-
-
     if (isPending) {
         return <p className="p-6 text-muted-foreground">Loading…</p>
     }
@@ -90,23 +88,32 @@ export function MoviePage() {
     }
 
     return (
-        <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 sm:px-6">
-                {/* Backdrop banner, fading into the page background. */}
-                {tmdbImage(movie.backdropPath, 'w780') !== null && (
-                    <div className="relative -mx-6 -mt-6 mb-6 h-48 overflow-hidden sm:h-64">
+        <div className="mx-auto max-w-3xl space-y-10 px-4 pb-10 sm:px-6">
+            {/*
+              * The backdrop and the details form one header, so they live in a
+              * wrapper of their own: the spacing between the page sections must
+              * not come between a picture and the poster lifted onto it.
+              */}
+            <div>
+                {tmdbImage(movie.backdropPath, 'w1280') !== null && (
+                    <div className="relative -mx-4 h-56 overflow-hidden sm:-mx-6 sm:h-72">
                         <img
-                            src={tmdbImage(movie.backdropPath, 'w780')!}
+                            src={tmdbImage(movie.backdropPath, 'w1280')!}
                             alt=""
                             className="size-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
                     </div>
                 )}
 
-                <section className="flex flex-col gap-6 sm:flex-row">
-                    {/* Poster */}
-                    <div className="w-40 shrink-0 sm:w-48">
-                        <div className="aspect-[2/3] overflow-hidden rounded-lg border bg-muted">
+                {/*
+                  * The poster is lifted over the backdrop, and the details are
+                  * pushed down to start where the picture ends, so the title
+                  * never has to sit on top of it.
+                  */}
+                <section className="relative -mt-20 flex flex-col gap-6 sm:-mt-24 sm:flex-row">
+                    <div className="w-36 shrink-0 sm:w-44">
+                        <div className="aspect-[2/3] overflow-hidden rounded-lg bg-muted shadow-2xl ring-1 ring-white/10">
                             {tmdbImage(movie.posterPath, 'w342') !== null ? (
                                 <img
                                     src={tmdbImage(movie.posterPath, 'w342')!}
@@ -121,13 +128,19 @@ export function MoviePage() {
                         </div>
                     </div>
 
-                    {/* Details */}
-                    <div className="flex-1 space-y-3">
-                        <h1 className="text-3xl font-semibold">{movie.title}</h1>
+                    <div className="flex-1 space-y-3 sm:pt-24">
+                        <div className="space-y-1">
+                            <h1 className="text-3xl font-semibold tracking-tight">
+                                {movie.title}
+                            </h1>
 
-                        {movie.originalTitle !== null && movie.originalTitle !== movie.title && (
-                            <p className="text-muted-foreground">{movie.originalTitle}</p>
-                        )}
+                            {movie.originalTitle !== null &&
+                                movie.originalTitle !== movie.title && (
+                                    <p className="text-muted-foreground">
+                                        {movie.originalTitle}
+                                    </p>
+                                )}
+                        </div>
 
                         <p className="text-sm text-muted-foreground">
                             {movie.releaseDate?.slice(0, 4) ?? 'Unknown year'}
@@ -174,65 +187,71 @@ export function MoviePage() {
                         </div>
 
                         {movie.overview !== null && (
-                            <p className="pt-2 leading-relaxed">{movie.overview}</p>
+                            <p className="pt-1 leading-relaxed">{movie.overview}</p>
                         )}
 
-                        <WatchlistButton movieUuid={uuid!} />
-                        <WatchActions movieUuid={uuid!} />
+                        {/* The two actions belong together, so they sit together. */}
+                        <div className="flex flex-wrap items-start gap-2 pt-2">
+                            <WatchlistButton movieUuid={uuid!} />
+                            <WatchActions movieUuid={uuid!} />
+                        </div>
                     </div>
                 </section>
-
-                <section className="space-y-4">
-                    <h2 className="text-lg font-medium">
-                        Reviews
-                        {reviews !== undefined && (
-                            <span className="ml-2 text-sm text-muted-foreground">
-                                {reviews.totalElements}
-                            </span>
-                        )}
-                    </h2>
-
-                    {/* The user's own review, or the form to write one. */}
-                    {uuid !== undefined && reviews !== undefined && (
-                        <ReviewEditor
-                            key={myReview?.uuid ?? 'new'}
-                            movieUuid={uuid}
-                            existing={myReview}
-                        />
-                    )}
-
-                    {otherReviews.length === 0 && reviews !== undefined && (
-                        <p className="text-sm text-muted-foreground">
-                            No one else has reviewed this film yet.
-                        </p>
-                    )}
-
-                    <ul className="space-y-4">
-                        {otherReviews.map((review) => (
-                            <li key={review.uuid} className="rounded-lg border p-4">
-                                <div className="flex items-center justify-between">
-                                    <Link
-                                        to={`/users/${review.userUuid}`}
-                                        className="font-medium hover:underline"
-                                    >
-                                        {review.username}
-                                    </Link>
-                                    {review.rating !== null && (
-                                        <span className="inline-flex items-center gap-1 text-sm">
-                                          <Star className="size-4 fill-current text-yellow-500" />
-                                                                        {review.rating}
-                                        </span>
-                                    )}
-                                </div>
-                                {review.reviewText !== null && (
-                                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                        {review.reviewText}
-                                    </p>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
             </div>
+
+            <section className="space-y-4">
+                <h2 className="text-lg font-medium">
+                    Reviews
+                    {reviews !== undefined && (
+                        <span className="ml-2 text-sm text-muted-foreground">
+                            {reviews.totalElements}
+                        </span>
+                    )}
+                </h2>
+
+                {/* The user's own review, or the form to write one. */}
+                {uuid !== undefined && reviews !== undefined && (
+                    <ReviewEditor
+                        key={myReview?.uuid ?? 'new'}
+                        movieUuid={uuid}
+                        existing={myReview}
+                    />
+                )}
+
+                {otherReviews.length === 0 && reviews !== undefined && (
+                    <p className="text-sm text-muted-foreground">
+                        No one else has reviewed this film yet.
+                    </p>
+                )}
+
+                <ul className="space-y-4">
+                    {otherReviews.map((review) => (
+                        <li key={review.uuid} className="rounded-lg border bg-card/40 p-4">
+                            <div className="flex items-center justify-between">
+                                <Link
+                                    to={`/users/${review.userUuid}`}
+                                    className="font-medium hover:underline"
+                                >
+                                    {review.username}
+                                </Link>
+
+                                {review.rating !== null && (
+                                    <span className="inline-flex items-center gap-1 text-sm">
+                                        <Star className="size-4 fill-current text-yellow-500" />
+                                        {review.rating}
+                                    </span>
+                                )}
+                            </div>
+
+                            {review.reviewText !== null && (
+                                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                    {review.reviewText}
+                                </p>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
     )
 }
