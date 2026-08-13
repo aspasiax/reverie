@@ -82,20 +82,20 @@ export function WatchlistPage() {
                         {data.totalElements} films to watch
                     </p>
 
-                    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                    <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                         {data.content.map((item) => (
                             <li key={item.uuid} className="group relative">
                                 <Link
                                     to={`/movies/${item.movieUuid}`}
-                                    className="block overflow-hidden rounded-lg border transition-colors hover:border-primary"
+                                    className="block space-y-2.5"
                                 >
-                                    <div className="aspect-[2/3] overflow-hidden bg-muted">
+                                    <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-white/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60">
                                         {tmdbImage(item.posterPath, 'w342') !== null ? (
                                             <img
                                                 src={tmdbImage(item.posterPath, 'w342')!}
                                                 alt=""
                                                 loading="lazy"
-                                                className="size-full object-cover"
+                                                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                             />
                                         ) : (
                                             <div className="flex size-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
@@ -104,11 +104,14 @@ export function WatchlistPage() {
                                         )}
                                     </div>
 
-                                    <div className="p-3">
-                                        <h2 className="truncate font-medium" title={item.movieTitle}>
+                                    <div className="space-y-0.5">
+                                        <h2
+                                            className="truncate text-sm font-medium leading-tight transition-colors group-hover:text-primary"
+                                            title={item.movieTitle}
+                                        >
                                             {item.movieTitle}
                                         </h2>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground">
                                             {item.releaseDate?.slice(0, 4) ?? 'Unknown year'}
                                         </p>
                                     </div>
@@ -120,7 +123,7 @@ export function WatchlistPage() {
                                     onClick={() => remove.mutate(item.uuid)}
                                     disabled={remove.isPending}
                                     aria-label={`Remove ${item.movieTitle} from your watchlist`}
-                                    className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                                    className="absolute right-2 top-2 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                                 >
                                     <X className="size-4" />
                                 </Button>
