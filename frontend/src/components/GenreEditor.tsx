@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, errorMessage } from '@/lib/api'
+import { genreIconNames } from '@/lib/genreIcons'
+import { cn } from '@/lib/utils'
 import type { Genre } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +17,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import { GenreIcon } from '@/components/GenreIcon'
 
 interface GenreEditorProps {
     /** Whether the dialog is currently shown. */
@@ -115,27 +118,48 @@ export function GenreEditor({ open, onOpenChange, existing }: GenreEditorProps) 
                         />
                     </div>
 
-                    <div className="flex gap-3">
-                        <div className="flex-1 space-y-2">
-                            <Label htmlFor="genre-icon">Icon</Label>
-                            <Input
-                                id="genre-icon"
-                                value={icon}
-                                onChange={(event) => setIcon(event.target.value)}
-                                placeholder="rocket"
-                                maxLength={100}
-                            />
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="genre-color">Colour</Label>
+                        <Input
+                            id="genre-color"
+                            type="color"
+                            value={color}
+                            onChange={(event) => setColor(event.target.value)}
+                            className="h-9 w-16 p-1"
+                        />
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="genre-color">Colour</Label>
-                            <Input
-                                id="genre-color"
-                                type="color"
-                                value={color}
-                                onChange={(event) => setColor(event.target.value)}
-                                className="h-9 w-16 p-1"
-                            />
+                    <div className="space-y-2">
+                        <Label>Icon</Label>
+
+                        {/*
+                          * A closed set rather than a text field: only these can
+                          * be drawn, so only these can be chosen. Each is shown
+                          * in the colour picked above, which is how the genre
+                          * will actually appear.
+                          */}
+                        <div className="flex flex-wrap gap-1">
+                            {genreIconNames.map((name) => {
+                                const isSelected = icon === name
+
+                                return (
+                                    <button
+                                        key={name}
+                                        type="button"
+                                        onClick={() => setIcon(isSelected ? '' : name)}
+                                        aria-label={name}
+                                        aria-pressed={isSelected}
+                                        className={cn(
+                                            'flex size-9 items-center justify-center rounded-md border transition-colors',
+                                            isSelected
+                                                ? 'border-primary bg-accent'
+                                                : 'hover:bg-accent/50',
+                                        )}
+                                    >
+                                        <GenreIcon name={name} color={color} className="size-4" />
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
 

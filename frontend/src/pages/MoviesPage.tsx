@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { tmdbImage } from '@/lib/images'
+import { GenreIcon } from '@/components/GenreIcon'
 
 /**
  * The orders offered to the reader.
@@ -211,11 +212,7 @@ export function MoviesPage() {
                                         : 'text-muted-foreground hover:text-foreground',
                                 )}
                             >
-                                <span
-                                    aria-hidden
-                                    className="size-2 rounded-full"
-                                    style={{ backgroundColor: option.color ?? 'transparent' }}
-                                />
+                                <GenreIcon name={option.icon} color={option.color} />
                                 {option.name}
                             </button>
                         )

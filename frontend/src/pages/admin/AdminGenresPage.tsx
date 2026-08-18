@@ -14,6 +14,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import { GenreIcon } from '@/components/GenreIcon'
 
 /** Retrieves every active genre, ordered alphabetically by the server. */
 async function fetchGenres() {
@@ -126,11 +127,7 @@ export function AdminGenresPage() {
             <ul className="divide-y rounded-lg border">
                 {genres?.map((genre) => (
                     <li key={genre.uuid} className="flex items-center gap-3 p-3">
-                        <span
-                            aria-hidden
-                            className="size-4 shrink-0 rounded-full border"
-                            style={{ backgroundColor: genre.color ?? 'transparent' }}
-                        />
+                        <GenreIcon name={genre.icon} color={genre.color} className="size-5" />
 
                         <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">{genre.name}</p>
@@ -140,10 +137,6 @@ export function AdminGenresPage() {
                                 </p>
                             )}
                         </div>
-
-                        <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
-                            {genre.icon}
-                        </span>
 
                         {can('GENRE_UPDATE') && (
                             <Button

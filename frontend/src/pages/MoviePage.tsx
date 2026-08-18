@@ -5,6 +5,7 @@ import { api, errorMessage } from '@/lib/api'
 import type { Movie, Page, Review } from '@/types/api'
 import { tmdbImage } from '@/lib/images'
 import { useAuth } from '@/auth/AuthContext'
+import { GenreIcon } from '@/components/GenreIcon'
 import { ReviewEditor } from '@/components/ReviewEditor'
 import { WatchActions } from '@/components/WatchActions'
 import { WatchlistButton } from '@/components/WatchlistButton'
@@ -176,10 +177,10 @@ export function MoviePage() {
                                     to={`/?genre=${genre.uuid}`}
                                     className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
                                 >
-                                    <span
-                                        aria-hidden
-                                        className="size-1.5 rounded-full"
-                                        style={{ backgroundColor: genre.color ?? 'transparent' }}
+                                    <GenreIcon
+                                        name={genre.icon}
+                                        color={genre.color}
+                                        className="size-3"
                                     />
                                     {genre.name}
                                 </Link>

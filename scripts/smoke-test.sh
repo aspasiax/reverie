@@ -62,7 +62,7 @@ echo "UNAUTHENTICATED ACCESS  (must be 401, never 403)"
 check "movies without token"           "401" "$(code $API/api/movies)"
 check "profile without token"          "401" "$(code $API/api/users/me)"
 check "garbage token"                  "401" "$(code -H 'Authorization: Bearer not.a.token' $API/api/movies)"
-check "tampered signature"             "401" "$(code -H "Authorization: Bearer ${ALEX%?}X" $API/api/movies)"
+check "tampered signature"             "401" "$(code -H "Authorization: Bearer ${ALEX}X" $API/api/movies)"
 check "swagger stays public"           "200" "$(code $API/swagger-ui/index.html)"
 check "api-docs stays public"          "200" "$(code $API/v3/api-docs)"
 
