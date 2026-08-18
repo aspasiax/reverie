@@ -3,16 +3,14 @@ package io.github.aspasiax.reverie.service;
 import io.github.aspasiax.reverie.domain.Role;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.user.*;
-import io.github.aspasiax.reverie.exception.RoleNotFoundException;
-import io.github.aspasiax.reverie.exception.SelfDisableException;
-import io.github.aspasiax.reverie.exception.SelfRoleChangeException;
-import io.github.aspasiax.reverie.exception.UserNotFoundException;
+import io.github.aspasiax.reverie.exception.*;
 import io.github.aspasiax.reverie.mapper.UserMapper;
 import io.github.aspasiax.reverie.repository.RoleRepository;
 import io.github.aspasiax.reverie.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +33,7 @@ public class UserServiceImpl implements IUserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final ICurrentUserService currentUserService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * {@inheritDoc}
@@ -60,6 +59,29 @@ public class UserServiceImpl implements IUserService {
         User updatedUser = userRepository.save(currentUser);
 
         return userMapper.toProfileResponse(updatedUser);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        /*
+         * Compared through the encoder rather than directly: what is stored
+         * is a hash, and the same password hashes differently every time.
+         */
+        if (!passwordEncoder.matches(request.currentPassword(), currentUser.getPassword())) {
+            throw new InvalidCurrentPasswordException();
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(request.newPassword()));
+
+        userRepository.save(currentUser);
+
+        log.info("Password changed for account {}", currentUser.getUuid());
     }
 
     /**

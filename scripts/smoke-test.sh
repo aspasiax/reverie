@@ -211,6 +211,27 @@ check "admin cannot disable self"     "409" "$(code -X POST $API/api/users/$ADMI
 check "admin enables daniel"          "200" "$(code -X POST $API/api/users/$DAN_UUID/enable -H "Authorization: Bearer $ADMIN")"
 check "daniel can sign in again"      "200" "$(danLogin)"
 
+# ---------- Password ----------
+echo ""
+echo "PASSWORD"
+
+danToken() { curl -s -X POST $API/api/auth/login -H 'Content-Type: application/json' -d "{\"email\":\"daniel@reverie.com\",\"password\":\"$1\"}" | json "print(json.load(sys.stdin)['accessToken'])"; }
+danChange() { code -X PUT $API/api/users/me/password -H "Authorization: Bearer $1" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$2\",\"newPassword\":\"$3\"}"; }
+danLoginWith() { code -X POST $API/api/auth/login -H 'Content-Type: application/json' -d "{\"email\":\"daniel@reverie.com\",\"password\":\"$1\"}"; }
+
+DAN_TOKEN=$(danToken 'User123!')
+
+check "a wrong current password"       "400" "$(danChange "$DAN_TOKEN" 'Wrong123!' 'Newpass123!')"
+check "a weak new password"            "400" "$(danChange "$DAN_TOKEN" 'User123!' 'weak')"
+check "daniel changes his password"    "204" "$(danChange "$DAN_TOKEN" 'User123!' 'Newpass123!')"
+check "the old password stops working" "401" "$(danLoginWith 'User123!')"
+check "the new password works"         "200" "$(danLoginWith 'Newpass123!')"
+
+NEW_TOKEN=$(danToken 'Newpass123!')
+
+check "cleanup restores the password"  "204" "$(danChange "$NEW_TOKEN" 'Newpass123!' 'User123!')"
+check "the original password is back"  "200" "$(danLoginWith 'User123!')"
+
 # ---------- Statistics ----------
 echo ""
 echo "STATISTICS"

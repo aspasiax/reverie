@@ -1,6 +1,7 @@
 package io.github.aspasiax.reverie.service;
 
 import io.github.aspasiax.reverie.dto.user.*;
+import io.github.aspasiax.reverie.exception.InvalidCurrentPasswordException;
 import io.github.aspasiax.reverie.exception.SelfDisableException;
 import io.github.aspasiax.reverie.exception.UserNotFoundException;
 
@@ -27,6 +28,18 @@ public interface IUserService {
      * @return the updated profile
      */
     UserProfileResponse updateCurrentUserProfile(UpdateUserRequest request);
+
+    /**
+     * Changes the password of the authenticated user.
+     *
+     * <p>Tokens already issued remain valid until they expire. Reverie
+     * authenticates without server side sessions, so there is no list of
+     * live tokens to revoke.</p>
+     *
+     * @param request the current password and the one to replace it with
+     * @throws InvalidCurrentPasswordException if the current password is wrong
+     */
+    void changePassword(ChangePasswordRequest request);
 
     /**
      * Returns the publicly visible profile of a user.

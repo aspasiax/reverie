@@ -83,6 +83,30 @@ public class UserController {
     }
 
     /**
+     * Changes the password of the authenticated user.
+     *
+     * @param request the current password and the one to replace it with
+     * @return an empty {@code 204 No Content} response
+     */
+    @Operation(
+            summary = "Change my password",
+            description = "Replaces the authenticated user's password. The current password must be supplied, and tokens already issued stay valid until they expire."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "The current password is wrong, or the new one is invalid"),
+            @ApiResponse(responseCode = "401", description = "Authentication required")
+    })
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePassword(request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Returns the publicly visible profile of a user.
      *
      * @param uuid the user UUID

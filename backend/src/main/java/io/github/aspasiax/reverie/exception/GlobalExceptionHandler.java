@@ -77,6 +77,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles password changes submitted with the wrong current password.
+     *
+     * @param exception the invalid current password exception
+     * @param request   the current HTTP request
+     * @return a {@code 400 Bad Request} response
+     */
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidCurrentPassword(
+            InvalidCurrentPasswordException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles validation failures produced by request DTO constraints.
      *
      * <p>All field validation messages are combined into a single,
