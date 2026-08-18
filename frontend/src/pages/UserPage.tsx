@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { api, errorMessage } from '@/lib/api'
 import type { Page, Review, UserSummary } from '@/types/api'
+import { Avatar } from '@/components/Avatar'
 import { UserStatistics } from '@/components/UserStatistics'
 import { ReviewCard } from '@/components/ReviewCard'
 
@@ -58,17 +59,11 @@ export function UserPage() {
             {user !== undefined && (
                 <>
                     <div className="flex items-center gap-4">
-                        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted text-xl font-semibold">
-                            {user.profileImageUrl !== null ? (
-                                <img
-                                    src={user.profileImageUrl}
-                                    alt=""
-                                    className="size-full object-cover"
-                                />
-                            ) : (
-                                user.displayName.charAt(0).toUpperCase()
-                            )}
-                        </div>
+                        <Avatar
+                            name={user.displayName}
+                            seed={user.username}
+                            imageUrl={user.profileImageUrl}
+                        />
 
                         <div className="min-w-0">
                             <h1 className="truncate text-2xl font-semibold">

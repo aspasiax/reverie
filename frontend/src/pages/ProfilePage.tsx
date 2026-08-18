@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Avatar } from '@/components/Avatar'
 import { PasswordForm } from '@/components/PasswordForm'
 import { UserStatistics } from '@/components/UserStatistics'
 
@@ -59,17 +60,11 @@ export function ProfilePage() {
     return (
         <div className="mx-auto max-w-2xl space-y-10 px-4 py-8 sm:px-6">
             <header className="flex items-center gap-4">
-                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted text-xl font-semibold">
-                    {user.profileImageUrl !== null ? (
-                        <img
-                            src={user.profileImageUrl}
-                            alt=""
-                            className="size-full object-cover"
-                        />
-                    ) : (
-                        user.displayName.charAt(0).toUpperCase()
-                    )}
-                </div>
+                <Avatar
+                    name={user.displayName}
+                    seed={user.username}
+                    imageUrl={user.profileImageUrl}
+                />
 
                 <div className="min-w-0 space-y-1">
                     <h1 className="truncate text-2xl font-semibold tracking-tight">
@@ -122,16 +117,32 @@ export function ProfilePage() {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="image-url">Profile image address</Label>
-                        <Input
-                            id="image-url"
-                            type="url"
-                            value={imageUrl}
-                            onChange={(event) => setImageUrl(event.target.value)}
-                            placeholder="https://…"
-                            maxLength={1024}
+                    <div className="flex items-start gap-3">
+                        {/*
+                          * The preview follows what is typed rather than what is
+                          * saved, so a wrong address is visible before it is kept.
+                          */}
+                        <Avatar
+                            name={displayName === '' ? user.displayName : displayName}
+                            seed={user.username}
+                            imageUrl={imageUrl.trim() === '' ? null : imageUrl.trim()}
+                            className="size-12 text-base"
                         />
+
+                        <div className="flex-1 space-y-2">
+                            <Label htmlFor="image-url">Profile image address</Label>
+                            <Input
+                                id="image-url"
+                                type="url"
+                                value={imageUrl}
+                                onChange={(event) => setImageUrl(event.target.value)}
+                                placeholder="https://…"
+                                maxLength={1024}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Leave this empty to use your initial.
+                            </p>
+                        </div>
                     </div>
 
                     {save.isError && (
