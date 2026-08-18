@@ -35,13 +35,21 @@ export function AppLayout() {
     return (
         <div className="flex min-h-screen flex-col">
             <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-                <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 sm:px-6">
-                    <NavLink to="/" className="flex items-center gap-2 font-semibold">
+                <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
+                    <NavLink
+                        to="/"
+                        className="flex shrink-0 items-center gap-2 font-semibold"
+                    >
                         <Clapperboard className="size-5 text-primary" />
-                        Reverie
+                        <span className="hidden sm:inline">Reverie</span>
                     </NavLink>
 
-                    <nav className="flex items-center gap-1">
+                    {/*
+                      * The destinations scroll sideways when they no longer fit,
+                      * which keeps every one of them reachable on a narrow screen
+                      * without introducing a second way to navigate.
+                      */}
+                    <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
                         {items.map((item) => (
                             <NavLink
                                 key={item.to}
@@ -49,7 +57,7 @@ export function AppLayout() {
                                 end={item.end}
                                 className={({ isActive }) =>
                                     cn(
-                                        'rounded-md px-3 py-1.5 text-sm transition-colors',
+                                        'shrink-0 rounded-md px-3 py-1.5 text-sm transition-colors',
                                         isActive
                                             ? 'bg-accent font-medium text-accent-foreground'
                                             : 'text-muted-foreground hover:text-foreground',
@@ -61,7 +69,7 @@ export function AppLayout() {
                         ))}
                     </nav>
 
-                    <div className="ml-auto flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-1 sm:gap-3">
                         <NavLink
                             to="/profile"
                             className={({ isActive }) =>
@@ -73,7 +81,11 @@ export function AppLayout() {
                                 )
                             }
                         >
-                            {user?.displayName}
+                            {/* The name shortens to an initial rather than vanishing. */}
+                            <span className="hidden sm:inline">{user?.displayName}</span>
+                            <span className="sm:hidden">
+                                {user?.displayName?.charAt(0).toUpperCase()}
+                            </span>
                         </NavLink>
                         <Button variant="ghost" size="sm" onClick={logout}>
                             <LogOut className="size-4" />
