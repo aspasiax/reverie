@@ -1,7 +1,9 @@
 package io.github.aspasiax.reverie.mapper;
 
 import io.github.aspasiax.reverie.domain.Capability;
+import io.github.aspasiax.reverie.domain.Movie;
 import io.github.aspasiax.reverie.domain.User;
+import io.github.aspasiax.reverie.dto.movie.MovieSummaryResponse;
 import io.github.aspasiax.reverie.dto.user.UpdateUserRequest;
 import io.github.aspasiax.reverie.dto.user.UserAdminResponse;
 import io.github.aspasiax.reverie.dto.user.UserProfileResponse;
@@ -35,6 +37,7 @@ public class UserMapper {
                 user.getDisplayName(),
                 user.getBio(),
                 user.getProfileImageUrl(),
+                toMovieSummary(user.getFavouriteMovie()),
                 user.getRole().getName(),
                 user.getCreatedAt(),
                 user.getRole().getCapabilities().stream()
@@ -73,6 +76,7 @@ public class UserMapper {
                 user.getDisplayName(),
                 user.getBio(),
                 user.getProfileImageUrl(),
+                toMovieSummary(user.getFavouriteMovie()),
                 user.getCreatedAt()
         );
     }
@@ -81,7 +85,9 @@ public class UserMapper {
      * Applies the values of an update request to an existing user.
      *
      * <p>The username, email address, password and role are not modified
-     * by this method.</p>
+     * by this method, and neither is the favourite film: choosing one has
+     * to be checked against the watch history of the account, which is a
+     * question for the service rather than for a mapper.</p>
      *
      * @param user    the existing user entity
      * @param request the profile update request
@@ -93,6 +99,30 @@ public class UserMapper {
         user.setDisplayName(request.displayName().trim());
         user.setBio(trimToNull(request.bio()));
         user.setProfileImageUrl(trimToNull(request.profileImageUrl()));
+    }
+
+    /**
+     * Maps the film a user named as their favourite.
+     *
+     * <p>A film that has since been removed from the catalogue is reported
+     * as no favourite at all. The choice itself is kept, so it returns if
+     * the film is restored, but a profile never points at a film that can
+     * no longer be opened.</p>
+     *
+     * @param movie the favourite film, or {@code null} when none was named
+     * @return the compact film, or {@code null} when there is none to show
+     */
+    private MovieSummaryResponse toMovieSummary(Movie movie) {
+        if (movie == null || movie.isDeleted()) {
+            return null;
+        }
+
+        return new MovieSummaryResponse(
+                movie.getUuid(),
+                movie.getTitle(),
+                movie.getReleaseDate(),
+                movie.getPosterPath()
+        );
     }
 
     /**

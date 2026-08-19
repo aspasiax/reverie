@@ -1,12 +1,15 @@
 package io.github.aspasiax.reverie.service;
 
+import io.github.aspasiax.reverie.domain.Movie;
 import io.github.aspasiax.reverie.domain.Role;
 import io.github.aspasiax.reverie.domain.User;
 import io.github.aspasiax.reverie.dto.user.*;
 import io.github.aspasiax.reverie.exception.*;
 import io.github.aspasiax.reverie.mapper.UserMapper;
+import io.github.aspasiax.reverie.repository.MovieRepository;
 import io.github.aspasiax.reverie.repository.RoleRepository;
 import io.github.aspasiax.reverie.repository.UserRepository;
+import io.github.aspasiax.reverie.repository.WatchLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -31,6 +34,8 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final MovieRepository movieRepository;
+    private final WatchLogRepository watchLogRepository;
     private final UserMapper userMapper;
     private final ICurrentUserService currentUserService;
     private final PasswordEncoder passwordEncoder;
@@ -55,6 +60,7 @@ public class UserServiceImpl implements IUserService {
         User currentUser = currentUserService.getCurrentUser();
 
         userMapper.updateEntity(currentUser, request);
+        currentUser.setFavouriteMovie(resolveFavouriteMovie(currentUser, request.favouriteMovieUuid()));
 
         User updatedUser = userRepository.save(currentUser);
 
@@ -206,5 +212,37 @@ public class UserServiceImpl implements IUserService {
     private User findActiveUser(UUID uuid) {
         return userRepository.findByUuidAndDeletedFalse(uuid)
                 .orElseThrow(() -> new UserNotFoundException(uuid));
+    }
+
+    /**
+     * Finds the film a user asked to name as their favourite.
+     *
+     * <p>A favourite is a statement about something you have seen, so the
+     * film has to appear in the watch history of the account making the
+     * choice. Without that check any user could point at any film in the
+     * catalogue, and the field would say nothing about them.</p>
+     *
+     * @param user      the account naming the favourite
+     * @param movieUuid the chosen film, or {@code null} to name none
+     * @return the film to store, or {@code null} when the choice is cleared
+     * @throws MovieNotFoundException     if no active film carries the UUID
+     * @throws WatchLogRequiredException  if the user has not watched the film
+     */
+    private Movie resolveFavouriteMovie(User user, UUID movieUuid) {
+        if (movieUuid == null) {
+            return null;
+        }
+
+        Movie movie = movieRepository.findByUuidAndDeletedFalse(movieUuid)
+                .orElseThrow(() -> new MovieNotFoundException(movieUuid));
+
+        boolean hasWatched = watchLogRepository
+                .existsByUserUuidAndMovieUuidAndDeletedFalse(user.getUuid(), movieUuid);
+
+        if (!hasWatched) {
+            throw new WatchLogRequiredException("naming a film as your favourite");
+        }
+
+        return movie;
     }
 }

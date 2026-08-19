@@ -105,6 +105,18 @@ public class User extends AbstractEntity {
     private String profileImageUrl;
 
     /**
+     * The film the user names as their favourite.
+     *
+     * <p>Optional, and restricted to films the user has already watched.
+     * That rule is enforced by the service: it depends on the watch logs of
+     * the account making the choice, which no column constraint can see.</p>
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "favourite_movie_id")
+    private Movie favouriteMovie;
+
+
+    /**
      * Indicates whether the account is enabled and may authenticate.
      */
     @Builder.Default

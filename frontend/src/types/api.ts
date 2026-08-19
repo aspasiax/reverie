@@ -39,6 +39,14 @@ export interface AuthResponse {
 
 // Users
 
+/** A film as it appears embedded inside another response. */
+export interface MovieSummary {
+    uuid: string
+    title: string
+    releaseDate: string | null
+    posterPath: string | null
+}
+
 /** The profile of the authenticated user, including private fields. */
 export interface UserProfile {
     uuid: string
@@ -47,6 +55,7 @@ export interface UserProfile {
     displayName: string
     bio: string | null
     profileImageUrl: string | null
+    favouriteMovie: MovieSummary | null
     role: string
     capabilities: Capability[]
     createdAt: string
@@ -69,6 +78,7 @@ export interface UserSummary {
     displayName: string
     bio: string | null
     profileImageUrl: string | null
+    favouriteMovie: MovieSummary | null
     createdAt: string
 }
 
@@ -86,6 +96,7 @@ export interface UpdateUserRequest {
     displayName: string
     bio: string | null
     profileImageUrl: string | null
+    favouriteMovieUuid: string | null
 }
 
 // Catalogue

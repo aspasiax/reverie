@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 /**
  * Represents the profile fields a user may change.
  *
@@ -34,6 +36,13 @@ public record UpdateUserRequest(
 
         @Schema(description = "Optional URL of the profile image.", maxLength = 1024)
         @Size(max = 1024)
-        String profileImageUrl
+        String profileImageUrl,
+
+        @Schema(
+                description = """
+                        UUID of the film to name as a favourite. The film must be one \
+                        the user has already watched. Omitted or null clears the choice."""
+        )
+        UUID favouriteMovieUuid
 ) {
 }

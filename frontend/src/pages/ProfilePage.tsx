@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar } from '@/components/Avatar'
+import { FavouriteFilm } from '@/components/FavouriteFilm'
+import { FavouriteFilmPicker } from '@/components/FavouriteFilmPicker'
 import { PasswordForm } from '@/components/PasswordForm'
 import { UserStatistics } from '@/components/UserStatistics'
 
@@ -37,6 +39,7 @@ export function ProfilePage() {
     const [displayName, setDisplayName] = useState(user?.displayName ?? '')
     const [bio, setBio] = useState(user?.bio ?? '')
     const [imageUrl, setImageUrl] = useState(user?.profileImageUrl ?? '')
+    const [favourite, setFavourite] = useState(user?.favouriteMovie?.uuid ?? null)
 
     const save = useMutation({
         mutationFn: () =>
@@ -44,6 +47,12 @@ export function ProfilePage() {
                 displayName: displayName.trim(),
                 bio: bio.trim() === '' ? null : bio.trim(),
                 profileImageUrl: imageUrl.trim() === '' ? null : imageUrl.trim(),
+                /*
+                 * Always sent, never omitted. The request replaces the profile
+                 * rather than patching it, so leaving the field out is how a
+                 * favourite is cleared -- and would clear it on every save.
+                 */
+                favouriteMovieUuid: favourite,
             }),
         onSuccess: refreshUser,
     })
@@ -83,6 +92,10 @@ export function ProfilePage() {
             </header>
 
             <UserStatistics uuid={user.uuid} />
+
+            {user.favouriteMovie !== null && (
+                <FavouriteFilm film={user.favouriteMovie} />
+            )}
 
             <section className="space-y-4">
                 <div className="space-y-1">
@@ -143,6 +156,17 @@ export function ProfilePage() {
                                 Leave this empty to use your initial.
                             </p>
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Favourite film</Label>
+
+                        <FavouriteFilmPicker value={favourite} onChange={setFavourite} />
+
+                        <p className="text-xs text-muted-foreground">
+                            Chosen from the films you have watched. Click it again to
+                            choose none.
+                        </p>
                     </div>
 
                     {save.isError && (

@@ -309,7 +309,7 @@ public class ReviewServiceImpl implements IReviewService {
                         );
 
         if (!watchLogExists) {
-            throw new WatchLogRequiredException();
+            throw new WatchLogRequiredException("creating a review");
         }
     }
 

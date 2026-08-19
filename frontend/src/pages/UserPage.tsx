@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { api, errorMessage } from '@/lib/api'
 import type { Page, Review, UserSummary } from '@/types/api'
 import { Avatar } from '@/components/Avatar'
+import { FavouriteFilm } from '@/components/FavouriteFilm'
 import { UserStatistics } from '@/components/UserStatistics'
 import { ReviewCard } from '@/components/ReviewCard'
 
@@ -82,6 +83,11 @@ export function UserPage() {
                     {user.bio !== null && (
                         <p className="leading-relaxed">{user.bio}</p>
                     )}
+
+                    {user.favouriteMovie !== null && (
+                        <FavouriteFilm film={user.favouriteMovie} />
+                    )}
+
 
                     <UserStatistics uuid={user.uuid} />
                     {reviews !== undefined && reviews.totalElements > 0 && (

@@ -1,5 +1,6 @@
 package io.github.aspasiax.reverie.dto.user;
 
+import io.github.aspasiax.reverie.dto.movie.MovieSummaryResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -32,6 +33,9 @@ public record UserSummaryResponse(
 
         @Schema(description = "Optional URL of the profile image.")
         String profileImageUrl,
+
+        @Schema(description = "The film the user named as their favourite, if any.")
+        MovieSummaryResponse favouriteMovie,
 
         @Schema(description = "When the account was created.")
         Instant createdAt

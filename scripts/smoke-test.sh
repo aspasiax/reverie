@@ -249,6 +249,31 @@ check "unknown user has no statistics" "404" "$(code -H "Authorization: Bearer $
 check "emma's reviews are public"      "5" "$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/user/$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/users | json "print([u['uuid'] for u in json.load(sys.stdin) if u['username']=='emma'][0])")" | json "print(json.load(sys.stdin)['totalElements'])")"
 check "reviews of an unknown user"     "404" "$(code -H "Authorization: Bearer $ALEX" $API/api/reviews/user/00000000-0000-0000-0000-000000000001)"
 
+# ---------- Favourite film ----------
+echo ""
+echo "FAVOURITE FILM"
+
+# The update replaces the profile rather than patching it, so every other
+# field is read back and sent along. Without this the test would quietly
+# erase alex's biography on its way to checking something else.
+setFav() {
+  local body
+  body=$(curl -s -H "Authorization: Bearer $ALEX" $API/api/users/me \
+    | json "p=json.load(sys.stdin);print(json.dumps({'displayName':p['displayName'],'bio':p['bio'],'profileImageUrl':p['profileImageUrl'],'favouriteMovieUuid':$1}))")
+  code -X PUT $API/api/users/me -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d "$body"
+}
+
+myFav()     { curl -s -H "Authorization: Bearer $ALEX" $API/api/users/me       | json "f=json.load(sys.stdin)['favouriteMovie'];print(f['title'] if f else None)"; }
+publicFav() { curl -s -H "Authorization: Bearer $EMMA" $API/api/users/$ALEX_UUID | json "f=json.load(sys.stdin)['favouriteMovie'];print(f['title'] if f else None)"; }
+
+check "an unwatched film is refused"   "400" "$(setFav "'$GOODFELLAS'")"
+check "an unknown film is not found"   "404" "$(setFav "'00000000-0000-0000-0000-000000000000'")"
+check "a watched film is accepted"     "200" "$(setFav "'$SHAWSHANK'")"
+check "it comes back on the profile"   "The Shawshank Redemption" "$(myFav)"
+check "other readers can see it"       "The Shawshank Redemption" "$(publicFav)"
+check "cleanup clears the favourite"   "200"  "$(setFav None)"
+check "the profile shows none again"   "None" "$(myFav)"
+
 # ---------- Overview ----------
 echo ""
 echo "OVERVIEW"

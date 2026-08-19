@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CalendarDays, Check, Eye, Pencil, Trash2, X } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
-import type { Page, WatchLog } from '@/types/api'
+import { watchLogsQuery } from '@/lib/watchLogs'
+import type { WatchLog } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,14 +15,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-
-/** Retrieves the viewing history of the authenticated user. */
-async function fetchWatchLogs() {
-    const { data } = await api.get<Page<WatchLog>>('/api/watch-logs', {
-        params: { page: 0, size: 100 },
-    })
-    return data
-}
 
 /** Today in the local time zone, formatted as the date input expects. */
 function todayLocal() {
@@ -45,10 +38,7 @@ export function WatchActions({ movieUuid }: { movieUuid: string }) {
     const [editingUuid, setEditingUuid] = useState<string | null>(null)
     const [editingDate, setEditingDate] = useState('')
 
-    const { data: watchLogs } = useQuery({
-        queryKey: ['watch-logs'],
-        queryFn: fetchWatchLogs,
-    })
+    const { data: watchLogs } = useQuery(watchLogsQuery)
 
     /** The viewings of this film, newest first. */
     const viewings =
