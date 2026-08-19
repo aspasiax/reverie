@@ -1,47 +1,102 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Trash2 } from 'lucide-react'
+import { Eye, Trash2 } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
-import type { Page, WatchLog } from '@/types/api'
-import { Button } from '@/components/ui/button'
+import { tmdbImage } from '@/lib/images'
+import { watchLogsQuery } from '@/lib/watchLogs'
+import type { WatchLog } from '@/types/api'
+import { Button, buttonVariants } from '@/components/ui/button'
+
+/** One month of viewings, with the heading it is shown under. */
+interface MonthGroup {
+    key: string
+    label: string
+    logs: WatchLog[]
+}
 
 /**
- * Retrieves the viewing history of the authenticated user.
+ * Names a month the way it is read, from the {@code YYYY-MM} it is keyed by.
  *
- * @returns the first page of the user's watch logs, newest first
+ * @param month the month key
+ * @returns the month and year in the reader's own format
  */
-async function fetchWatchLogs() {
-    const { data } = await api.get<Page<WatchLog>>('/api/watch-logs', {
-        params: { page: 0, size: 50 },
+function monthLabel(month: string): string {
+    return new Date(`${month}-01T00:00:00`).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
     })
-    return data
 }
 
 /**
- * Removes a single viewing from the history.
+ * Names a day within a month that has already been named.
  *
- * @param uuid the public identifier of the watch log
+ * @param date the recorded date
+ * @returns the weekday and the day of the month
  */
-async function deleteWatchLog(uuid: string) {
-    await api.delete(`/api/watch-logs/${uuid}`)
+function dayLabel(date: string): string {
+    return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+        weekday: 'long',
+        day: 'numeric',
+    })
 }
 
 /**
- * Shows the viewing history of the authenticated user.
+ * Arranges viewings into the months they happened in, newest first.
  *
- * The same film may appear more than once: the domain treats a rewatch as
- * a separate entry, which is why watch logs carry no uniqueness rule.
+ * The server returns them in the order they were recorded, which is not the
+ * order they happened: a film watched years ago and logged this morning
+ * arrives at the top. A history is read by when things happened, so it is
+ * rearranged here rather than in the query, which other screens share.
+ *
+ * A viewing with no date recorded belongs to no month and is gathered at
+ * the end, where it can still be read and removed.
+ *
+ * @param logs the viewings as the server returned them
+ * @return the months, each holding its viewings newest first
+ */
+function groupByMonth(logs: WatchLog[]): MonthGroup[] {
+    const groups: MonthGroup[] = []
+
+    const dated = logs
+        .filter((log) => log.watchedAt !== null)
+        .sort((first, second) => second.watchedAt!.localeCompare(first.watchedAt!))
+
+    for (const log of dated) {
+        const key = log.watchedAt!.slice(0, 7)
+        const current = groups.at(-1)
+
+        if (current !== undefined && current.key === key) {
+            current.logs.push(log)
+        } else {
+            groups.push({ key, label: monthLabel(key), logs: [log] })
+        }
+    }
+
+    const undated = logs.filter((log) => log.watchedAt === null)
+
+    if (undated.length > 0) {
+        groups.push({ key: 'undated', label: 'Date not recorded', logs: undated })
+    }
+
+    return groups
+}
+
+/**
+ * The viewing history of the authenticated user, kept as a diary.
+ *
+ * The same film may appear more than once: the domain treats a rewatch as a
+ * separate entry, which is why watch logs carry no uniqueness rule. That is
+ * also why this is a list of dated rows rather than the shelf of posters the
+ * watchlist uses — a watchlist holds each film once, a history holds every
+ * time you saw it.
  */
 export function WatchLogsPage() {
     const queryClient = useQueryClient()
 
-    const { data, isPending, isError, error } = useQuery({
-        queryKey: ['watch-logs'],
-        queryFn: fetchWatchLogs,
-    })
+    const { data, isPending, isError, error } = useQuery(watchLogsQuery)
 
     const removeLog = useMutation({
-        mutationFn: deleteWatchLog,
+        mutationFn: (uuid: string) => api.delete(`/api/watch-logs/${uuid}`),
         /*
          * The list is invalidated rather than edited in place, so the count and
          * the ordering come back from the server instead of being recalculated
@@ -52,6 +107,8 @@ export function WatchLogsPage() {
         },
     })
 
+    const months = groupByMonth(data?.content ?? [])
+
     return (
         <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
             <h1 className="text-2xl font-semibold">Watch history</h1>
@@ -59,53 +116,105 @@ export function WatchLogsPage() {
             {isPending && <p className="text-muted-foreground">Loading…</p>}
 
             {isError && (
-                <p role="alert" className="text-destructive">
+                <p role="alert" className="text-sm text-destructive">
                     {errorMessage(error)}
                 </p>
             )}
 
-            {data !== undefined && data.content.length === 0 && (
-                <p className="text-muted-foreground">
-                    Nothing here yet. Open a film and log it as watched.
+            {removeLog.isError && (
+                <p role="alert" className="text-sm text-destructive">
+                    {errorMessage(removeLog.error)}
                 </p>
             )}
 
-            {data !== undefined && data.content.length > 0 && (
+            {data !== undefined && data.totalElements === 0 && (
+                <div className="rounded-lg border border-dashed p-10 text-center">
+                    <Eye className="mx-auto size-8 text-muted-foreground" />
+                    <p className="mt-3 font-medium">Nothing watched yet</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Open a film and log it as watched. Every viewing is kept, so
+                        seeing something twice shows up twice.
+                    </p>
+                    <Link
+                        to="/"
+                        className={buttonVariants({
+                            variant: 'outline',
+                            size: 'sm',
+                            className: 'mt-4',
+                        })}
+                    >
+                        Browse films
+                    </Link>
+                </div>
+            )}
+
+            {data !== undefined && data.totalElements > 0 && (
                 <>
                     <p className="text-sm text-muted-foreground">
                         {data.totalElements} viewings
                     </p>
 
-                    <ul className="space-y-2">
-                        {data.content.map((log) => (
-                            <li
-                                key={log.uuid}
-                                className="flex items-center justify-between rounded-lg border p-4"
-                            >
-                                <div>
-                                    <Link
-                                        to={`/movies/${log.movieUuid}`}
-                                        className="font-medium hover:underline"
-                                    >
-                                        {log.movieTitle}
-                                    </Link>
-                                    <p className="text-sm text-muted-foreground">
-                                        {log.watchedAt ?? 'Date not recorded'}
-                                    </p>
-                                </div>
+                    <div className="space-y-8">
+                        {months.map((month) => (
+                            <section key={month.key} className="space-y-3">
+                                <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+                                    {month.label}
+                                </h2>
 
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeLog.mutate(log.uuid)}
-                                    disabled={removeLog.isPending}
-                                    aria-label={`Remove ${log.movieTitle} from history`}
-                                >
-                                    <Trash2 className="size-4" />
-                                </Button>
-                            </li>
+                                <ul className="space-y-2">
+                                    {month.logs.map((log) => (
+                                        <li
+                                            key={log.uuid}
+                                            className="group flex items-center gap-4 rounded-lg border p-3 transition-colors hover:bg-accent/40"
+                                        >
+                                            <Link
+                                                to={`/movies/${log.movieUuid}`}
+                                                className="w-12 shrink-0"
+                                            >
+                                                <div className="aspect-[2/3] overflow-hidden rounded bg-muted">
+                                                    {tmdbImage(log.posterPath, 'w185') !== null && (
+                                                        <img
+                                                            src={tmdbImage(log.posterPath, 'w185')!}
+                                                            alt=""
+                                                            loading="lazy"
+                                                            className="size-full object-cover"
+                                                        />
+                                                    )}
+                                                </div>
+                                            </Link>
+
+                                            <div className="min-w-0 flex-1">
+                                                <Link
+                                                    to={`/movies/${log.movieUuid}`}
+                                                    className="block truncate font-medium transition-colors hover:text-primary"
+                                                    title={log.movieTitle}
+                                                >
+                                                    {log.movieTitle}
+                                                </Link>
+
+                                                <p className="text-sm text-muted-foreground">
+                                                    {log.watchedAt === null
+                                                        ? 'No date recorded'
+                                                        : dayLabel(log.watchedAt)}
+                                                </p>
+                                            </div>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => removeLog.mutate(log.uuid)}
+                                                disabled={removeLog.isPending}
+                                                aria-label={`Remove ${log.movieTitle} from history`}
+                                                className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </Button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
                         ))}
-                    </ul>
+                    </div>
                 </>
             )}
         </div>

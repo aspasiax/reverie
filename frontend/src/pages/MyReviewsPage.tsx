@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
+import { PenLine } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import type { Page, Review } from '@/types/api'
+import { buttonVariants } from '@/components/ui/button'
 import { ReviewCard } from '@/components/ReviewCard'
 
 /**
@@ -33,19 +36,33 @@ export function MyReviewsPage() {
             {isPending && <p className="text-muted-foreground">Loading…</p>}
 
             {isError && (
-                <p role="alert" className="text-destructive">
+                <p role="alert" className="text-sm text-destructive">
                     {errorMessage(error)}
                 </p>
             )}
 
-            {data !== undefined && data.content.length === 0 && (
-                <p className="text-muted-foreground">
-                    You have not reviewed anything yet. Open a film you have watched
-                    and write the first one.
-                </p>
+            {data !== undefined && data.totalElements === 0 && (
+                <div className="rounded-lg border border-dashed p-10 text-center">
+                    <PenLine className="mx-auto size-8 text-muted-foreground" />
+                    <p className="mt-3 font-medium">Nothing written yet</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        A review belongs to a film you have watched. Log one as
+                        watched and the page will ask you what you thought.
+                    </p>
+                    <Link
+                        to="/watch-logs"
+                        className={buttonVariants({
+                            variant: 'outline',
+                            size: 'sm',
+                            className: 'mt-4',
+                        })}
+                    >
+                        See what you have watched
+                    </Link>
+                </div>
             )}
 
-            {data !== undefined && data.content.length > 0 && (
+            {data !== undefined && data.totalElements > 0 && (
                 <>
                     <p className="text-sm text-muted-foreground">
                         {data.totalElements} reviews
