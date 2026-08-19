@@ -48,6 +48,19 @@ public class ReviewServiceImpl implements IReviewService {
     private final ICurrentUserService currentUserService;
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ReviewResponse> findRecentReviews(Pageable pageable) {
+        Page<ReviewResponse> page = reviewRepository
+                .findAllPublished(pageable)
+                .map(reviewMapper::toResponse);
+
+        return PageResponse.from(page);
+    }
+
+    /**
      * Returns all active reviews for a specific movie.
      *
      * <p>The reviews are returned from newest to oldest.</p>

@@ -9,6 +9,7 @@ import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminMoviesPage } from '@/pages/admin/AdminMoviesPage'
 import { AdminOverviewPage } from '@/pages/admin/AdminOverviewPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
+import { ActivityPage } from '@/pages/ActivityPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MoviePage } from '@/pages/MoviePage'
 import { MoviesPage } from '@/pages/MoviesPage'
@@ -36,6 +37,7 @@ function App() {
                 <Route element={<AppLayout />}>
                     <Route path="/" element={<MoviesPage />} />
                     <Route path="/movies/:uuid" element={<MoviePage />} />
+                    <Route path="/activity" element={<ActivityPage />} />
                     <Route path="/watch-logs" element={<WatchLogsPage />} />
                     <Route path="/watchlist" element={<WatchlistPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  *
  * <p>The handlers are grouped by the status they return, and within each
  * group the exceptions of this application come before those of the
- * framework, which act as the fallbacks. The order is for readers only:
+ * framework, which act as the fallbacks. The order is for the eye only:
  * Spring selects a handler by how closely its type matches the thrown
  * exception, never by where it appears in this file.</p>
  */

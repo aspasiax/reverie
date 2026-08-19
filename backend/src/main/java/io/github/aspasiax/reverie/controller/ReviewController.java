@@ -50,6 +50,29 @@ public class ReviewController {
     private final IReviewService reviewService;
 
     /**
+     * Returns a page of the most recent reviews written by anyone.
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of reviews from across the catalogue
+     */
+    @Operation(
+            summary = "Get recent reviews",
+            description = "Returns a page of the reviews most recently written by anyone, newest first."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reviews retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
+    @GetMapping
+    @PreAuthorize("hasAuthority('REVIEW_READ')")
+    public ResponseEntity<PageResponse<ReviewResponse>> findRecentReviews(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(reviewService.findRecentReviews(pageable));
+    }
+
+    /**
      * Returns a page of the reviews written for a film.
      *
      * @param movieUuid the movie UUID

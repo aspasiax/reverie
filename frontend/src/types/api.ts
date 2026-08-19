@@ -172,6 +172,8 @@ export interface Review {
     uuid: string
     userUuid: string
     username: string
+    displayName: string
+    profileImageUrl: string | null
     movieUuid: string
     movieTitle: string
     posterPath: string | null

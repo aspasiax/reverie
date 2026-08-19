@@ -155,8 +155,9 @@ class ReviewServiceImplTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(reviewMapper.toResponse(any(Review.class))).thenReturn(
                 new ReviewResponse(
-                        UUID.randomUUID(), userUuid, "alex", movieUuid, "Arrival",
-                        null, 8, null, Instant.now(), Instant.now()
+                        UUID.randomUUID(), userUuid, "alex", "Alex", null,
+                        movieUuid, "Arrival", null, 8, null,
+                        Instant.now(), Instant.now()
                 )
         );
 

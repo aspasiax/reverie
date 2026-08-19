@@ -15,6 +15,14 @@ import java.util.UUID;
 public interface IReviewService {
 
     /**
+     * Returns a page of the most recent reviews written by anyone.
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of reviews from across the catalogue
+     */
+    PageResponse<ReviewResponse> findRecentReviews(Pageable pageable);
+
+    /**
      * Returns all active reviews for a movie.
      *
      * @param movieUuid the movie UUID

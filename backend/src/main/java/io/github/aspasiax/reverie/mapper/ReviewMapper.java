@@ -26,6 +26,8 @@ public class ReviewMapper {
                 review.getUuid(),
                 review.getUser().getUuid(),
                 review.getUser().getUsername(),
+                review.getUser().getDisplayName(),
+                review.getUser().getProfileImageUrl(),
                 review.getMovie().getUuid(),
                 review.getMovie().getTitle(),
                 review.getMovie().getPosterPath(),

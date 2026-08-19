@@ -75,6 +75,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Double findAverageRatingGivenBy(@Param("userUuid") UUID userUuid);
 
     /**
+     * Returns a page of active reviews from across the catalogue.
+     *
+     * <p>Reviews of unpublished films are left out. A draft does not appear
+     * in the catalogue, so a review of one must not appear either: following
+     * it would lead to a film the reader is not allowed to open.</p>
+     *
+     * @param pageable the requested page and sort order
+     * @return a page of reviews written for published films
+     */
+    @Query("""
+            SELECT r FROM Review r
+            WHERE r.deleted = FALSE
+              AND r.movie.deleted = FALSE
+              AND r.movie.published = TRUE
+            """)
+    Page<Review> findAllPublished(Pageable pageable);
+
+    /**
      * Counts the records that have not been deleted.
      *
      * @return how many active records exist

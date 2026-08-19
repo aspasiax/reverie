@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Eye, Trash2 } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
 import { tmdbImage } from '@/lib/images'
+import { dayLabel, monthLabel } from '@/lib/dates'
 import { watchLogsQuery } from '@/lib/watchLogs'
 import type { WatchLog } from '@/types/api'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -12,32 +13,6 @@ interface MonthGroup {
     key: string
     label: string
     logs: WatchLog[]
-}
-
-/**
- * Names a month the way it is read, from the {@code YYYY-MM} it is keyed by.
- *
- * @param month the month key
- * @returns the month and year in the reader's own format
- */
-function monthLabel(month: string): string {
-    return new Date(`${month}-01T00:00:00`).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-    })
-}
-
-/**
- * Names a day within a month that has already been named.
- *
- * @param date the recorded date
- * @returns the weekday and the day of the month
- */
-function dayLabel(date: string): string {
-    return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
-        weekday: 'long',
-        day: 'numeric',
-    })
 }
 
 /**

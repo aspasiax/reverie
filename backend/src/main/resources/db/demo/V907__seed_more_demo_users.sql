@@ -1,10 +1,10 @@
 -- =========================================================
--- V907: Seed more demo readers
+-- V907: Seed more demo users
 -- =========================================================
 -- Adds six further demonstration accounts, together with the
 -- films they watched and what they thought of them.
 --
--- Three readers were enough to show that the application works.
+-- Three users were enough to show that the application works.
 -- They were not enough to show what it is for: their tastes
 -- barely overlapped, so almost every film carried a single
 -- rating, and a single rating has no distribution, no
@@ -18,7 +18,7 @@
 --     user and film
 --   * no user reviews the same film twice
 --
--- Some readers also log films they never reviewed, so a watch
+-- Some users also log films they never reviewed, so a watch
 -- history does not read as a list of reviews with the text
 -- removed.
 --
@@ -35,7 +35,7 @@
 
 
 -- =========================================================
--- Readers
+-- Users
 -- =========================================================
 
 INSERT INTO users (

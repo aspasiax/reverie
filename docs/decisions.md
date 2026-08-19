@@ -208,6 +208,28 @@ The cost is an extra indexed column on every table and an additional lookup
 by UUID rather than by primary key. For an application of this size the
 trade is clearly worth it.
 
+## A reader in prose, a user in the schema
+
+The table, the entity, the endpoints and every parameter are called `user`.
+Comments and interface text call the same person a reader.
+
+The two words answer different questions. `users` is what the row is called,
+and it stays that way because renaming it would touch a schema, an API and a
+hundred parameter names for no gain. A reader is what the person is, and it
+is already the word the interface uses when it says how you appear to other
+readers. A film journal has readers the way a shop has customers rather than
+records.
+
+The rule is mechanical enough to apply without deciding each time: if the
+word names a table, a class or a parameter it is `user`; if it describes the
+human being it is a reader. `V907__seed_more_demo_users.sql` fills the users
+table, and its comments explain what six readers disagree about.
+
+One use is deliberately given up. Nothing in this project calls the person
+reading the source code a reader, because that meaning would collide with the
+other one inside the same files, and a word that means two things in one
+codebase means neither.
+
 ## Stateless authentication with JWT
 
 The API keeps no session state. Each request carries a signed token that
