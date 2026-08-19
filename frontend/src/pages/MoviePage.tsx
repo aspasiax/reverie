@@ -6,6 +6,7 @@ import type { Movie, Page, Review } from '@/types/api'
 import { tmdbImage } from '@/lib/images'
 import { useAuth } from '@/auth/AuthContext'
 import { GenreIcon } from '@/components/GenreIcon'
+import { RatingDistribution } from '@/components/RatingDistribution'
 import { ReviewEditor } from '@/components/ReviewEditor'
 import { WatchActions } from '@/components/WatchActions'
 import { WatchlistButton } from '@/components/WatchlistButton'
@@ -209,6 +210,16 @@ export function MoviePage() {
                         </span>
                     )}
                 </h2>
+                
+                {movie.ratingCount > 0 && reviews !== undefined && (
+                    <RatingDistribution
+                        ratings={reviews.content
+                            .map((review) => review.rating)
+                            .filter((rating) => rating !== null)}
+                        total={movie.ratingCount}
+                        average={movie.averageRating}
+                    />
+                )}
 
                 {/* The user's own review, or the form to write one. */}
                 {uuid !== undefined && reviews !== undefined && (

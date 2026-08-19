@@ -288,12 +288,12 @@ over() { curl -s -H "Authorization: Bearer $ADMIN" $API/api/statistics | json "p
 
 check "user cannot read the overview" "403" "$(code -H "Authorization: Bearer $ALEX" $API/api/statistics)"
 check "admin reads the overview"      "200" "$(code -H "Authorization: Bearer $ADMIN" $API/api/statistics)"
-check "four accounts"                 "4"   "$(over users)"
+check "ten accounts"                  "10"  "$(over users)"
 check "twenty four films published"   "24"  "$(over publishedFilms)"
 check "no drafts"                     "0"   "$(over unpublishedFilms)"
 check "twelve genres"                 "12"  "$(over genres)"
-check "fifteen reviews"               "15"  "$(over reviews)"
-check "twenty five viewings"          "25"  "$(over viewings)"
+check "ninety five reviews"           "95"  "$(over reviews)"
+check "116 viewings"                  "116" "$(over viewings)"
 check "ten watchlist entries"         "10"  "$(over watchlistEntries)"
 check "interstellar leads"            "Interstellar" "$(curl -s -H "Authorization: Bearer $ADMIN" $API/api/statistics | json "print(json.load(sys.stdin)['mostWatchedFilm']['name'])")"
 
