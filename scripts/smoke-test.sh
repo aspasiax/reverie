@@ -266,13 +266,19 @@ setFav() {
 myFav()     { curl -s -H "Authorization: Bearer $ALEX" $API/api/users/me       | json "f=json.load(sys.stdin)['favouriteMovie'];print(f['title'] if f else None)"; }
 publicFav() { curl -s -H "Authorization: Bearer $EMMA" $API/api/users/$ALEX_UUID | json "f=json.load(sys.stdin)['favouriteMovie'];print(f['title'] if f else None)"; }
 
+# What alex already had, put back at the end. The demo dataset gives him a
+# favourite now, and a test that leaves the data poorer than it found it is
+# a test you can only run once.
+ALEX_FAV=$(curl -s -H "Authorization: Bearer $ALEX" $API/api/users/me | json "f=json.load(sys.stdin)['favouriteMovie'];print(repr(f['uuid']) if f else None)")
+
 check "an unwatched film is refused"   "400" "$(setFav "'$GOODFELLAS'")"
 check "an unknown film is not found"   "404" "$(setFav "'00000000-0000-0000-0000-000000000000'")"
 check "a watched film is accepted"     "200" "$(setFav "'$SHAWSHANK'")"
 check "it comes back on the profile"   "The Shawshank Redemption" "$(myFav)"
 check "other readers can see it"       "The Shawshank Redemption" "$(publicFav)"
-check "cleanup clears the favourite"   "200"  "$(setFav None)"
-check "the profile shows none again"   "None" "$(myFav)"
+check "naming none clears it"          "200"  "$(setFav None)"
+check "the profile shows none"         "None" "$(myFav)"
+check "cleanup restores the original"  "200"  "$(setFav "$ALEX_FAV")"
 
 # ---------- Overview ----------
 echo ""
