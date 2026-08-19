@@ -113,7 +113,7 @@ export function ActivityPage() {
 
                                         {review.rating !== null && (
                                             <span className="ml-2 inline-flex items-center gap-1 align-middle">
-                                                <Star className="size-3.5 fill-current text-yellow-500" />
+                                                <Star className="size-3.5 fill-current text-yellow-600 dark:text-yellow-500" />
                                                 {review.rating}
                                             </span>
                                         )}

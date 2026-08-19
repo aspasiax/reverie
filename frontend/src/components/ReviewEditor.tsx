@@ -89,7 +89,7 @@ export function ReviewEditor({ movieUuid, existing }: ReviewEditorProps) {
 
                 {existing.rating !== null && (
                     <p className="mt-1 inline-flex items-center gap-1 text-sm">
-                        <Star className="size-4 fill-current text-yellow-500" />
+                        <Star className="size-4 fill-current text-yellow-600 dark:text-yellow-500" />
                         {existing.rating}
                     </p>
                 )}
@@ -125,7 +125,7 @@ export function ReviewEditor({ movieUuid, existing }: ReviewEditorProps) {
                         <Star
                             className={
                                 rating !== null && value <= rating
-                                    ? 'size-5 fill-current text-yellow-500'
+                                    ? 'size-5 fill-current text-yellow-600 dark:text-yellow-500'
                                     : 'size-5 text-muted-foreground'
                             }
                         />

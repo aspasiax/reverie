@@ -39,7 +39,7 @@ export function ReviewCard({ review }: { review: Review }) {
 
                     {review.rating !== null && (
                         <span className="inline-flex shrink-0 items-center gap-1 text-sm">
-                            <Star className="size-4 fill-current text-yellow-500" />
+                            <Star className="size-4 fill-current text-yellow-600 dark:text-yellow-500" />
                             {review.rating}
                         </span>
                     )}

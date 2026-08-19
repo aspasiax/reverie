@@ -259,7 +259,7 @@ export function MoviesPage() {
                                             to={`/movies/${movie.uuid}`}
                                             className="group block space-y-2.5"
                                         >
-                                            <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-white/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60">
+                                            <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-black/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60 dark:ring-white/5">
                                                 {tmdbImage(movie.posterPath, 'w342') !== null ? (
                                                     <img
                                                         src={tmdbImage(movie.posterPath, 'w342')!}
@@ -275,7 +275,7 @@ export function MoviesPage() {
 
                                                 {movie.ratingCount > 0 && (
                                                     <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/80 px-2 py-0.5 text-xs font-medium backdrop-blur-sm">
-                                                        <Star className="size-3 fill-current text-yellow-500" />
+                                                        <Star className="size-3 fill-current text-yellow-600 dark:text-yellow-500" />
                                                         {movie.averageRating.toFixed(1)}
                                                     </span>
                                                 )}

@@ -1,12 +1,21 @@
 <!doctype html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reverie</title>
-    <meta name="description" content="A journal for the films you watch." />
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverie</title>
+  <meta name="description" content="A journal for the films you watch." />
+  <script>
+    // Runs before anything is painted, so a reader who chose the light
+    // theme never sees the dark one flash first. Dark stays the default:
+    // the interface was designed for it, and a system preference is not
+    // a request for an appearance this application has to prove itself in.
+    if (localStorage.getItem('reverie-theme') === 'light') {
+      document.documentElement.classList.remove('dark')
+    }
+  </script>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

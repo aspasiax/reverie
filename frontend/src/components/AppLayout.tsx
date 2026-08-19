@@ -3,6 +3,7 @@ import { Clapperboard, LogOut } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { TmdbAttribution } from '@/components/TmdbAttribution'
 import { ADMIN_CAPABILITIES } from '@/lib/capabilities'
 
@@ -71,6 +72,7 @@ export function AppLayout() {
                     </nav>
 
                     <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+                        <ThemeToggle />
                         <NavLink
                             to="/profile"
                             className={({ isActive }) =>

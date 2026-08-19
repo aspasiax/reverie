@@ -4,18 +4,19 @@ import { cn } from '@/lib/utils'
 /**
  * The colours an account can be given.
  *
- * Chosen to sit on a dark background and to carry white text, so the
- * initial stays legible whichever one an account lands on.
+ * Deliberately dark enough to carry white text: every one of these clears
+ * 5:1 against the initial it holds, so the mark stays legible in both
+ * appearances rather than only against a dark page.
  */
 const palette = [
-    '#E11D48',
-    '#F97316',
-    '#F59E0B',
-    '#10B981',
-    '#0EA5E9',
-    '#6366F1',
-    '#A855F7',
-    '#EC4899',
+    '#BE123C',
+    '#C2410C',
+    '#B45309',
+    '#047857',
+    '#0369A1',
+    '#4338CA',
+    '#7E22CE',
+    '#BE185D',
 ]
 
 /**

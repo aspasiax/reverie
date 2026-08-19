@@ -39,7 +39,7 @@ export function RatingDistribution({ ratings, total, average }: RatingDistributi
         <div className="flex items-end gap-5 rounded-lg border p-4">
             <div className="shrink-0">
                 <p className="flex items-center gap-1.5 text-3xl font-semibold leading-none">
-                    <Star className="size-5 fill-current text-yellow-500" />
+                    <Star className="size-5 fill-current text-yellow-600 dark:text-yellow-500" />
                     {average.toFixed(1)}
                 </p>
 

@@ -89,7 +89,7 @@ export function WatchlistPage() {
                                     to={`/movies/${item.movieUuid}`}
                                     className="block space-y-2.5"
                                 >
-                                    <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-white/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60">
+                                    <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted ring-1 ring-black/5 transition duration-200 group-hover:ring-2 group-hover:ring-primary/60 dark:ring-white/5">
                                         {tmdbImage(item.posterPath, 'w342') !== null ? (
                                             <img
                                                 src={tmdbImage(item.posterPath, 'w342')!}

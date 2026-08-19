@@ -115,7 +115,7 @@ export function MoviePage() {
                   */}
                 <section className="relative -mt-20 flex flex-col gap-6 sm:-mt-24 sm:flex-row">
                     <div className="w-36 shrink-0 sm:w-44">
-                        <div className="aspect-[2/3] overflow-hidden rounded-lg bg-muted shadow-2xl ring-1 ring-white/10">
+                        <div className="aspect-[2/3] overflow-hidden rounded-lg bg-muted shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
                             {tmdbImage(movie.posterPath, 'w342') !== null ? (
                                 <img
                                     src={tmdbImage(movie.posterPath, 'w342')!}
@@ -154,7 +154,7 @@ export function MoviePage() {
                         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                             {movie.ratingCount > 0 && (
                                 <span className="inline-flex items-center gap-1">
-                                    <Star className="size-4 fill-current text-yellow-500" />
+                                    <Star className="size-4 fill-current text-yellow-600 dark:text-yellow-500" />
                                     <span className="font-medium text-foreground">
                                         {movie.averageRating.toFixed(1)}
                                     </span>
@@ -249,7 +249,7 @@ export function MoviePage() {
 
                                 {review.rating !== null && (
                                     <span className="inline-flex items-center gap-1 text-sm">
-                                        <Star className="size-4 fill-current text-yellow-500" />
+                                        <Star className="size-4 fill-current text-yellow-600 dark:text-yellow-500" />
                                         {review.rating}
                                     </span>
                                 )}
