@@ -24,12 +24,13 @@ services:
     volumes:
       - reverie-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U ${PG_USER:-reverie_user} -d ${PG_DB:-reverie_db}
+      # A bare string is run through a shell, which is exactly what writing
+      # CMD-SHELL in front of it means.
+      test: pg_isready -U ${PG_USER:-reverie_user} -d ${PG_DB:-reverie_db}
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   backend:
     build: ./backend

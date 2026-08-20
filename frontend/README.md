@@ -56,34 +56,44 @@ building again rather than restarting anything.
 ```
 src/
 ├── auth/
-│   └── AuthContext.tsx     Signed in user, sign in and sign out
+│   └── AuthContext.tsx        Signed in user, sign in and sign out
 ├── components/
-│   ├── ui/                 shadcn/ui primitives
-│   ├── AppLayout.tsx       Header, navigation, the shell every screen shares
-│   ├── ProtectedRoute.tsx  Guards everything behind the sign in wall
-│   ├── AdminRoute.tsx      Guards the administration area
-│   ├── GenreEditor.tsx     Create and edit dialogs
-│   ├── MovieEditor.tsx
-│   ├── ReviewEditor.tsx     Writing, changing and removing your own review
-│   ├── ReviewCard.tsx       One review, shown as a row about its film
-│   ├── UserStatistics.tsx   What someone has watched and written, in numbers
-│   ├── WatchActions.tsx     Recording a viewing and the viewing history
-│   ├── WatchActions.tsx    Recording a viewing and the viewing history
-│   └── TmdbAttribution.tsx
-│   ├── WatchActions.tsx    Recording a viewing and the viewing history
-│   ├── WatchlistButton.tsx Adding a film to the watchlist and taking it off
-│   └── TmdbAttribution.tsx
+│   ├── ui/                    shadcn/ui primitives
+│   ├── AdminRoute.tsx         Guards the administration area
+│   ├── AppLayout.tsx          Header, navigation, the shell every screen shares
+│   ├── Avatar.tsx             An account's image, or its initial on a colour
+│   ├── FavouriteFilm.tsx      The film a reader names as their favourite
+│   ├── FavouriteFilmPicker.tsx  Choosing it from the films already watched
+│   ├── GenreEditor.tsx        Creating and editing a genre
+│   ├── GenreIcon.tsx          The mark that stands for a genre
+│   ├── MovieEditor.tsx        Creating and editing a film
+│   ├── PasswordForm.tsx       Changing the password you sign in with
+│   ├── ProtectedRoute.tsx     Guards everything behind the sign in wall
+│   ├── RatingDistribution.tsx How a film was rated, not only how well
+│   ├── ReviewCard.tsx         One review, shown as a row about its film
+│   ├── ReviewEditor.tsx       Writing, changing and removing your own review
+│   ├── ThemeToggle.tsx        Switching between the light and dark appearance
+│   ├── TmdbAttribution.tsx    The notice TMDB asks to appear
+│   ├── UserStatistics.tsx     What someone has watched and written, in numbers
+│   ├── WatchActions.tsx       Recording a viewing and the viewing history
+│   └── WatchlistButton.tsx    Adding a film to the watchlist and taking it off
 ├── lib/
-│   ├── api.ts              axios instance, token storage, interceptors
-│   ├── capabilities.ts     The permissions the interface reacts to
-│   ├── images.ts           Builds TMDB image addresses
-│   └── utils.ts            Class name helper used by the ui components
+│   ├── api.ts                 axios instance, token storage, interceptors
+│   ├── capabilities.ts        The permissions the interface reacts to
+│   ├── dates.ts               Relative times and the labels a history is read by
+│   ├── genreIcons.ts          The closed set of icons a genre may carry
+│   ├── images.ts              Builds TMDB image addresses
+│   ├── theme.ts               Reading and remembering the chosen appearance
+│   ├── utils.ts               Class name helper used across the interface
+│   └── watchLogs.ts           The viewing history query, shared by two screens
 ├── pages/
-│   ├── admin/              One file per administration screen
-│   └── *.tsx               One file per screen
+│   ├── admin/                 One file per administration screen
+│   └── *.tsx                  One file per screen
 └── types/
-    └── api.ts              The shapes the API sends and receives
+    └── api.ts                 The shapes the API sends and receives
 ```
+
+---
 
 ## How data is fetched
 
@@ -112,9 +122,11 @@ invalidation work.
 | `['reviews', 'movie', uuid]` | Reviews of one film |
 | `['reviews', 'user', uuid]` | Reviews written by one user |
 | `['reviews', 'me']` | Reviews written by the signed in user |
+| `['reviews', 'recent']` | The most recent reviews from everyone |
 | `['watchlist']` | Films the user intends to watch |
 | `['watch-logs']` | The viewing history |
 | `['users']` | Accounts, for administration |
+| `['users', uuid]` | The public profile of one reader |
 | `['users', uuid, 'statistics']` | What a user has watched and written |
 | `['statistics', 'overview']` | The state of the whole application |
 
@@ -135,7 +147,7 @@ change affects and let the server say what the new state is. Recalculating
 a count or a sort order in the browser is a second implementation of a
 rule that already exists on the server, and the two drift.
 
-## Authorisation in the interface
+## Authorization in the interface
 
 The API grants permissions through capabilities such as `MOVIE_CREATE` or
 `USER_DISABLE`, and checks one on every protected endpoint. The signed in
@@ -163,7 +175,9 @@ the API, which answers `403` whatever the interface believes.
 /register           create an account
 /                   the catalogue          ┐
 /movies/:uuid       one film               │
-/watchlist          films to watch         │ ProtectedRoute
+/activity           what everyone has been │
+                    watching lately        │ ProtectedRoute
+/watchlist          films to watch         │
 /watch-logs         viewing history        │
 /my-reviews         reviews written        │
 /profile            the signed in user     │

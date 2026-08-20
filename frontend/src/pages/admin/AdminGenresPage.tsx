@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2, Undo2 } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { api, errorMessage } from '@/lib/api'
+import { genresQuery } from '@/lib/genres'
 import type { Genre } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { GenreEditor } from '@/components/GenreEditor'
@@ -15,12 +16,6 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { GenreIcon } from '@/components/GenreIcon'
-
-/** Retrieves every active genre, ordered alphabetically by the server. */
-async function fetchGenres() {
-    const { data } = await api.get<Genre[]>('/api/genres')
-    return data
-}
 
 /** Retrieves the genres that were soft deleted and can be restored. */
 async function fetchDeletedGenres() {
@@ -43,10 +38,7 @@ export function AdminGenresPage() {
     const [isEditorOpen, setIsEditorOpen] = useState(false)
     const [confirming, setConfirming] = useState<Genre | null>(null)
 
-    const { data: genres, isPending, isError, error } = useQuery({
-        queryKey: ['genres'],
-        queryFn: fetchGenres,
-    })
+    const { data: genres, isPending, isError, error } = useQuery(genresQuery)
 
     /*
      * The key starts with 'genres', so invalidating that prefix refreshes

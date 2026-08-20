@@ -210,7 +210,7 @@ export function MoviePage() {
                         </span>
                     )}
                 </h2>
-                
+
                 {movie.ratingCount > 0 && reviews !== undefined && (
                     <RatingDistribution
                         ratings={reviews.content

@@ -2,16 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bookmark, BookmarkCheck } from 'lucide-react'
 import { useAuth } from '@/auth/AuthContext'
 import { api, errorMessage } from '@/lib/api'
-import type { Page, WatchlistEntry } from '@/types/api'
+import { watchlistQuery } from '@/lib/watchlist'
 import { Button } from '@/components/ui/button'
-
-/** Retrieves the films the signed in user intends to watch. */
-async function fetchWatchlist() {
-    const { data } = await api.get<Page<WatchlistEntry>>('/api/watchlist', {
-        params: { page: 0, size: 100 },
-    })
-    return data
-}
 
 /**
  * Adds a film to the watchlist, or takes it off again.
@@ -26,8 +18,7 @@ export function WatchlistButton({ movieUuid }: { movieUuid: string }) {
     const { can } = useAuth()
 
     const { data: watchlist } = useQuery({
-        queryKey: ['watchlist'],
-        queryFn: fetchWatchlist,
+        ...watchlistQuery,
         enabled: can('WATCHLIST_READ'),
     })
 

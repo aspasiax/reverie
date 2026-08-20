@@ -3,7 +3,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Search, Star, X } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
-import type { Genre, Movie, MovieSort, Page } from '@/types/api'
+import { genresQuery } from '@/lib/genres'
+import type { Movie, MovieSort, Page } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -38,12 +39,6 @@ function useDebounced<T>(value: T, delay = 300): T {
     }, [value, delay])
 
     return debounced
-}
-
-/** Retrieves the genres offered as filters. */
-async function fetchGenres() {
-    const { data } = await api.get<Genre[]>('/api/genres')
-    return data
 }
 
 /**
@@ -93,10 +88,7 @@ export function MoviesPage() {
     const [search, setSearch] = useState('')
     const debouncedSearch = useDebounced(search)
 
-    const { data: genres } = useQuery({
-        queryKey: ['genres'],
-        queryFn: fetchGenres,
-    })
+    const { data: genres } = useQuery(genresQuery)
 
     const { data, isPending, isError, error } = useQuery({
         queryKey: ['movies', order, debouncedSearch, genre, page],

@@ -42,31 +42,32 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Reverie API")
                         .description("""
-                            REST API for Reverie, a movie tracking application.
-                        
-                            Reverie allows users to:
-                        
-                            • Discover movies
-                            • Keep a personal watch history
-                            • Write and manage movie reviews
-                            • Organize their movie journey
-                            • Authenticate securely using JWT
-                        
-                            ----------------------------------------
-                        
-                            Demo Credentials
-                        
-                            Administrator
-                            • Email: admin@reverie.com
-                            • Password: Admin123!
-                        
-                            Regular User
-                            • Email: emma@reverie.com
-                            • Password: User123!
-                        
-                            Use one of the accounts above to authenticate,
-                            obtain a JWT access token and test the secured endpoints.
-                            """)
+                                REST API for Reverie, a movie tracking application.
+
+                                Reverie allows users to:
+
+                                • Discover movies
+                                • Keep a list of films they mean to watch
+                                • Keep a personal watch history
+                                • Write and manage movie reviews
+                                • Organize their movie journey
+                                • Authenticate securely using JWT
+
+                                ----------------------------------------
+
+                                Demo Credentials
+
+                                Administrator
+                                • Email: admin@reverie.com
+                                • Password: Admin123!
+
+                                Regular User
+                                • Email: emma@reverie.com
+                                • Password: User123!
+
+                                Use one of the accounts above to authenticate,
+                                obtain a JWT access token and test the secured endpoints.
+                                """)
                         .version("1.0.0"))
                 .components(
                         new Components()

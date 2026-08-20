@@ -88,8 +88,8 @@ export function UserPage() {
                         <FavouriteFilm film={user.favouriteMovie} />
                     )}
 
-
                     <UserStatistics uuid={user.uuid} />
+
                     {reviews !== undefined && reviews.totalElements > 0 && (
                         <section className="space-y-3">
                             <h2 className="text-lg font-medium">

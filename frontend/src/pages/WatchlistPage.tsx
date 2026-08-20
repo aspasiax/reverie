@@ -2,17 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Bookmark, X } from 'lucide-react'
 import { api, errorMessage } from '@/lib/api'
-import type { Page, WatchlistEntry } from '@/types/api'
+import { watchlistQuery } from '@/lib/watchlist'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { tmdbImage } from '@/lib/images'
-
-/** Retrieves the films the signed in user intends to watch. */
-async function fetchWatchlist() {
-    const { data } = await api.get<Page<WatchlistEntry>>('/api/watchlist', {
-        params: { page: 0, size: 100 },
-    })
-    return data
-}
 
 /**
  * The films the signed in user intends to watch, most recently added
@@ -25,10 +17,7 @@ async function fetchWatchlist() {
 export function WatchlistPage() {
     const queryClient = useQueryClient()
 
-    const { data, isPending, isError, error } = useQuery({
-        queryKey: ['watchlist'],
-        queryFn: fetchWatchlist,
-    })
+    const { data, isPending, isError, error } = useQuery(watchlistQuery)
 
     const remove = useMutation({
         mutationFn: (uuid: string) => api.delete(`/api/watchlist/${uuid}`),

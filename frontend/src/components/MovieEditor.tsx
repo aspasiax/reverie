@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, errorMessage } from '@/lib/api'
-import type { Genre, Movie } from '@/types/api'
+import { genresQuery } from '@/lib/genres'
+import type { Movie } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,12 +24,6 @@ interface MovieEditorProps {
     onOpenChange: (open: boolean) => void
     /** The film being changed, or null when creating a new one. */
     existing: Movie | null
-}
-
-/** Retrieves the genres offered for selection. */
-async function fetchGenres() {
-    const { data } = await api.get<Genre[]>('/api/genres')
-    return data
 }
 
 /** Turns a blank field into null, which is what the API expects for absent values. */
@@ -73,10 +68,7 @@ export function MovieEditor({ open, onOpenChange, existing }: MovieEditorProps) 
         existing?.genres.map((genre) => genre.uuid) ?? [],
     )
 
-    const { data: genres } = useQuery({
-        queryKey: ['genres'],
-        queryFn: fetchGenres,
-    })
+    const { data: genres } = useQuery(genresQuery)
 
     const save = useMutation({
         mutationFn: () => {
