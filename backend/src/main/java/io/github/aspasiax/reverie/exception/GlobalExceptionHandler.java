@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -451,6 +452,34 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(
                 HttpStatus.NOT_FOUND,
                 "The requested endpoint does not exist.",
+                request.getRequestURI()
+        );
+    }
+
+
+    // 405 Method Not Allowed
+
+    /**
+     * Handles requests that reach a known address with the wrong verb.
+     *
+     * <p>Without this the request falls through to the handler of last
+     * resort and is reported as a fault of the server, which it is not:
+     * nothing failed, the caller asked for something the address does not
+     * offer. The distinction matters to anyone reading the API through
+     * Swagger, where the verb is the first thing they get wrong.</p>
+     *
+     * @param exception the unsupported method exception
+     * @param request   the current HTTP request
+     * @return a {@code 405 Method Not Allowed} response
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException exception,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                exception.getMessage(),
                 request.getRequestURI()
         );
     }

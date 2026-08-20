@@ -37,7 +37,7 @@ VALUES
 
     (gen_random_uuid(), 'Crime',
      'Stories centred on offences, investigations and the people behind them.',
-     'fingerprint', '#64748B', NOW(), NOW(), FALSE),
+     'fingerprint-pattern', '#64748B', NOW(), NOW(), FALSE),
 
     (gen_random_uuid(), 'Drama',
      'Character driven stories focused on emotional and personal conflict.',

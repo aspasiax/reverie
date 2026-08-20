@@ -1,5 +1,5 @@
 -- =========================================================
--- V24: Add the favourite movie to users
+-- V23: Add the favourite movie to users
 -- =========================================================
 -- Lets a user name one film as their favourite, shown on
 -- their profile for anyone who visits it.

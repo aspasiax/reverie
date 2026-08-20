@@ -27,7 +27,6 @@ export type Capability =
     | 'WATCHLIST_CREATE'
     | 'WATCHLIST_DELETE'
     | 'USER_READ'
-    | 'USER_CREATE'
     | 'USER_UPDATE'
     | 'USER_DISABLE'
     | 'STATISTICS_READ'
