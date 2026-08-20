@@ -20,7 +20,7 @@ starts with one command.
 - [Build and deploy](#build-and-deploy) — what actually happens
 - [Running without Docker](#running-without-docker)
 - [Demo accounts](#demo-accounts)
-- [Verifying the API](#verifying-the-api)
+- [Verifying it works](#verifying-it-works)
 - [Project structure](#project-structure)
 - [How it is put together](#how-it-is-put-together)
 - [Troubleshooting](#troubleshooting)
@@ -76,23 +76,19 @@ refuses it regardless.
 PostgreSQL.
 
 ```bash
-git clone https://github.com/aspasiax/reverie.git
-cd reverie
-cp .env.example .env
-```
-
-Open `.env` and set two values:
-
-```bash
 PG_PASSWORD=any-password-you-like
-JWT_SECRET=a-long-random-string
+JWT_SECRET=paste-the-output-of-the-command-below
 ```
 
-Generate the signing key with:
+The signing key is read as Base64 and has to decode to at least 32 bytes.
+Anything shorter is refused on startup, so generate it rather than invent
+it:
 
 ```bash
 openssl rand -base64 48
 ```
+
+---
 
 Then:
 
@@ -192,7 +188,7 @@ records what is needed.
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `JWT_SECRET` | **yes** | — | Signing key for access tokens, at least 32 characters |
+| `JWT_SECRET` | **yes** | — | Base64 signing key for access tokens, decoding to at least 32 bytes |
 | `PG_PASSWORD` | **yes** | — | Database password |
 | `JWT_EXPIRATION_MS` | no | `3600000` | Token lifetime in milliseconds |
 | `PG_DB` | no | `reverie_db` | Database name |
@@ -277,21 +273,42 @@ Loaded by the `dev` profile, which is what `compose.yaml` activates.
 | `alex@reverie.com` | `User123!` | USER |
 | `emma@reverie.com` | `User123!` | USER |
 | `daniel@reverie.com` | `User123!` | USER |
+| `nora@reverie.com` | `User123!` | USER |
+| `theo@reverie.com` | `User123!` | USER |
+| `iris@reverie.com` | `User123!` | USER |
+| `milo@reverie.com` | `User123!` | USER |
+| `ruth@reverie.com` | `User123!` | USER |
+| `sam@reverie.com` | `User123!` | USER |
 
-The dataset contains 12 genres, 24 films, 25 recorded viewings, 15
-reviews and 10 watchlist entries spread across the three regular
-accounts, so the application has something to show the moment it opens.
+The dataset contains 12 genres, 24 films, 116 recorded viewings, 95 reviews
+and 10 watchlist entries spread across the nine regular accounts, so the
+application has something to show the moment it opens. The accounts watch
+the same films as one another on purpose: every film carries between three
+and eight ratings, which is what makes an average worth showing and a
+disagreement visible.
 
-Demonstration data is kept in a separate Flyway location from the schema.
-A deployment that does not activate the `dev` profile never receives
-these accounts, whose passwords are published in this file.
+Demonstration data is kept in a separate Flyway location from the schema,
+so any profile other than `dev` comes up with an empty catalogue and no
+accounts at all. This project ships only the `dev` profile and
+`compose.yaml` activates it deliberately — the point of the deployment is
+to be looked at, and an empty catalogue shows nothing.
 
 ---
 
-## Verifying the API
+## Verifying it works
 
-A smoke test exercises every endpoint, capability check, business rule and
-error response against a running application.
+Two layers, answering different questions.
+
+**Unit tests** hold the rules that can be decided without infrastructure:
+twenty-two of them, no Spring context, no database, a few seconds to run.
+
+```bash
+cd backend
+./gradlew test
+```
+
+**A smoke test** exercises every endpoint, capability check, business rule
+and error response against a running application: 143 checks.
 
 ```bash
 bash scripts/smoke-test.sh
@@ -303,7 +320,10 @@ Against the containerised stack, through the nginx proxy:
 API=http://localhost:3000 bash scripts/smoke-test.sh
 ```
 
-It runs 128 checks and leaves the database exactly as it found it.
+It reads back whatever it is about to overwrite and puts it back when it is
+done, so running it twice is the same as running it once.
+
+See [backend/README.md](backend/README.md) for what belongs in which layer.
 
 ---
 
@@ -327,9 +347,11 @@ reverie/
 │   │   ├── pages/        One file per screen
 │   │   └── types/        Shapes shared with the API
 │   ├── nginx.conf        Static serving and the API proxy
-│   └── Dockerfile
+│   ├── Dockerfile
+│   └── README.md         Interface specific documentation
 ├── docs/
-│   └── decisions.md      Why the project is built the way it is
+│   ├── decisions.md      Why the project is built the way it is
+│   └── database.md       The schema, its indexes and its diagram
 ├── scripts/
 │   └── smoke-test.sh     End to end verification
 ├── compose.yaml
