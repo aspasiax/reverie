@@ -7,7 +7,6 @@ import io.github.aspasiax.reverie.dto.watchlog.WatchLogResponse;
 import io.github.aspasiax.reverie.exception.MovieNotFoundException;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.UUID;
 
 /**

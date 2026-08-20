@@ -46,6 +46,7 @@ public class WatchLogController {
     /**
      * Returns the authenticated user's active watch logs.
      *
+     * @param pageable the requested page and sort order
      * @return the authenticated user's watch history
      */
     @Operation(

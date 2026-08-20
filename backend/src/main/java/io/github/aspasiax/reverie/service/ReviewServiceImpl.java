@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -61,14 +60,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Returns all active reviews for a specific movie.
-     *
-     * <p>The reviews are returned from newest to oldest.</p>
-     *
-     * @param movieUuid the UUID of the movie
-     * @return the active reviews associated with the movie
-     * @throws MovieNotFoundException if the movie does not exist or has
-     *                                been soft deleted
+     * {@inheritDoc}
      */
     @Override
     public PageResponse<ReviewResponse> findMovieReviews(
@@ -85,14 +77,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Returns all active reviews written by a user.
-     *
-     * <p>The reviews are returned from newest to oldest.</p>
-     *
-     * @param userUuid the public user identifier
-     * @param pageable the requested page and sort order
-     * @return the user's active reviews
-     * @throws UserNotFoundException if no such user exists
+     * {@inheritDoc}
      */
     @Override
     public PageResponse<ReviewResponse> findUserReviews(
@@ -117,11 +102,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Returns all active reviews created by the authenticated user.
-     *
-     * <p>The reviews are returned from newest to oldest.</p>
-     *
-     * @return the authenticated user's active reviews
+     * {@inheritDoc}
      */
     @Override
     public PageResponse<ReviewResponse> findMyReviews(Pageable pageable) {
@@ -135,21 +116,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Creates a new review for a movie.
-     *
-     * <p>The authenticated user must have an active watch log for the
-     * requested movie and must not already have an active review for it.</p>
-     *
-     * @param request the review creation request
-     * @return the newly created review
-     * @throws MovieNotFoundException   if the movie does not exist or has
-     *                                  been soft deleted
-     * @throws InvalidReviewException   if both the rating and review text
-     *                                  are empty
-     * @throws WatchLogRequiredException if the user has not logged the movie
-     *                                   as watched
-     * @throws DuplicateReviewException if the user already has an active
-     *                                  review for the movie
+     * {@inheritDoc}
      */
     @Override
     @Transactional
@@ -189,20 +156,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Updates an existing review.
-     *
-     * <p>Both review fields are replaced by the values included in the
-     * update request. The resulting review must still contain either a
-     * rating or non-blank review text.</p>
-     *
-     * @param reviewUuid the UUID of the review
-     * @param request    the review update request
-     * @return the updated review
-     * @throws ReviewNotFoundException     if the review does not exist or
-     *                                     has been soft deleted
-     * @throws ReviewAccessDeniedException if the review belongs to another
-     *                                     user
-     * @throws InvalidReviewException      if both resulting fields are empty
+     * {@inheritDoc}
      */
     @Override
     @Transactional
@@ -233,17 +187,7 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     /**
-     * Soft deletes an existing review.
-     *
-     * <p>The operation does not physically remove the review from the
-     * database. Instead, it marks the review as deleted using the common
-     * soft-deletion mechanism inherited from {@code AbstractEntity}.</p>
-     *
-     * @param reviewUuid the UUID of the review
-     * @throws ReviewNotFoundException     if the review does not exist or
-     *                                     has been soft deleted
-     * @throws ReviewAccessDeniedException if the review belongs to another
-     *                                     user
+     * {@inheritDoc}
      */
     @Override
     @Transactional
