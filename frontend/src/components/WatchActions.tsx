@@ -202,9 +202,9 @@ export function WatchActions({ movieUuid }: { movieUuid: string }) {
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-between">
-          <span className="text-sm">
-            {log.watchedAt ?? 'Date not recorded'}
-          </span>
+                                        <span className="text-sm">
+                                            {log.watchedAt ?? 'Date not recorded'}
+                                        </span>
                                         <div className="flex gap-1">
                                             <Button
                                                 variant="ghost"

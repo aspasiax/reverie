@@ -24,12 +24,6 @@ export interface Page<T> {
 
 // Authentication
 
-/** Credentials submitted to the login endpoint. */
-export interface LoginRequest {
-    email: string
-    password: string
-}
-
 /** The token returned after a successful sign in. */
 export interface AuthResponse {
     accessToken: string
