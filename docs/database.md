@@ -29,6 +29,7 @@ erDiagram
     movies ||--o{ watch_logs : "is watched in"
     movies ||--o{ reviews : "is reviewed in"
     movies ||--o{ watchlist_entries : "is planned in"
+    movies |o--o{ users : "is the favourite of"
 
     roles {
         bigint id PK
@@ -54,6 +55,7 @@ erDiagram
         varchar email UK
         varchar password
         bigint role_id FK
+        bigint favourite_movie_id FK
         boolean enabled
         boolean deleted
     }
@@ -118,7 +120,7 @@ deleted, which is explained further down.
 
 ## What is in it
 
-Eleven tables in three groups, plus the one Flyway keeps for itself.
+Ten tables in three groups, plus the one Flyway keeps for itself.
 
 ### Reference data
 
@@ -217,16 +219,20 @@ than removed. It matters in the one place where a real deletion exists:
 destroying a genre that has already been withdrawn also removes its links
 to films, and nothing is left pointing at a row that is gone.
 
-One key deliberately does not cascade:
-
 ```
 users → roles                           NO ACTION
+users → movies (favourite_movie_id)     SET NULL
 ```
-
 A role that some account still holds cannot be deleted. Cascading there
 would delete the accounts along with the role, and even failing quietly
-would be wrong: the authorisation model is the last thing that should
+would be wrong: the authorization model is the last thing that should
 disappear by accident.
+The favourite film behaves differently again. Losing a film from the
+catalogue should cost a reader their choice, never their account, so the
+column is emptied rather than the row removed. Films are soft deleted in
+practice, so this almost never fires — but the column that holds a
+favourite is the one place where a reader points at something they do not
+own, and the answer to it disappearing has to be written down somewhere.
 
 ---
 

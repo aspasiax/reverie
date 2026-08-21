@@ -114,15 +114,24 @@ acceptable here because no migration depends on demonstration data.
 
 ## Three response shapes for a user profile
 
-A user profile is returned through two different records. `UserProfileResponse`
-is returned only from `/api/users/me` and includes the email address and the
-assigned role. `UserSummaryResponse` is returned everywhere else and omits
-both.
+A user is returned through three different records, each carrying only what
+its audience is allowed to see. `UserProfileResponse` comes back from
+`/api/users/me` alone and includes the email address, the assigned role and
+the capabilities it grants. `UserSummaryResponse` is what every other reader
+sees, and omits all three. `UserAdminResponse` is the administration
+listing: it carries the role and whether the account is enabled, because
+administration is about exactly those, and it leaves the email address out
+as well.
 
-A single shared DTO would have exposed every user's email address to any
-authenticated caller, simply because the profile endpoint needed it. Two
-shapes cost one extra record and one extra mapper method, and remove the
-possibility of that mistake entirely.
+A single shared record would have exposed every address to any authenticated
+caller, simply because one endpoint needed it. Three shapes cost two extra
+records and two extra mapper methods, and remove the possibility of that
+mistake rather than relying on remembering it.
+
+The administrative shape is the one worth stating twice: an administrator
+can change what an account may do without ever being shown how to contact
+the person behind it. Nothing in the interface needs the address, so nothing
+sends it.
 
 ## Viewings are counted in public, but never listed
 
