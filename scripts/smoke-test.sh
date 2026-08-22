@@ -177,9 +177,14 @@ check "rating above 10 rejected"       "400" "$(code -X POST $API/api/reviews -H
 echo ""
 echo "OWNERSHIP"
 ALEX_REVIEW=$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/me?size=1" | json "print(json.load(sys.stdin)['content'][0]['uuid'])")
+# What the review said before this section rewrote it. Proving that an owner
+# may edit their own review means editing one, and a test that leaves the
+# demonstration data poorer than it found it can only be trusted once.
+ALEX_REVIEW_BEFORE=$(curl -s -H "Authorization: Bearer $ALEX" "$API/api/reviews/me?size=1" | json "r=json.load(sys.stdin)['content'][0];print(json.dumps({'rating':r['rating'],'reviewText':r['reviewText']}))")
 check "owner may edit own review"      "200" "$(code -X PUT $API/api/reviews/$ALEX_REVIEW -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d '{"rating":9,"reviewText":"smoke test"}')"
 check "others may not edit it"         "403" "$(code -X PUT $API/api/reviews/$ALEX_REVIEW -H "Authorization: Bearer $EMMA" -H 'Content-Type: application/json' -d '{"rating":1}')"
 check "others may not delete it"       "403" "$(code -X DELETE $API/api/reviews/$ALEX_REVIEW -H "Authorization: Bearer $EMMA")"
+check "cleanup restores the review"    "200" "$(code -X PUT $API/api/reviews/$ALEX_REVIEW -H "Authorization: Bearer $ALEX" -H 'Content-Type: application/json' -d "$ALEX_REVIEW_BEFORE")"
 
 # ---------- Role management ----------
 echo ""
