@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { api, errorMessage } from '@/lib/api'
+import { joinedLabel } from '@/lib/dates'
 import type { Page, Review, UserSummary } from '@/types/api'
 import { Avatar } from '@/components/Avatar'
 import { FavouriteFilm } from '@/components/FavouriteFilm'
@@ -71,11 +72,7 @@ export function UserPage() {
                                 {user.displayName}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                @{user.username} · joined{' '}
-                                {new Date(user.createdAt).toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'long',
-                                })}
+                                @{user.username} · joined {joinedLabel(user.createdAt)}
                             </p>
                         </div>
                     </div>

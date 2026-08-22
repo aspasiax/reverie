@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Star } from 'lucide-react'
 import type { Review } from '@/types/api'
+import { relativeTime } from '@/lib/dates'
 import { tmdbImage } from '@/lib/images'
 
 /**
@@ -46,7 +47,7 @@ export function ReviewCard({ review }: { review: Review }) {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                    {review.createdAt.slice(0, 10)}
+                    {relativeTime(review.createdAt)}
                 </p>
 
                 {review.reviewText !== null && (

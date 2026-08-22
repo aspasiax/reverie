@@ -1,3 +1,13 @@
+/**
+ * The language every date is written in.
+ *
+ * Fixed rather than taken from the browser. The interface has exactly one
+ * language and no translations, so a date that followed the reader's own
+ * settings would be the single localised thing on an otherwise English
+ * screen — a month heading in Greek above rows of English.
+ */
+const locale = 'en'
+
 /** The units a gap in time is described with, largest first. */
 const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ['year', 365 * 24 * 60 * 60 * 1000],
@@ -9,7 +19,7 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
 ]
 
 /**
- * Says how long ago something happened, in the reader's own language.
+ * Says how long ago something happened.
  *
  * The largest unit that fits is used, because nobody reads a feed wanting
  * to know that something happened fifty one hours ago.
@@ -19,7 +29,7 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
  */
 export function relativeTime(instant: string): string {
     const elapsed = Date.now() - new Date(instant).getTime()
-    const format = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+    const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
 
     for (const [unit, size] of units) {
         if (elapsed >= size) {
@@ -34,10 +44,10 @@ export function relativeTime(instant: string): string {
  * Names a month the way it is read, from the {@code YYYY-MM} it is keyed by.
  *
  * @param month the month key
- * @returns the month and year in the reader's own format
+ * @returns the month and the year, as in "March 2026"
  */
 export function monthLabel(month: string): string {
-    return new Date(`${month}-01T00:00:00`).toLocaleDateString(undefined, {
+    return new Date(`${month}-01T00:00:00`).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'long',
     })
@@ -46,16 +56,29 @@ export function monthLabel(month: string): string {
 /**
  * Names a day within a month that has already been named.
  *
- * <p>The time is fixed at local midnight on purpose. A bare date parses as
+ * The time is fixed at local midnight on purpose. A bare date parses as
  * UTC, which in a western time zone lands on the evening before and shows
- * the wrong weekday.</p>
+ * the wrong weekday.
  *
  * @param date the recorded date
- * @returns the weekday and the day of the month
+ * @returns the weekday and the day of the month, as in "Friday 15"
  */
 export function dayLabel(date: string): string {
-    return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+    return new Date(`${date}T00:00:00`).toLocaleDateString(locale, {
         weekday: 'long',
         day: 'numeric',
+    })
+}
+
+/**
+ * Names the month an account was created in.
+ *
+ * @param instant when the account was created, as the API returns it
+ * @returns the month and the year, as in "March 2026"
+ */
+export function joinedLabel(instant: string): string {
+    return new Date(instant).toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'long',
     })
 }

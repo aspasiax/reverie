@@ -1,20 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { PenLine } from 'lucide-react'
-import { api, errorMessage } from '@/lib/api'
-import type { Page, Review } from '@/types/api'
+import { errorMessage } from '@/lib/api'
+import { myReviewsQuery } from '@/lib/reviews'
 import { buttonVariants } from '@/components/ui/button'
 import { ReviewCard } from '@/components/ReviewCard'
-
-/**
- * Retrieves the reviews written by the authenticated user, newest first.
- */
-async function fetchMyReviews() {
-    const { data } = await api.get<Page<Review>>('/api/reviews/me', {
-        params: { page: 0, size: 50 },
-    })
-    return data
-}
 
 /**
  * The reviews written by the authenticated user.
@@ -24,10 +14,7 @@ async function fetchMyReviews() {
  * around a review live on one screen only.
  */
 export function MyReviewsPage() {
-    const { data, isPending, isError, error } = useQuery({
-        queryKey: ['reviews', 'me'],
-        queryFn: fetchMyReviews,
-    })
+    const { data, isPending, isError, error } = useQuery(myReviewsQuery)
 
     return (
         <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
